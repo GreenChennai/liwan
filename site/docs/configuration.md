@@ -1,19 +1,19 @@
-# Liwan — Configuration Reference
+# Liwan 议事厅 — 配置参考
 
-All runtime configuration for Liwan is driven by `config.yaml` and environment variables. Environment variables take precedence over the config file.
+Liwan 的全部运行时配置由 `config.yaml` 和环境变量驱动。环境变量的优先级高于配置文件。
 
-By default the server looks for `config.yaml` in the process's current working directory. Override the path with `-config` (also accepted as `--config`; Go's flag parser treats both the same), e.g.:
+默认情况下，服务器会在进程的当前工作目录中查找 `config.yaml`。可以使用 `-config`（同样接受 `--config`；Go 的 flag 解析器对两者的处理相同）指定其他路径，例如：
 
 ```sh
 liwan -config /etc/liwan/config.yaml
 ```
 
-Liwan never refuses to start over a config problem — this is deliberate for a zero-config first run, but means a typo'd `-config` path fails silently:
+Liwan 从不因配置问题而拒绝启动 — 这是为了支持零配置的首次运行而有意设计的，但也意味着 `-config` 路径拼写错误时会静默失败：
 
-- **Missing file** (wrong path, typo): silently falls back to built-in defaults — no error, no log line. If a setting doesn't seem to be taking effect, double-check the path first (e.g. `ls -la <path>`).
-- **File present but invalid YAML**: falls back to defaults AND logs `Config error: … — using defaults` on boot.
+- **文件缺失**（路径错误、拼写错误）：静默回退到内置默认值 — 不会报错，也不会输出日志。如果某项设置似乎没有生效，请先检查路径（例如 `ls -la <path>`）。
+- **文件存在但 YAML 无效**：回退到默认值，并在启动时输出 `Config error: … — using defaults` 日志。
 
-The `migrate` subcommand (`liwan migrate up|status`) takes its own `-config` flag, defaulting the same way; it is a separate flag set from the server command, so pass it after `migrate`: `liwan migrate -config /etc/liwan/config.yaml up`.
+`migrate` 子命令（`liwan migrate up|status`）有其自己的 `-config` 标志，默认行为相同；它与服务器命令使用的是独立的标志集，因此需要将其放在 `migrate` 之后传递：`liwan migrate -config /etc/liwan/config.yaml up`。
 
 ---
 
@@ -49,275 +49,133 @@ collab:
   rendezvous_url: ""       # Self-hosted relayd for OS-free P2P collab (see below)
 ```
 
-### `persistence.updatelog` — the CRDT update log
+### `persistence.updatelog` — CRDT 更新日志
 
-Off by default. When `true`, Liwan exposes the per-file **append-only CRDT
-update log** (`POST`/`GET /api/files/:id/updates`) — the durability
-model that supersedes "single blob + 409 compare-and-swap". Every CRDT frame is
-kept (opaque, encrypted-or-plain Yjs / sheet / slide updates), so two clients
-that edited **offline** both converge with nothing discarded. It is **additive**:
-the whole-document PUT keeps working and the frontend dual-writes, so toggling
-this flag never loses a document.
+默认关闭。设置为 `true` 后，Liwan 会开放每个文件的**仅追加 CRDT 更新日志**（`POST`/`GET /api/files/:id/updates`）— 这是取代“单一数据块 + 409 比较并交换”的持久化模型。每个 CRDT 帧都会被保留（不透明的、加密或明文的 Yjs / 表格 / 幻灯片更新），因此两个**离线**编辑的客户端都能收敛，且没有任何内容被丢弃。该功能是**附加性的**：整文档 PUT 仍然可用，前端会双写，因此切换此标志绝不会丢失文档。
 
-**Store backend** follows `storage.type` automatically — no separate setting:
+**存储后端**会自动跟随 `storage.type`，无需单独设置：
 
-| `storage.type` | Update-log backend | Where frames live |
+| `storage.type` | 更新日志后端 | 帧的存放位置 |
 |----------------|--------------------|-------------------|
-| `local` (default) | filesystem `LocalStore` | `<data_dir>/updates/<id>/` |
-| `s3` | filesystem `LocalStore` (fallback) | `<data_dir>/updates/<id>/` |
-| `postgres` | `PostgresStore` (shares the storage pool) | `office.file_updates` + `office.file_update_snapshots` |
+| `local`（默认） | 文件系统 `LocalStore` | `<data_dir>/updates/<id>/` |
+| `s3` | 文件系统 `LocalStore`（回退） | `<data_dir>/updates/<id>/` |
+| `postgres` | `PostgresStore`（与存储连接池共享） | `office.file_updates` + `office.file_update_snapshots` |
 
-The Postgres backend derives its monotonic per-file seq under a
-transaction-scoped **per-file advisory lock** and runs snapshot-upsert + frame
-prune in one transaction. (S3 has no atomic append-with-monotonic-seq primitive,
-so its durable frame log stays on local disk; the whole-doc PUT still writes the
-object copy to the bucket.)
+Postgres 后端通过事务级的**按文件咨询锁**派生单调递增的每文件序号，并在一个事务中完成快照 upsert 和帧清理。（S3 没有原子的“带单调序号的追加”原语，因此其持久帧日志保存在本地磁盘上；整文档 PUT 仍会将对象副本写入存储桶。）
 
-**Quota**: a frame append passes the **same storage-quota gate** as a whole-doc
-PUT, so the log cannot be used to bypass a storage cap (standalone/unlimited →
-no-op).
+**配额**：帧追加与整文档 PUT 经过**相同的存储配额检查**，因此无法借助更新日志绕过存储上限（独立/无限制模式下为空操作）。
 
-**Compaction** is client-driven; the server can only *nudge*. It cannot fold
-opaque CRDT frames into a snapshot itself, so when a file's un-compacted tail
-grows past `updatelog.CompactAdviseThreshold` (default 600) the append response
-returns `compact: true` and the client posts a snapshot. There is no server
-setting to tune here.
+**压缩**由客户端驱动，服务器只能“提示”。服务器无法将不透明的 CRDT 帧折叠为快照，因此当某文件未压缩的尾部超过 `updatelog.CompactAdviseThreshold`（默认 600）时，追加响应会返回 `compact: true`，客户端随后提交快照。此处没有可调的服务器设置。
 
-The frontend only mirrors edits into the log when built with
-`VITE_UPDATE_LOG=on` (Docs, Whiteboard, Sheets, and Slides are all wired);
-without it the server routes still exist but the client keeps using
-whole-document autosave (and self-disables the log path cleanly if the endpoint
-is absent). Enable both together.
+只有在使用 `VITE_UPDATE_LOG=on` 构建时，前端才会将编辑镜像到日志中（文档、白板、表格和幻灯片均已接入）；否则服务器路由依然存在，但客户端会继续使用整文档自动保存（若端点不存在，则会干净地自行禁用日志路径）。两者需同时启用。
 
 ---
 
-### `VITE_SUBSTRATE_SYNC` — run Sheets on the shared substrate engine
+### `VITE_SUBSTRATE_SYNC` — 在共享 substrate 引擎上运行表格
 
-**On by default.** Frontend build flag only; there is no server setting.
+**默认开启。** 这是仅限前端构建的标志；服务器端没有对应设置。
 
-Liwan's Sheets grid ships two interchangeable CRDT implementations:
+Liwan 的表格网格提供两种可互换的 CRDT 实现：
 
-* **on (default)** — `src/lib/crdt/substrateGrid.js`, an LWW
-  register per `substrate/SYNC.md` §4.4 (the spec lives in the `kotva` repo; it
-  is not linked relatively, because building Liwan must never require a sibling
-  checkout) computed by the **shared** KOTVA Sync engine — the published npm
-  package [`@vul-os/kotva-sync`](https://www.npmjs.com/package/@vul-os/kotva-sync),
-  the same compiled core a Rust server runs, rather than a second implementation
-  of the same spec. It was vendored under `third_party/` until the substrate was
-  published; it is an ordinary pinned dependency now, and
-  `src/lib/crdt/__tests__/substratePackageProvenance.test.js` pins both the
-  lockfile's sha512 for the tarball and the SHA-256 of every installed file.
-  `src/lib/crdt/kotvaSync.js` is the loader — the package is a wasm-pack
-  *bundler* build whose entry point cannot be imported under Vitest, so that file
-  instantiates the WebAssembly directly; it re-uses the published wrappers and
-  `.wasm` byte-for-byte and re-implements no algebra.
-* **`VITE_SUBSTRATE_SYNC=off`** — `src/lib/crdt/grid.js`, the hand-rolled LWW
-  map Liwan shipped before the substrate existed. Still supported as a
-  deployment-wide choice; it is a second implementation of the same idea, so two
-  replicas on it converge because that one implementation is self-consistent
-  rather than because they run the shared, vector-pinned algebra.
+* **开启（默认）** — `src/lib/crdt/substrateGrid.js`，即按 `substrate/SYNC.md` §4.4 实现的 LWW 寄存器（规范位于 `kotva` 仓库中；这里不做相对链接，因为构建 Liwan 永远不应依赖同级仓库的检出）。其计算由**共享的** KOTVA Sync 引擎完成 — 即已发布的 npm 包 [`@vul-os/kotva-sync`](https://www.npmjs.com/package/@vul-os/kotva-sync)，与 Rust 服务器运行的编译核心完全相同，而不是对同一规范的第二套实现。该包此前以内置副本的形式放在 `third_party/` 下，直到 substrate 发布后才改为普通的固定版本依赖；`src/lib/crdt/__tests__/substratePackageProvenance.test.js` 会固定锁文件中 tarball 的 sha512 以及每个已安装文件的 SHA-256。`src/lib/crdt/kotvaSync.js` 是加载器 — 该包是 wasm-pack 的*打包器*构建产物，其入口点无法在 Vitest 下导入，因此该文件直接实例化 WebAssembly；它复用已发布的包装器和 `.wasm`（逐字节一致），不重新实现任何代数逻辑。
+* **`VITE_SUBSTRATE_SYNC=off`** — `src/lib/crdt/grid.js`，即 substrate 出现之前 Liwan 一直使用的手写 LWW 映射。作为部署范围内的选择仍然受支持；但它是同一思想的第二套实现，因此两个副本使用它时能够收敛，是因为这一个实现自洽，而不是因为它们运行的是共享的、经向量固定的代数。
 
-Storage and transport are identical on both paths: the same `OpLogSync`
-adapter, the same server update log, the same fabric wire types. Only the merge
-algebra differs.
+两条路径的存储和传输完全相同：相同的 `OpLogSync` 适配器、相同的服务器更新日志、相同的架构线路类型。只有合并代数不同。
 
-**This must be uniform across a deployment.** The two engines are each
-convergent but do not share a total order — `grid.js` resolves a conflicting
-write by `(lamport counter, replicaId)` and ignores wall-clock time, while the
-substrate uses a full HLC `(wall, counter, author)`. For two concurrent writes
-to one cell they can pick different winners, so a build-time flag (rather than a
-per-user rollout) is what keeps every replica on one engine.
+**这在整个部署中必须保持一致。** 两个引擎各自都是收敛的，但并不共享全序：`grid.js` 通过 `(lamport counter, replicaId)` 解决冲突写入，忽略挂钟时间；而 substrate 使用完整的 HLC `(wall, counter, author)`。对于同一单元格的两个并发写入，它们可能选出不同的赢家。因此，构建时标志（而非按用户灰度发布）才能确保每个副本使用同一个引擎。
 
-**And where the flag cannot keep it uniform, Sheets refuses to collaborate
-rather than pretend.** A build-time flag guarantees one engine for one build of
-one deployment, which is not the same as one engine in one *room*. Three
-ordinary situations break it: a tab loaded before you flipped the flag and still
-open; the CommonJS library build, which can never load the `.wasm` and therefore
-always runs `grid.js` (below); and two deployments meeting through one invite
-link. What actually happened in a mixed room was worse than "different winners":
-the two engines share the fabric's message *types* but not their op *payloads*,
-so **nothing crossed at all** — every op was dropped or threw on the other side
-— while both editors kept showing a healthy peer roster and a green "Live".
+**当标志无法保证一致时，表格会拒绝协作，而不是假装可以。** 构建时标志只能保证同一部署的同一构建使用同一引擎，这与同一*房间*中使用同一引擎并不是一回事。以下三种常见情况会破坏一致性：一个在你切换标志之前加载、仍处于打开状态的标签页；CommonJS 库构建（它永远无法加载 `.wasm`，因此总是运行 `grid.js`，见下文）；以及两个部署通过同一个邀请链接相遇。在混合房间中实际发生的情况比“赢家不同”更糟：两个引擎共享架构的消息*类型*，但操作*载荷*不同，因此**什么都没有传过去** — 每个操作在另一端都会被丢弃或抛出异常 — 而两边的编辑器依然显示正常的对等节点列表和绿色的“Live”。
 
-A grid session now advertises its engine on join (`grid_hello`) and, for a peer
-too old to advertise, infers the peer's engine from the *shape* of any op it
-sends. On a mismatch it stops replicating in both directions, permanently for
-that session: no op is sent, none is applied, nothing is appended to the durable
-update log. The status pill turns to a red **"Not syncing"** and a banner tells
-the user their work is still being saved and to reload once everyone is on the
-same build. Local editing and whole-document autosave are untouched. See
-`src/lib/crdt/gridEngine.js` for the reasoning and
-`src/lib/crdt/__tests__/gridEngineHandshake.test.js` for the proof.
+现在，表格会话会在加入时通过 `grid_hello` 公告其所用引擎；对于无法公告的旧版对等节点，则根据其发送的任何操作的*形态*推断其引擎。发现不匹配时，会话将在双向停止复制，并且在该会话期间永久停止：不发送任何操作，不应用任何操作，也不向持久更新日志追加任何内容。状态标识会变为红色的 **“未同步”**，横幅会告知用户其工作仍在保存，并提示所有人使用同一构建后重新加载。本地编辑和整文档自动保存不受影响。参见 `src/lib/crdt/gridEngine.js` 中的推理过程，以及 `src/lib/crdt/__tests__/gridEngineHandshake.test.js` 中的证明。
 
-**Cost.** The engine is WASM and loads by dynamic import, so first opening a
-spreadsheet fetches ~23 kB of JS (5.7 kB gzipped) and a 402.0 kB WebAssembly
-module (159.6 kB gzipped), once. Building with the flag **off** downloads
-**nothing** extra.
+**成本。** 该引擎为 WASM，通过动态导入加载，因此首次打开电子表格时需要获取约 23 kB 的 JS（gzip 后 5.7 kB）以及一个 402.0 kB 的 WebAssembly 模块（gzip 后 159.6 kB），仅需一次。若构建时关闭该标志，则**不会**额外下载任何内容。
 
-**If that load fails**, the editor does *not* quietly switch algebra. For a
-session that can replicate — a collaboration fabric is attached, or the update
-log is on — it stays **local-only for that session**: the grid still opens,
-edits, and autosaves the whole document, but no CRDT op is sent or applied.
-Falling back to `grid.js` there would risk permanent, invisible divergence from
-peers whose load succeeded (see the total-order note above), which is a worse
-outcome than a visible loss of live collaboration. Only when nothing can
-replicate (no peers, no update log) does it use `grid.js`.
+**如果该加载失败**，编辑器*不会*悄悄切换代数。对于可以进行复制的会话 — 已挂载协作架构，或更新日志已开启 — 它会在该会话中保持**仅本地**：网格仍可打开、编辑，并自动保存整个文档，但不发送也不应用任何 CRDT 操作。在这种情况下回退到 `grid.js` 可能会与加载成功的对等节点产生永久且不可见的分歧（参见上文关于全序的说明），这比协作实时性可见地丢失更糟。只有在无法进行任何复制时（没有对等节点，也没有更新日志），才会使用 `grid.js`。
 
-One known case where the load always fails: the **CommonJS** artifact of the
-library build. Bundlers replace `import.meta` with `{}` there, so the loader
-cannot locate the `.wasm`. A CJS consumer therefore gets a single-user grid; use
-the ESM build for collaboration.
+加载必然失败的一种已知情况是库构建的 **CommonJS** 产物。打包器会在该处将 `import.meta` 替换为 `{}`，因此加载器无法定位 `.wasm`。CJS 使用者只能获得单用户网格；如需协作，请使用 ESM 构建。
 
-Docs and Whiteboard are **not** affected: they use Yjs for rich text, which the
-substrate's algebra does not model. Slides is not affected either — see
-`src/lib/crdt/__tests__/substrateTree.mapping.test.js` for exactly how far the
-substrate's movable tree reproduces it and what remains.
+文档和白板**不受影响**：它们使用 Yjs 处理富文本，而 substrate 的代数并不对其建模。幻灯片同样不受影响 — 具体说明 substrate 的可移动树对其的复现程度以及仍有哪些差距，请参见 `src/lib/crdt/__tests__/substrateTree.mapping.test.js`。
 
 ---
 
-### `collab.builtin_rendezvous` — peer discovery served by this binary (default: **on**)
+### `collab.builtin_rendezvous` — 由本二进制提供的对等发现（默认：**开启**）
 
-Liwan's backend never mediates live document content — the Docs/Whiteboard
-invite-link path and the Sheets/Slides presence layer talk peer-to-peer over
-Liwan's own first-party `FabricClient` (`src/lib/collab/webrtc/fabric.js`; see
-[COLLABORATION.md](COLLABORATION.md) §3). But WebRTC cannot introduce two
-browsers **unaided**: something has to carry the first offer/answer/ICE frames.
+Liwan 的后端从不中转实时文档内容 — 文档/白板的邀请链接路径，以及表格/幻灯片的在线状态层，都通过 Liwan 自有的第一方 `FabricClient`（`src/lib/collab/webrtc/fabric.js`；参见 [COLLABORATION.md](COLLABORATION.md) §3）在对等节点之间直接通信。但 WebRTC 无法在**没有帮助**的情况下将两个浏览器互相引荐：必须有某种机制来传递最初的 offer/answer/ICE 帧。
 
-`collab.builtin_rendezvous` makes this binary that something. On by default, it
-serves the signed, content-blind announce/resolve/signal/mailbox protocol at
-`/api/rendezvous/*` on its own origin (`backend/rendezvous`), so **one `liwan` on
-one box is all two people need** — no Vulos OS, no Pier, no relay, no account.
+`collab.builtin_rendezvous` 使本二进制成为这一角色。该功能默认开启，它在自身源上的 `/api/rendezvous/*` 提供签名的、对内容不可见的 announce/resolve/signal/mailbox 协议（`backend/rendezvous`），因此**单台机器上的一个 `liwan` 就足以满足两个人的需求** — 无需 Vulos OS、无需 Pier、无需中继、无需账户。
 
-Before it existed, discovery had to come from another product, and a standalone
-binary with none available had no peer-to-peer at all.
+在该功能出现之前，发现必须来自其他产品，而没有可用的此类产品时，独立二进制就根本无法实现点对点通信。
 
 ```yaml
 collab:
   builtin_rendezvous: true    # default; set false to serve no discovery yourself
 ```
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `VULOS_BUILTIN_RENDEZVOUS` / `LIWAN_BUILTIN_RENDEZVOUS` | Overrides `collab.builtin_rendezvous`. `1/true/on/yes` or `0/false/off/no`. | `true` |
+| `VULOS_BUILTIN_RENDEZVOUS` / `LIWAN_BUILTIN_RENDEZVOUS` | 覆盖 `collab.builtin_rendezvous`。`1/true/on/yes` 或 `0/false/off/no`。 | `true` |
 
-**What your box can see, stated plainly.** Discovery metadata: which Ed25519 keys
-are present, which key sent bytes to which, sizes, timing. Not content — every
-payload is sealed under the room key, which lives in an invite link's URL fragment
-and is never sent in an HTTP request, and live edits never traverse it at all.
-Nothing is written to disk: it is in-memory soft state with TTLs of minutes, and a
-restart simply makes both clients re-announce.
+**你的机器能看到什么，直接说明。** 发现元数据：哪些 Ed25519 密钥存在、哪个密钥向哪个密钥发送了字节、大小、时间。不包括内容 — 每个载荷都在房间密钥下封装，而房间密钥位于邀请链接的 URL 片段中，从不随 HTTP 请求发送，实时编辑也完全不经过该通道。没有任何内容写入磁盘：它是内存中的软状态，TTL 为数分钟，重启后两个客户端只需重新公告即可。
 
-**It is safe to expose**, which matters because a cloud node is. Every write is
-Ed25519-signed over a domain-separated, length-prefixed canonical message, carries
-a fresh nonce and a timestamp (replays and stale envelopes are refused), and every
-dimension — payload size, queue depth, key count, TTL — is capped before anything
-is stored. The surface is per-IP rate-limited. Failures are refusals: 403 for a bad
-signature, 409 for a replayed or stale envelope, 413 for an over-cap payload, and
-nothing is stored in any of those cases. It is anonymous by design (invite-link
-collaboration needs no account) and authenticates **only** by body signature, never
-by cookie.
+**可以安全地对外暴露**，这一点很重要，因为云节点正是如此。每次写入都经过 Ed25519 签名，签名基于带域分隔、带长度前缀的规范消息，并携带新鲜的 nonce 和时间戳（拒绝重放和过期信封）；所有维度 — 载荷大小、队列深度、密钥数量、TTL — 在存储前都有上限。该接口有每 IP 速率限制。失败均为拒绝：签名错误返回 403，重放或过期信封返回 409，超出上限的载荷返回 413，且在这些情况下均不会存储任何内容。该接口按设计是匿名的（邀请链接协作无需账户），并且**仅**通过请求体签名进行认证，从不依赖 Cookie。
 
-**Turning it off** is supported and degrades honestly: sessions fall back to
-`collab.rendezvous_url` if set, else to local-only with the UI saying so. It never
-degrades to a broken editor.
+**关闭该功能**是受支持的，并会优雅降级：会话会回退到 `collab.rendezvous_url`（若已设置），否则降级为仅本地模式，并由界面明确告知。它绝不会降级为一个损坏的编辑器。
 
-Verify it yourself:
+自行验证：
 
 ```sh
 curl -s  http://localhost:8080/api/reachability      # builtin_rendezvous_prefix: "/api/rendezvous"
 curl -si http://localhost:8080/api/rendezvous/healthz # {"ok":true,"service":"rendezvous"}
 ```
 
-`npm run test:e2e:p2p` proves the whole path with nothing mocked and nothing
-external: one real binary, two real browsers, a real WebRTC data channel, the
-server's own presence state read back as ground truth, and the negative control
-(`e2e-p2p/builtin-rendezvous-p2p.e2e.js`).
+`npm run test:e2e:p2p` 可证明整个路径：一个真实的二进制文件、两个真实的浏览器、一个真实的 WebRTC 数据通道，服务器自身的在线状态被读回作为事实依据，以及负对照（`e2e-p2p/builtin-rendezvous-p2p.e2e.js`）。全程无任何模拟，也不依赖任何外部服务。
 
 ---
 
-### `collab.rendezvous_url` — delegate discovery to your own relay instead
+### `collab.rendezvous_url` — 改为将发现委托给你自己的中继
 
-Blank by default. When set, it names an **external** discovery surface and takes
-precedence over the built-in one above — configuring it is an explicit choice, so
-it wins. Reasons to: one shared relay across several deployments, or its
-TURN/NAT-traversal help.
+默认为空。设置后，它指向一个**外部**发现接口，并优先于上述内置接口 — 配置它本身就是明确的选择，因此它优先生效。适用场景：多个部署共享同一个中继，或需要其 TURN/NAT 穿透支持。
 
-Liwan picks one of four discovery paths, in order:
+Liwan 按以下顺序选择四种发现路径之一：
 
-1. **This server's own peering fabric** (`/api/peering/*`) — present only when
-   a Vulos OS / Pier deployment fronts Liwan. Unchanged default.
-2. **A configured rendezvous URL** — the base URL of any **self-hosted
-   `vulos-relayd`**'s OPEN rendezvous surface (announce/resolve/signal/mailbox
-   + ICE). No Vulos OS and no account are required.
+1. **本服务器自身的对等网络架构**（`/api/peering/*`）— 仅当 Vulos OS / Pier 部署位于 Liwan 前端时存在。默认行为不变。
+2. **已配置的 rendezvous URL** — 任意**自托管 `vulos-relayd`** 的 OPEN rendezvous 接口（announce/resolve/signal/mailbox + ICE）的基础 URL。无需 Vulos OS，也无需账户。
 
-   The browser calls that relayd's origin **directly**, cross-origin. Liwan
-   mounts nothing for discovery and is not in that path at all, so it never
-   sees even the (content-blind) rendezvous envelopes — see
-   [COLLABORATION.md](COLLABORATION.md) §3 for exactly what the relay does and
-   does not see. Two things this puts on you as the operator:
+   浏览器会**直接**（跨源）访问该 relayd 的源。Liwan 不为发现挂载任何内容，也不处于该路径中，因此它甚至看不到（对内容不可见的）rendezvous 信封 — 关于中继具体能看到和看不到什么，请参见 [COLLABORATION.md](COLLABORATION.md) §3。作为运维人员，你需要注意两点：
 
-   - The relayd must serve **CORS** on its rendezvous role. Every Pier
-     deployment with the role does; `npm run test:e2e:p2p` asserts the posture
-     against a real one, from a real browser.
-   - It must be reachable from wherever users load Liwan, over a scheme the
-     page can call: an **https** Liwan cannot call an **http** relay, so a
-     public deployment needs TLS on the relay.
-3. **This binary's own built-in surface** — `collab.builtin_rendezvous` above.
-   **This is what an unconfigured deployment uses.**
-4. **Local-only** — none is reachable; the editor keeps working, autosaves,
-   and says so honestly (an "Offline" pill) instead of showing a false "Live".
+   - relayd 在其 rendezvous 角色上必须提供 **CORS**。每个具备该角色的 Pier 部署都已提供；`npm run test:e2e:p2p` 会从真实浏览器对真实部署进行断言。
+   - 必须能从用户加载 Liwan 的地方访问，并且协议须是页面能够调用的：**https** 的 Liwan 无法调用 **http** 的中继，因此公开部署需要为中继配置 TLS。
+3. **本二进制自身的内置接口** — 即上面的 `collab.builtin_rendezvous`。**未配置的部署使用的就是这一项。**
+4. **仅本地** — 无法访问任何对等节点；编辑器仍可正常工作、自动保存，并诚实地显示（“离线”标识），而不是显示虚假的“实时”。
 
 ```yaml
 collab:
   rendezvous_url: "https://relay.example.org"   # any self-hosted vulos-relayd
 ```
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `VULOS_RENDEZVOUS_URL` / `LIWAN_RENDEZVOUS_URL` | Overrides `collab.rendezvous_url`. Any URL a `vulos-relayd` serves its rendezvous surface on. | — (unset) |
+| `VULOS_RENDEZVOUS_URL` / `LIWAN_RENDEZVOUS_URL` | 覆盖 `collab.rendezvous_url`。任意 `vulos-relayd` 提供其 rendezvous 接口的 URL。 | —（未设置） |
 
-Exposed **read-only** to the browser at the unauthenticated `GET /api/reachability`
-(as `rendezvous_url`), so setting the env var takes effect without a frontend
-rebuild — the same endpoint also carries `public_base_url`, this server's own
-externally-reachable origin:
+该值通过未经认证的 `GET /api/reachability`（字段名为 `rendezvous_url`）以**只读**形式暴露给浏览器，因此设置环境变量即可生效，无需重新构建前端 — 同一端点还包含 `public_base_url`，即本服务器自身可从外部访问的源：
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `LIWAN_PUBLIC_URL` | This Liwan instance's externally-reachable origin (a public domain, or a Pier tunnel URL when behind NAT/CGNAT). Used to build P2P invite links / signaling targets an external peer can actually reach, instead of blindly trusting `window.location.origin` (which may be a LAN-only address). | — (falls back to the visitor's own origin) |
+| `LIWAN_PUBLIC_URL` | 本 Liwan 实例可从外部访问的源（公共域名，或在 NAT/CGNAT 之后时的 Pier 隧道 URL）。用于构建外部对等节点真正能够访问的 P2P 邀请链接/信令目标，而不是盲目信任 `window.location.origin`（它可能只是局域网地址）。 | —（回退为访问者自己的源） |
 
-`rendezvous_url` is `""` when nothing is configured, and
-`builtin_rendezvous_prefix` is `""` when the built-in surface is off. Clients
-treat empty as "not available" rather than guessing a default, and refuse a
-prefix that is not an absolute same-origin path — that is what keeps a
-deliberately-local-only deployment local-only instead of minting invite links that
-could never connect anyone, or sending discovery somewhere unintended.
+未配置时，`rendezvous_url` 为 `""`；如果内置接口已关闭，`builtin_rendezvous_prefix` 为 `""`。客户端会将空值视为“不可用”，而不是猜测默认值；并且拒绝非绝对同源路径的前缀 — 正是这一点确保了刻意设为仅本地的部署保持仅本地，而不会生成永远无法连接任何人的邀请链接，也不会将发现请求发送到非预期的地方。
 
-**No default endpoint anywhere.** Every URL Liwan uses for discovery comes from
-this deployment: your own config, or the page's own origin. Nothing points at a
-Vulos-run service.
+**不存在任何默认端点。** Liwan 用于发现的每个 URL 都来自本部署：你自己的配置，或页面自身的源。没有任何地址指向 Vulos 运营的服务。
 
-See `backend/config/config.go` and `src/lib/collab/transportSelection.js` for
-the selection logic, and `src/lib/collab/reachableBase.js` for the client-side
-fetch/cache. The default path is proven end to end by
-`e2e-p2p/builtin-rendezvous-p2p.e2e.js`; the external-relay posture by
-`e2e-p2p/rendezvous-p2p.e2e.js`, which needs a prebuilt relayd in
-`VULOS_RELAYD_BIN` and skips (loudly, with its reason) without one — it never
-clones or builds another repository at test time.
+相关选择逻辑参见 `backend/config/config.go` 和 `src/lib/collab/transportSelection.js`；客户端的获取/缓存参见 `src/lib/collab/reachableBase.js`。默认路径已由 `e2e-p2p/builtin-rendezvous-p2p.e2e.js` 端到端验证；外部中继的情况由 `e2e-p2p/rendezvous-p2p.e2e.js` 验证，该测试需要在 `VULOS_RELAYD_BIN` 中提供预编译的 relayd，若缺少则会（带原因地明确）跳过 — 它绝不会在测试时克隆或构建其他仓库。
 
 ---
 
-### `collab.ice.*` — STUN/TURN configured at RUNTIME (works on a release binary)
+### `collab.ice.*` — 运行时配置的 STUN/TURN（可在发布版二进制上使用）
 
-Collaboration's default path is **direct WebRTC** — a data channel straight
-between two browsers (see [COLLABORATION.md](COLLABORATION.md) §3). Making
-that direct connection happen behind NAT needs **STUN** (near-universal, just
-tells you your own public address) and, for the minority of peer pairs behind
-a **symmetric NAT** that can't hole-punch at all, **TURN** (relays the traffic;
-content-blind here — see §3). Neither requires a host box, a `vulos-relayd`, or
-any other Vulos product.
+协作的默认路径是**直连 WebRTC** — 两个浏览器之间直接建立数据通道（参见 [COLLABORATION.md](COLLABORATION.md) §3）。要使该直连在 NAT 之后成功建立，需要 **STUN**（几乎普遍可用，只需告诉你自己的公网地址），以及对于少数位于**对称型 NAT** 之后、根本无法打洞的对等节点对，需要 **TURN**（中继流量；在此处对内容不可见 — 参见 §3）。两者都不需要主机、`vulos-relayd` 或其他任何 Vulos 产品。
 
-Configure them **in the running server** and the browser picks them up from
-`GET /api/rendezvous/ice`:
+在**运行中的服务器**上进行配置，浏览器会从 `GET /api/rendezvous/ice` 获取这些设置：
 
 ```yaml
 collab:
@@ -333,56 +191,36 @@ collab:
     # turn_credential: "…"
 ```
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `VULOS_STUN_URLS` / `LIWAN_STUN_URLS` | Comma-separated `stun:` URLs. | — |
-| `VULOS_TURN_URLS` / `LIWAN_TURN_URLS` | Comma-separated `turn:`/`turns:` URLs. Ignored unless a credential mode below is set — a credential-less TURN entry cannot authenticate. | — |
-| `VULOS_TURN_SECRET` / `LIWAN_TURN_SECRET` | coturn `static-auth-secret`. Credentials are minted per request and expire. | — |
-| `VULOS_TURN_USERNAME` / `LIWAN_TURN_USERNAME` | Long-lived TURN username. Ignored when a secret is set. | — |
-| `VULOS_TURN_CREDENTIAL` / `LIWAN_TURN_CREDENTIAL` | Long-lived TURN credential. Ignored when a secret is set. | — |
+| `VULOS_STUN_URLS` / `LIWAN_STUN_URLS` | 逗号分隔的 `stun:` URL。 | — |
+| `VULOS_TURN_URLS` / `LIWAN_TURN_URLS` | 逗号分隔的 `turn:`/`turns:` URL。除非设置了下方的某种凭据模式，否则忽略 — 没有凭据的 TURN 条目无法完成认证。 | — |
+| `VULOS_TURN_SECRET` / `LIWAN_TURN_SECRET` | coturn 的 `static-auth-secret`。凭据按请求生成，并会过期。 | — |
+| `VULOS_TURN_USERNAME` / `LIWAN_TURN_USERNAME` | 长期有效的 TURN 用户名。设置了 secret 时忽略。 | — |
+| `VULOS_TURN_CREDENTIAL` / `LIWAN_TURN_CREDENTIAL` | 长期有效的 TURN 凭据。设置了 secret 时忽略。 | — |
 
-**Why a runtime setting exists at all.** The `VITE_*` variables below are baked
-into the JS bundle at build time, so an operator who **downloaded a release binary
-or pulled the container cannot set them** without rebuilding the frontend — which
-made [COTURN.md](COTURN.md) unusable for exactly the audience it is written for.
-These fields are the same facts, supplied where that operator can actually supply
-them.
+**为什么需要运行时设置。** 下面的 `VITE_*` 变量会在构建时嵌入 JS 包中，因此下载发布版二进制文件或拉取容器的运维人员**无法在不重新构建前端的情况下设置它们** — 这使得 [COTURN.md](COTURN.md) 对其真正的目标读者毫无用处。这些字段包含同样的信息，只是放在运维人员真正能够提供的地方。
 
-**What this endpoint exposes.** `GET /api/rendezvous/ice` is unauthenticated — a
-browser needs ICE servers before it has any session — so anything configured here
-is readable by anyone who can reach the box. That is fine for STUN (a STUN server
-only tells a caller its own address). For TURN, prefer `turn_secret`: the secret
-stays server-side and each response carries a short-lived credential, so a leaked
-response expires instead of being a permanent grant. `turn_username`/
-`turn_credential` are supported for deployments with no REST secret, and are handed
-out verbatim — stated as what it is rather than dressed up.
+**该端点会暴露什么。** `GET /api/rendezvous/ice` 无需认证 — 浏览器在拥有任何会话之前就需要 ICE 服务器 — 因此此处配置的任何内容，任何能够访问该机器的人都可以读取。对于 STUN 而言这没有问题（STUN 服务器只会告诉调用者它自己的地址）。对于 TURN，建议使用 `turn_secret`：secret 保留在服务器端，每个响应携带短期凭据，因此泄露的响应会过期，而不会成为永久授权。`turn_username`/`turn_credential` 适用于没有 REST secret 的部署，并会原样下发 — 按其本来面目说明，而不做粉饰。
 
-Unconfigured, the endpoint returns an **empty** list, which the browser reads as
-"answer from my own config" — so leaving this alone changes nothing for a
-deployment that already set the bundle's variables.
+未配置时，该端点返回**空**列表，浏览器会将其理解为“从我自己的配置中获取”，因此对于已通过打包变量完成设置的部署，保持此项不变不会产生任何影响。
 
 ---
 
-### `VITE_STUN_URLS` / `VITE_TURN_*` — the same thing at BUILD time
+### `VITE_STUN_URLS` / `VITE_TURN_*` — 构建时的相同功能
 
-Build-time env vars consumed by `src/lib/collab/webrtc/call/ice.js`. Used when the
-server-side ICE response above is empty (or unavailable):
+由 `src/lib/collab/webrtc/call/ice.js` 使用的构建时环境变量。当上方服务器端 ICE 响应为空（或不可用）时使用：
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `VITE_STUN_URLS` | Comma-separated `stun:` URLs, e.g. `stun:stun.example.org:3478`. Set to the empty string `''` to disable STUN entirely (not just unset it). | the public Google STUN server |
-| `VITE_TURN_URL` | Comma-separated `turn:`/`turns:` URLs for your TURN server, e.g. `turn:turn.example.org:3478,turns:turn.example.org:5349`. | — (no TURN by default) |
-| `VITE_TURN_USERNAME` | TURN username (coturn `lt-cred-mech`: a static `user=` name, or the username half of a time-limited credential). | — |
-| `VITE_TURN_CREDENTIAL` | TURN credential/password matching `VITE_TURN_USERNAME`. | — |
+| `VITE_STUN_URLS` | 逗号分隔的 `stun:` URL，例如 `stun:stun.example.org:3478`。设置为空字符串 `''` 可完全禁用 STUN（而不仅仅是取消设置）。 | 公共 Google STUN 服务器 |
+| `VITE_TURN_URL` | 逗号分隔的 TURN 服务器 `turn:`/`turns:` URL，例如 `turn:turn.example.org:3478,turns:turn.example.org:5349`。 | —（默认无 TURN） |
+| `VITE_TURN_USERNAME` | TURN 用户名（coturn `lt-cred-mech`：静态 `user=` 名称，或限时凭据的用户名部分）。 | — |
+| `VITE_TURN_CREDENTIAL` | 与 `VITE_TURN_USERNAME` 对应的 TURN 凭据/密码。 | — |
 
-These take effect as a **fallback** — when the ICE endpoint in use
-(`/api/peering/ice` on a host box, `/api/rendezvous/ice` on this binary, or a
-configured relayd's ICE surface) is unreachable or returns nothing. TURN is never
-defaulted (unlike STUN): a TURN server relays your traffic, so it is opt-in only,
-via the variables above.
+这些设置作为**备用**生效 — 即当所用 ICE 端点（主机上的 `/api/peering/ice`、本二进制上的 `/api/rendezvous/ice`，或已配置中继的 ICE 接口）不可访问或返回为空时。TURN 从不设置默认值（不同于 STUN）：TURN 服务器会中继你的流量，因此仅通过上述变量显式选择启用。
 
-A host page may also inject these at runtime instead of build time, via
-`window.__VULOS_ENDPOINTS__`:
+宿主页面也可以通过 `window.__VULOS_ENDPOINTS__` 在运行时注入这些设置，而不是在构建时注入：
 
 ```js
 window.__VULOS_ENDPOINTS__ = {
@@ -391,111 +229,107 @@ window.__VULOS_ENDPOINTS__ = {
 }
 ```
 
-**Self-hosting your own TURN server:** see [COTURN.md](COTURN.md) for a
-complete, runnable coturn setup (apt and Docker), a minimal `turnserver.conf`,
-the firewall ports to open, and exactly which of the settings above to point at
-it — the runtime `collab.ice.*` ones if you are running a release binary, the
-build-time `VITE_*` ones if you build the frontend yourself.
+**自行搭建 TURN 服务器：** 请参阅 [COTURN.md](COTURN.md)，其中提供了完整可运行的 coturn 配置（apt 和 Docker 两种方式）、最小化的 `turnserver.conf`、需要开放的防火墙端口，以及应将上述哪些设置指向它 — 如果你运行的是发布版二进制文件，则使用运行时的 `collab.ice.*`；如果你自行构建前端，则使用构建时的 `VITE_*`。
 
 ---
 
-## Environment variables
+## 环境变量
 
-### Auth / JWT
+### 认证 / JWT
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `LIWAN_JWT_SECRET` | HS256 signing secret — **required** when `auth.enabled: true` | — |
-| `LIWAN_REGISTRATION_TOKEN` | Static fallback registration token (prefer invite tokens) | — |
+| `LIWAN_JWT_SECRET` | HS256 签名密钥 — 当 `auth.enabled: true` 时**必填** | — |
+| `LIWAN_REGISTRATION_TOKEN` | 静态的备用注册令牌（建议使用邀请令牌） | — |
 
-### SSO session introspection (multi-user)
+### SSO 会话内省（多用户）
 
-Liwan holds **no session-signing power**. When an identity provider is configured it validates the browser's `vc_session` cookie by introspection instead of verifying a signature Liwan minted.
+Liwan **不持有任何会话签名权限**。当配置了身份提供方时，它会通过内省来验证浏览器的 `vc_session` Cookie，而不是验证 Liwan 自己签发的签名。
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `IDENTITY_URL` | Identity-provider base URL (sovereign box in self-host, CP in cloud). **SET** → Liwan introspects `vc_session` at `POST {IDENTITY_URL}/api/session/introspect` and fails **closed** (401) on invalid/expired/unreachable. **UNSET** → SSO disabled; existing local single-identity behavior unchanged. | — (unset) |
-| `VULOS_CP_TOKEN` | Shared service-auth secret presented as `X-Relay-Auth` on the introspection call (== the provider's `CP_SHARED_SECRET`). Reused from the existing API-key / entitlements path — **not a signing key**. | — |
+| `IDENTITY_URL` | 身份提供方的基础 URL（自托管时为自主主机，云端时为控制平面）。**已设置** → Liwan 会通过 `POST {IDENTITY_URL}/api/session/introspect` 内省 `vc_session`，并在会话无效/过期/无法访问时**失败关闭**（返回 401）。**未设置** → 禁用 SSO；本地单一身份的既有行为保持不变。 | —（未设置） |
+| `VULOS_CP_TOKEN` | 在内省调用中以 `X-Relay-Auth` 提交的共享服务认证密钥（即提供方的 `CP_SHARED_SECRET`）。复用自现有的 API 密钥/权益路径 — **不是签名密钥**。 | —（未设置） |
 
-Precedence (first match wins): `vk_` API key → per-product session JWT → SSO `vc_session` introspection → 401. On a valid session the request is scoped to the resolved **user + tenant** (`tenantId` = account id); results are cached in-process for ~45s (bounded by the session's `expiresAt`) so it is not a round-trip per request.
+优先级（先匹配者生效）：`vk_` API 密钥 → 每产品会话 JWT → SSO `vc_session` 内省 → 401。有效会话下，请求会被限定在解析得到的**用户 + 租户**范围内（`tenantId` = 账户 ID）；结果在进程内缓存约 45 秒（以会话的 `expiresAt` 为上限），因此并非每个请求都要往返一次。
 
-**Operator quick-reference**
+**运维速查**
 
-- Self-host single-user box: leave `IDENTITY_URL` unset. Nothing else to do.
-- Multi-user with an external identity/control plane: point `IDENTITY_URL` at your own control-plane host (there is no default host — leave it unset and the box stays self-contained) and set `VULOS_CP_TOKEN=<CP shared secret>` (plus `auth.enabled: true` / `LIWAN_JWT_SECRET` if you also keep native JWT logins).
+- 自托管单用户主机：保持 `IDENTITY_URL` 未设置即可，无需其他操作。
+- 使用外部身份/控制平面的多用户部署：将 `IDENTITY_URL` 指向你自己的控制平面主机（没有默认主机 — 保持未设置则主机保持自包含），并设置 `VULOS_CP_TOKEN=<CP 共享密钥>`（如果你同时保留了原生 JWT 登录，则还需设置 `auth.enabled: true` / `LIWAN_JWT_SECRET`）。
 
-### Persistence
+### 持久化
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `VULOS_PERSISTENCE_UPDATELOG` / `LIWAN_UPDATE_LOG` | Enable the CRDT update log (overrides `persistence.updatelog`). Accepts `1/true/on/yes`. | `false` |
+| `VULOS_PERSISTENCE_UPDATELOG` / `LIWAN_UPDATE_LOG` | 启用 CRDT 更新日志（覆盖 `persistence.updatelog`）。接受 `1/true/on/yes`。 | `false` |
 
-### Database paths (SQLite)
+### 数据库路径（SQLite）
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `VULOS_USERAUTH_DB` | Per-user credential store DSN | `./data/userauth.db` |
-| `VULOS_INVITES_DB` | Invite-token store DSN | `./data/invites.db` |
-| `VULOS_AUDIT_DB` | Append-only audit-log DSN | `./data/audit.db` |
-| `VULOS_FILEACL_DB` | File-ACL store DSN (SQLite backend only) | `./data/fileacl.db` |
+| `VULOS_USERAUTH_DB` | 每用户凭据存储的 DSN | `./data/userauth.db` |
+| `VULOS_INVITES_DB` | 邀请令牌存储的 DSN | `./data/invites.db` |
+| `VULOS_AUDIT_DB` | 仅追加的审计日志 DSN | `./data/audit.db` |
+| `VULOS_FILEACL_DB` | 文件 ACL 存储的 DSN（仅 SQLite 后端） | `./data/fileacl.db` |
 
-### S3-compatible storage (Tigris default)
+### S3 兼容存储（默认 Tigris）
 
-These are consumed by `OfficeTigrisDefaults()` in `backend/storage/backendconfig.go`:
+以下变量由 `backend/storage/backendconfig.go` 中的 `OfficeTigrisDefaults()` 使用：
 
-| Variable | Description | Default |
+| 变量 | 说明 | 默认值 |
 |----------|-------------|---------|
-| `TIGRIS_ENDPOINT` | S3-compatible endpoint URL | `https://fly.storage.tigris.dev` |
-| `TIGRIS_REGION` | Storage region | `auto` |
-| `TIGRIS_ACCESS_KEY_ID` | Access key | — |
-| `TIGRIS_SECRET_ACCESS_KEY` | Secret key | — |
+| `TIGRIS_ENDPOINT` | S3 兼容的端点 URL | `https://fly.storage.tigris.dev` |
+| `TIGRIS_REGION` | 存储区域 | `auto` |
+| `TIGRIS_ACCESS_KEY_ID` | 访问密钥 | — |
+| `TIGRIS_SECRET_ACCESS_KEY` | 密钥 | — |
 
-For BYO/MinIO deployments inject `OfficeBackendConfig` directly (see [INSTALL.md](INSTALL.md)).
+对于自带存储（BYO）或 MinIO 部署，请直接注入 `OfficeBackendConfig`（参见 [INSTALL.md](INSTALL.md)）。
 
-### Bundle (shared with Vulos OS)
+### 套件（与 Vulos OS 共享）
 
-Written by the OS storage-mode selector; consumed by all three bundle services:
+由 OS 存储模式选择器写入；由全部三个套件服务使用：
 
-| Variable | Description |
+| 变量 | 说明 |
 |----------|-------------|
-| `VULOS_STORAGE_MODE` | `central-tigris` (default) or `local-minio-sync` |
-| `VULOS_MINIO_ENDPOINT` | MinIO endpoint (only in `local-minio-sync` mode) |
-| `VULOS_MINIO_REGION` | Region (default `auto`) |
-| `VULOS_MINIO_BUCKET` | Shared bucket name |
-| `VULOS_MINIO_CREDS_REF` | Path to credentials file |
+| `VULOS_STORAGE_MODE` | `central-tigris`（默认）或 `local-minio-sync` |
+| `VULOS_MINIO_ENDPOINT` | MinIO 端点（仅在 `local-minio-sync` 模式下使用） |
+| `VULOS_MINIO_REGION` | 区域（默认 `auto`） |
+| `VULOS_MINIO_BUCKET` | 共享存储桶名称 |
+| `VULOS_MINIO_CREDS_REF` | 凭据文件的路径 |
 
-### SMTP (optional)
+### SMTP（可选）
 
-Liwan itself does not send mail. If you want outbound notifications, point Liwan at an external SMTP relay:
+Liwan 本身不发送邮件。如果需要外发通知，请将 Liwan 指向外部 SMTP 中继：
 
-| Variable | Description |
+| 变量 | 说明 |
 |----------|-------------|
-| `SMTP_HOST` | SMTP relay host |
-| `SMTP_PORT` | SMTP port (default `587`) |
-| `SMTP_USER` | SMTP username |
-| `SMTP_PASSWORD` | SMTP password |
-| `SMTP_FROM` | From address |
+| `SMTP_HOST` | SMTP 中继主机 |
+| `SMTP_PORT` | SMTP 端口（默认 `587`） |
+| `SMTP_USER` | SMTP 用户名 |
+| `SMTP_PASSWORD` | SMTP 密码 |
+| `SMTP_FROM` | 发件人地址 |
 
-### Observability (OpenTelemetry)
+### 可观测性（OpenTelemetry）
 
-| Variable | Description |
+| 变量 | 说明 |
 |----------|-------------|
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP endpoint for traces (optional) |
-| `OTEL_SERVICE_NAME` | Service name tag (default `liwan`) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | 用于追踪的 OTLP 端点（可选） |
+| `OTEL_SERVICE_NAME` | 服务名称标签（默认 `liwan`） |
 
-Prometheus metrics are always available at `GET /metrics` (no env var needed).
+Prometheus 指标始终可通过 `GET /metrics` 访问（无需环境变量）。
 
 ---
 
-## Org-bucket wiring
+## 组织存储桶配置
 
-`backend/storage/backendconfig.go` exposes `OfficeBackendConfig` for per-org S3 bucket + CRDT snapshot configuration, injected by whatever control plane fronts a multi-tenant deployment (self-configured — Vulos operates none). This is the canonical configuration path for such deployments — do not duplicate it in environment variables.
+`backend/storage/backendconfig.go` 提供 `OfficeBackendConfig`，用于每个组织的 S3 存储桶 + CRDT 快照配置，由托管多租户部署的任何控制平面注入（自行配置 — Vulos 不运营任何控制平面）。这是此类部署的标准配置路径 — 请勿在环境变量中重复配置。
 
 ---
 
-## See also
+## 另请参阅
 
-- [GETTING-STARTED.md](GETTING-STARTED.md) — first-run walkthrough
-- [DEPLOY.md](DEPLOY.md) — production deployment
-- [INSTALL.md](INSTALL.md) — single-box bundle install
-- [ARCHITECTURE.md](ARCHITECTURE.md) — component map
+- [GETTING-STARTED.md](GETTING-STARTED.md) — 首次运行指南
+- [DEPLOY.md](DEPLOY.md) — 生产环境部署
+- [INSTALL.md](INSTALL.md) — 单机套件安装
+- [ARCHITECTURE.md](ARCHITECTURE.md) — 组件架构图

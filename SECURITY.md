@@ -1,59 +1,57 @@
-# Security Policy — Liwan
+# Liwan 安全政策
 
-## Scope
+## 范围
 
-### In scope
-- CRDT fabric and conflict-resolution logic (document collaboration)
-- PDF auto-sign pipeline
-- Backend API authentication and session handling
-- File upload / blob storage access controls
+### 范围内
+- CRDT 网络结构与冲突解决逻辑（文档协作）
+- PDF 自动签名流水线
+- 后端 API 的认证与会话处理
+- 文件上传 / Blob 存储的访问控制
 
-> Liwan is documents-only. Chat and video are third-party (Matrix/Element;
-> Element Call / Jitsi), not Vulos products — report issues there. Calendar/Contacts
-> come from the bring-your-own-mailbox PIM connector (lilmail), not from Liwan.
+> Liwan 仅包含文档类功能。聊天与视频为第三方服务（Matrix/Element；Element Call / Jitsi），并非 Vulos 产品——相关问题请向其报告。日历/通讯录来自自带邮箱的 PIM 连接器（lilmail），而非 Liwan。
 
-### Out of scope
-- Third-party Go and npm dependencies — report to upstream maintainers
-- Social engineering or phishing
-- Denial-of-service via document flooding (operational concern)
-- Vulnerabilities in the underlying OS or browser outside our control
+### 范围外
+- 第三方 Go 与 npm 依赖——请向上游维护者报告
+- 社会工程学或钓鱼攻击
+- 通过文档洪泛导致的拒绝服务（DoS）（属于运维问题）
+- 我们无法控制的底层操作系统或浏览器中的漏洞
 
-## How to Report
+## 如何报告
 
-**Email:** security@vulos.org  
-PGP key: _placeholder — key will be published at https://vulos.org/.well-known/security.txt_
+**邮箱：** security@vulos.org  
+PGP 密钥：_占位符——密钥将发布于 https://vulos.org/.well-known/security.txt_
 
-**GitHub Security Advisories:** Use the "Report a vulnerability" button in the Security tab of this repository. Preferred channel.
+**GitHub 安全公告：** 请使用本仓库 Security 选项卡中的“Report a vulnerability”按钮。这是首选渠道。
 
-Please include:
-- Affected component (CRDT, signing, auth, storage)
-- Steps to reproduce
-- Potential impact
-- Any suggested mitigations
+请尽量包含以下信息：
+- 受影响的组件（CRDT、签名、认证、存储）
+- 复现步骤
+- 潜在影响
+- 任何建议的缓解措施
 
-## Response SLA
+## 响应时限（SLA）
 
-| Stage | Target |
+| 阶段 | 目标 |
 |-------|--------|
-| Acknowledgement | ≤ 72 hours |
-| Initial triage | ≤ 7 days |
-| Fix or tracked mitigation | ≤ 90 days for critical/high |
+| 确认收到 | ≤ 72 小时 |
+| 初步分诊 | ≤ 7 天 |
+| 修复或已跟踪的缓解措施 | 严重/高危漏洞 ≤ 90 天 |
 
-## Safe Harbor
+## 安全港条款（Safe Harbor）
 
-Vulos commits to not pursuing legal action against researchers who:
-- Act in good faith to identify and report vulnerabilities
-- Do not exploit beyond demonstrating the issue
-- Do not access, modify, or exfiltrate user documents
-- Do not disrupt collaboration sessions
-- Disclose to us before public disclosure
+Vulos 承诺不会对以下研究人员采取法律行动：
+- 出于善意识别并报告漏洞的人
+- 仅以证明问题存在为限、不进行超出范围的利用的人
+- 不访问、修改或窃取用户文档的人
+- 不干扰协作会话的人
+- 在公开披露之前先向我们披露的人
 
-## Bug Bounty
+## 漏洞赏金
 
-No paid bug-bounty program at this time. Confirmed reporters are credited in release notes.
+目前没有付费的漏洞赏金计划。经确认的报告者会在发布修复的版本说明中获得致谢。
 
-## Credit Policy
+## 致谢政策
 
-Every confirmed finding is credited in the release that ships the fix:
+每个经确认的发现都会在发布修复的版本中获得致谢：
 
-> Thanks to [Name / Handle] for responsibly disclosing [CVE-XXXX-XXXXX / summary].
+> 感谢 [Name / Handle] 负责任地披露了 [CVE-XXXX-XXXXX / summary]。

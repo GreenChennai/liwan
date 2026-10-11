@@ -1,290 +1,290 @@
-# Liwan — User Guide
+# Liwan 议事厅 — 用户指南
 
-Liwan is the documents product of VulOS: word-processor documents (**Docs**), spreadsheets (**Sheets**), presentations (**Slides**), infinite-canvas **Whiteboards** (built on Excalidraw), and PDF viewing/annotation/**Signing**, all served from a single self-hosted Go binary with the web app built in. This guide covers everyday use — creating and opening files, editing in each surface, collaborating live with other people, working offline, importing and exporting files, and keyboard shortcuts. If you run the server yourself, see the [Admin Guide](ADMIN-GUIDE.md); for how collaboration works under the hood, see [Collaboration](COLLABORATION.md).
-
----
-
-## 1. Getting in
-
-Open the app in your browser (by default `http://localhost:8080`, or wherever your admin deployed it).
-
-- **Single-user mode** (the default): no login is required — you *are* the account. Everything below just works.
-- **Multi-user mode** (when the admin has enabled auth): you log in with your account and password, or via your Vulos single sign-on session if the instance is attached to one. New accounts are created with an **invite token** minted by an admin.
-
-Liwan is a **PWA** — your browser can install it as a desktop or mobile app (look for "Install app" in the browser menu). The app shell keeps loading even when the network is down (see [Offline behavior](#7-offline-behavior)).
+Liwan 议事厅是 VulOS 的文档产品：包括文字处理文档（**文档**）、电子表格（**表格**）、演示文稿（**幻灯片**）、无限画布**白板**（基于 Excalidraw 构建），以及 PDF 查看、批注和**签署**功能。所有功能都由一个自托管的 Go 二进制文件提供服务，Web 应用已内嵌其中。本指南涵盖日常使用：创建和打开文件、在各个模块中编辑、与他人实时协作、离线工作、导入和导出文件，以及键盘快捷键。如果你自己运行服务器，请参阅[管理员指南](ADMIN-GUIDE.md)；关于协作的底层原理，请参阅[协作机制](COLLABORATION.md)。
 
 ---
 
-## 2. Creating, opening, and organizing files
+## 1. 进入应用
 
-### The Home screen
+在浏览器中打开应用（默认为 `http://localhost:8080`，或管理员部署的地址）。
 
-The Home screen (`/`) shows your workspace: recent files, plus per-surface home pages at `/docs`, `/sheets`, `/slides`, and `/pdf`.
+- **单用户模式**（默认）：无需登录，你即是账户本身。以下所有功能均可直接使用。
+- **多用户模式**（管理员启用了身份验证时）：使用你的账户和密码登录，或者如果实例已接入 Vulos 单点登录会话，则通过该会话登录。新账户需使用管理员生成的**邀请令牌**创建。
 
-### Creating a file
-
-Click **New** to open the new-file dialog:
-
-1. Pick a type — **Document**, **Spreadsheet**, or **Presentation**.
-2. For Docs and Sheets, optionally pick a starter **template** (or Blank). Slides has its own template gallery inside the editor.
-3. Name it and create. You land directly in the editor.
-
-New files are **private to you** by default — the creator is the owner.
-
-### Opening existing files
-
-- Click any file on Home or a surface home page.
-- **Open** a file from your computer (file picker or drag-and-drop). Liwan detects the format by extension and routes it to the right editor — see [Import](#8-import--export) for the supported list.
-- **Shared with me** lists documents other accounts on the instance have shared with you.
-
-### Folders, moving, and deleting
-
-- Files can be organized into **folders**; use *Move* on a file to place it.
-- Folders can be trashed and deleted.
-- Deleting a file removes it along with its sharing state.
-
-### Renaming and ownership
-
-- Rename from the editor's title field or the file's menu.
-- The owner can **transfer ownership** of a file to another account.
+Liwan 是一个 **PWA**，你的浏览器可以将其安装为桌面或移动应用（在浏览器菜单中查找“安装应用”）。即使网络中断，应用外壳仍能继续加载（参见[离线行为](#7-离线行为)）。
 
 ---
 
-## 3. Editing documents (Docs)
+## 2. 创建、打开和整理文件
 
-Docs is a rich-text editor (built on TipTap). The toolbar's primary row gives you:
+### 首页
 
-- **Undo / Redo**
-- **Font family** and **font size** (custom point sizes supported)
-- **Bold, Italic, Underline, Strikethrough, Code**
-- **Text color** and **highlight**
-- **Links** (select text, insert a link)
-- **Bullet, numbered, and checklist** lists
-- **Decrease / increase indent**
-- **Alignment** — left, center, right, justify — and **line spacing**
-- **Insert image**, **insert table**, **clear formatting**
+首页（`/`）显示你的工作区：最近的文件，以及位于 `/docs`、`/sheets`、`/slides` 和 `/pdf` 的各模块首页。
 
-The insert/heading menu adds:
+### 创建文件
 
-- **Headings** H1–H6, blockquote, code block, horizontal rule
-- **Subscript / superscript** (also `Cmd/Ctrl+,` and `Cmd/Ctrl+.`)
-- **Live table of contents** — a ToC node that refreshes itself as headings change
-- **Footnotes**
-- **Equations** (dedicated equation editor)
-- **Page setup** (page size/margins) and **headers & footers** — the editor renders real page breaks against your page setup
+点击**新建**打开新建文件对话框：
 
-### Tables
+1. 选择类型：**文档**、**表格**或**演示文稿**。
+2. 对于文档和表格，可以选择一个初始**模板**（或空白）。幻灯片的模板库位于编辑器内部。
+3. 命名并创建。你将直接进入编辑器。
 
-Insert a table by dragging out its size on the grid picker (up to the grid shown, e.g. "3 × 4"). When your caret is inside a table, a contextual table menu appears with row operations, column operations, header-row toggle, **merge/split cells**, and **delete table**. Header cells are marked up for screen readers.
+新文件默认**仅创建者本人可见**，创建者即为所有者。
 
-### Images
+### 打开已有文件
 
-- Insert images from the toolbar; uploaded images are capped at **10 MB** each and must be real raster images (PNG/JPEG/etc. — the server sniffs the actual content, so SVG or mislabeled files are rejected).
-- Once placed, images can be **resized and aligned**, and given **alt text**.
-- Images pasted or imported inside documents go through a strict sanitizer — scripts, iframes, and non-raster data URIs are stripped.
+- 点击首页或模块首页上的任意文件。
+- 从电脑**打开**文件（通过文件选择器或拖放）。Liwan 会根据扩展名识别格式，并将其交给对应的编辑器。支持的格式列表请参阅[导入](#8-导入与导出)。
+- **与我共享**列出实例上其他账户与你共享的文档。
 
-### Comments, suggestions, and history
+### 文件夹、移动和删除
 
-- **Comments** anchor to a text selection. Open the comments panel, or press `Cmd/Ctrl+Alt+M` — if your caret is inside a commented span it focuses that comment, otherwise it opens the panel to add one. Comments support threaded **replies** and **@mentions**.
-- **Suggestions** are track-changes-style proposals that can be **accepted or rejected**.
-- **Version history** (history panel): every save creates version snapshots; you can create a **named snapshot**, **label** a version, view a **diff** against the current text (line-level for Docs), and **restore** any version. Restore asks for confirmation.
+- 文件可以整理到**文件夹**中；对文件使用**移动**即可将其放置到指定位置。
+- 文件夹可以移入回收站并被永久删除。
+- 删除文件时，其共享状态也会一并移除。
 
-### Navigation and stats
+### 重命名与所有权
 
-- **Document outline** — a live sidebar of the heading structure.
-- **Word count** — live counter with a detail modal.
-- **Find** (`Cmd/Ctrl+F`) and **Find & Replace** (`Cmd/Ctrl+H`).
-- **Print / print-to-PDF** — `Cmd/Ctrl+P` prints the paginated document.
+- 可在编辑器的标题栏或文件菜单中重命名。
+- 所有者可以将文件的**所有权转让**给其他账户。
 
 ---
 
-## 4. Editing spreadsheets (Sheets)
+## 3. 编辑文档（文档模块）
 
-Sheets is a full spreadsheet grid (built on Fortune Sheet):
+文档模块是一个富文本编辑器（基于 TipTap 构建）。工具栏的主行提供以下功能：
 
-- **Formulas** — a large built-in function library, with live recalculation.
-- **Number formats** — general, currency, percent, dates, and more via the number-format menu.
-- **Conditional formatting**, including **color scales**.
-- **Data validation** rules per range (with a dedicated panel).
-- **Charts** — column, bar, line, area, and pie, created through the chart wizard and rendered as an overlay layer on the grid. Charts survive export (chart metadata rides along in the workbook).
-- **Filters** (filter panel), **pivot tables** (pivot panel + layer), **named ranges**, and **freeze panes**.
-- **Find & replace** for cell contents.
-- Multiple sheets per workbook.
+- **撤销 / 重做**
+- **字体**和**字号**（支持自定义磅值）
+- **粗体、斜体、下划线、删除线、代码**
+- **文字颜色**和**高亮**
+- **链接**（选中文字后插入链接）
+- **项目符号、编号和复选框列表**
+- **减少 / 增加缩进**
+- **对齐方式**（左对齐、居中、右对齐、两端对齐）和**行距**
+- **插入图片**、**插入表格**、**清除格式**
 
-Pasting: `Cmd/Ctrl+Shift+V` pastes **values only** — clipboard text is parsed as tab-separated rows/columns and inserted as plain values starting at the focused cell.
+插入/标题菜单还提供：
+
+- **标题** H1–H6、引用块、代码块、分隔线
+- **下标 / 上标**（也可使用 `Cmd/Ctrl+,` 和 `Cmd/Ctrl+.`）
+- **实时目录**：目录节点会随标题变化自动刷新
+- **脚注**
+- **公式**（专用公式编辑器）
+- **页面设置**（页面大小/页边距）和**页眉页脚**：编辑器会根据页面设置渲染真实的分页符
+
+### 表格
+
+在网格选择器上拖出表格的尺寸即可插入表格（最大为所示网格的范围，例如“3 × 4”）。光标位于表格内时，会出现上下文表格菜单，包含行操作、列操作、表头行切换、**合并/拆分单元格**以及**删除表格**。表头单元格已做无障碍标记，便于屏幕阅读器识别。
+
+### 图片
+
+- 从工具栏插入图片；上传的图片每张上限为 **10 MB**，且必须是真正的位图（PNG/JPEG 等）。服务器会检测实际内容，因此 SVG 或伪装扩展名的文件会被拒绝。
+- 图片放置后可以**调整大小和对齐**，并可设置**替代文本**。
+- 文档内粘贴或导入的图片会经过严格的净化处理：脚本、iframe 和非位图数据 URI 都会被剥离。
+
+### 评论、建议和历史
+
+- **评论**锚定在文本选区上。打开评论面板，或按 `Cmd/Ctrl+Alt+M`：如果光标位于已评论的文本范围内，则聚焦到该评论；否则打开面板以添加新评论。评论支持嵌套**回复**和 **@提及**。
+- **建议**是类似修订模式的修改提议，可以被**接受或拒绝**。
+- **版本历史**（历史面板）：每次保存都会创建版本快照；你可以创建**命名快照**、为版本添加**标签**、查看与当前文本的**差异**（文档模块为按行比较），并**恢复**任意版本。恢复前会要求确认。
+
+### 导航与统计
+
+- **文档大纲**：实时显示标题结构的侧边栏。
+- **字数统计**：实时计数器，可打开详情弹窗。
+- **查找**（`Cmd/Ctrl+F`）和**查找与替换**（`Cmd/Ctrl+H`）。
+- **打印 / 打印为 PDF**：`Cmd/Ctrl+P` 可打印分页后的文档。
 
 ---
 
-## 5. Editing presentations (Slides)
+## 4. 编辑表格（表格模块）
 
-Slides is a positioned-object canvas editor:
+表格模块是完整的电子表格网格（基于 Fortune Sheet 构建）：
 
-- **Free placement** — drag, resize, and rotate text boxes, shapes, and images anywhere on the slide.
-- **Themes** (theme gallery) and a **template gallery** for new decks.
-- **Master slides** — edit the master to change every slide's layout.
-- Per-element **animations** and per-slide **transitions**.
-- An **arrange toolbar** for z-order and alignment of objects.
-- **Presenter view** — speaker notes plus a timer in a second window while presenting.
-- **Present** runs a full-screen slideshow (transitions are hosted by Reveal.js under the hood — the content is still your positioned objects).
+- **公式**：内置大量函数，并实时重新计算。
+- **数字格式**：通过数字格式菜单设置常规、货币、百分比、日期等格式。
+- **条件格式**，包括**色阶**。
+- **数据验证**规则可按区域设置（有专用面板）。
+- **图表**：柱形图、条形图、折线图、面积图和饼图，通过图表向导创建，并以覆盖层形式渲染在网格上。图表在导出后仍然保留（图表元数据随工作簿一起保存）。
+- **筛选**（筛选面板）、**数据透视表**（数据透视面板和图层）、**命名区域**和**冻结窗格**。
+- 对单元格内容进行**查找与替换**。
+- 一个工作簿可包含多个工作表。
 
----
-
-## 5a. Whiteboards
-
-Whiteboards are an infinite hand-drawn canvas, built on the open-source [Excalidraw](https://github.com/excalidraw/excalidraw) editor. Create one with **New → Whiteboard** (from Home, the app rail, or the file browser).
-
-- **Draw anything** — rectangles, ellipses, diamonds, arrows and lines, freehand pen, text labels, and pasted/inserted raster images, all on a pannable, zoomable canvas.
-- **Live collaboration is peer-to-peer**, exactly like Docs: share an invite link (`#vp2p=`) and co-editors connect directly over an end-to-end-encrypted room — every shape merges independently (a Yjs CRDT), and there is **no central whiteboard server**. A plain standalone binary serves its own peer discovery, so this works out of the box; only if your admin turned that off *and* configured no relay does the board fall back to **local-only** with autosave and an honest **Offline** pill rather than a fake "Live" (see §6.3).
-- Your whiteboard **autosaves** to its own file. A **view-only** invite lets someone watch live edits without being able to change the board.
+粘贴：`Cmd/Ctrl+Shift+V` 仅粘贴**数值**。剪贴板文本会被解析为以制表符分隔的行和列，并从当前选中单元格开始作为纯数值插入。
 
 ---
 
-## 6. Live collaboration
+## 5. 编辑演示文稿（幻灯片模块）
 
-Every file has three complementary ways to bring other people in. (Full technical detail: [COLLABORATION.md](COLLABORATION.md).)
+幻灯片模块是一个基于定位对象的画布编辑器：
 
-### 6.1 Share with an account (multi-user instances)
+- **自由放置**：可在幻灯片任意位置拖动、调整大小和旋转文本框、形状和图片。
+- **主题**（主题库）和用于新建演示文稿的**模板库**。
+- **母版幻灯片**：编辑母版即可改变所有幻灯片的版式。
+- 每个元素的**动画**和每张幻灯片的**切换效果**。
+- **排列工具栏**，用于对象的层叠顺序和对齐。
+- **演讲者视图**：放映时在第二个窗口中显示演讲者备注和计时器。
+- **放映**以全屏幻灯片形式运行（切换效果底层由 Reveal.js 提供，内容仍然是你定位的对象）。
 
-On an instance with accounts, use **Share** on a file to grant access to another account, choosing a role:
+---
 
-| Role | Can do |
+## 5a. 白板
+
+白板是一个基于开源编辑器 [Excalidraw](https://github.com/excalidraw/excalidraw) 构建的无限手绘画布。通过**新建 → 白板**创建（可从首页、应用侧栏或文件浏览器进入）。
+
+- **自由绘制**：矩形、椭圆、菱形、箭头和直线、手绘画笔、文字标签，以及粘贴或插入的位图图片，均可在可平移、缩放的画布上完成。
+- **实时协作基于点对点连接**，与文档模块完全相同：分享邀请链接（`#vp2p=`），协作者即可通过端到端加密的房间直接连接。每个图形都会独立合并（Yjs CRDT），并且**没有中心化的白板服务器**。独立运行的二进制文件自带对等节点发现功能，开箱即用；只有当管理员关闭该功能且未配置中继时，白板才会退回到**仅本地**模式，启用自动保存并显示诚实的**离线**标识，而不是虚假的“实时”（参见 §6.3）。
+- 你的白板会**自动保存**到其自己的文件中。**只读**邀请可让他人实时观看编辑内容，但无法修改白板。
+
+---
+
+## 6. 实时协作
+
+每个文件都有三种互补的方式邀请他人参与。（完整技术细节请参阅 [COLLABORATION.md](COLLABORATION.md)。）
+
+### 6.1 与账户共享（多用户实例）
+
+在有账户体系的实例上，对文件使用**共享**，即可授予其他账户访问权限，并选择角色：
+
+| 角色 | 可执行的操作 |
 |------|--------|
-| **Viewer** | Read the document |
-| **Commenter** | Read + add comments |
-| **Editor** | Read + edit content |
+| **查看者** | 阅读文档 |
+| **评论者** | 阅读 + 添加评论 |
+| **编辑者** | 阅读 + 编辑内容 |
 
-Only the **owner** can grant, change, or revoke roles. Shared files appear in the recipient's *Shared with me*. Every grant/change/revoke is recorded in the instance's audit log.
+只有**所有者**可以授予、更改或撤销角色。共享的文件会出现在接收者的**与我共享**中。每一次授予、更改和撤销都会记录在实例的审计日志中。
 
-Account sharing controls **who may open the document from your storage**. Live co-editing itself is **peer-to-peer** (see §6.3 and [COLLABORATION.md](COLLABORATION.md)): when collaborators have the same document open through a collaboration link, their edits sync **directly between browsers**, end-to-end encrypted, and a presence bar shows **who is in the document, with live remote cursors and selections**. There is no central document server in the live path.
+账户共享控制的是**谁可以从你的存储中打开该文档**。实时协同编辑本身是**点对点**的（参见 §6.3 和 [COLLABORATION.md](COLLABORATION.md)）：当协作者通过协作链接打开同一文档时，他们的编辑会**直接在浏览器之间同步**，并采用端到端加密。在线状态栏会显示**文档中有哪些人在线，并实时显示其他人的光标和选区**。实时路径中不存在中心化的文档服务器。
 
-### 6.2 Read-only share links
+### 6.2 只读共享链接
 
-Create a **share link** for a file to let anyone with the link view it (no account needed) at `/view/<token>`:
+为文件创建**共享链接**，任何拥有该链接的人都可以在 `/view/<token>` 查看（无需账户）：
 
-- Links are unguessable (256-bit random tokens).
-- **The URL is shown once, when you create the link.** The server stores only a hash of the token, so it cannot show you the URL again — copy it before you close the dialog. The link list still shows every link (password, expiry, revoke), just not its URL.
-- Optional **password** — stored only as a hash; viewers must enter it before the document name or content is revealed.
-- Optional **expiry**, capped at one year — links can't be eternal.
-- Links are **read-only** and can be **revoked** at any time. Revoking works from the list and needs no URL, so a leaked link can always be killed.
+- 链接不可猜测（256 位随机令牌）。
+- **链接 URL 仅在创建时显示一次。** 服务器只存储令牌的哈希值，因此无法再次显示该 URL，请在关闭对话框前复制。链接列表仍会显示所有链接（密码、有效期、撤销），只是不再显示 URL。
+- 可选**密码**：仅以哈希形式存储；访问者必须输入密码，才能看到文档名称或内容。
+- 可选**有效期**，最长一年，链接不会永久有效。
+- 链接为**只读**，可随时**撤销**。撤销可在列表中直接操作，无需 URL，因此泄露的链接始终可以被废止。
 
-> Upgrading from an earlier release? Links you have already handed out keep working — the server hashes whatever a visitor presents. What you lose is the ability to re-read their URLs from the link list. If you need a URL you no longer have, revoke that link and mint a new one.
+> 从早期版本升级？你已经分发出去的链接仍然有效，因为服务器对访问者提交的内容进行哈希比对。你失去的只是从链接列表中重新查看 URL 的能力。如果你需要某个已经丢失 URL 的链接，请撤销该链接并重新创建。
 
-### 6.3 Collaborate via link (end-to-end encrypted, Docs)
+### 6.3 通过链接协作（端到端加密，文档模块）
 
-For Docs, **Collaborate via link** starts an end-to-end encrypted peer session:
+对于文档模块，**通过链接协作**可启动端到端加密的点对点会话：
 
-- You get two links: a **read-write** link and a **read-only** link. Send the right one to the right people.
-- The secret key travels in the **URL fragment** (`#vp2p=…`) — it is never sent to any server. Anyone who has the link has the key, so share it over a channel you trust.
-- Your edits go **only** to the encrypted peer channel — peers connect directly (WebRTC), and there is no server in the path that could read them.
-- **Rotate** mints a brand-new room and links; the old links stop working. Use it to cut off previously shared links.
-- Read-only peers see live edits but cannot make authoritative changes.
-- A tampered or malformed invite link simply fails to join — the editor stays in normal local mode.
+- 你会获得两个链接：**可读写**链接和**只读**链接。请将正确的链接发给正确的人。
+- 密钥通过 **URL 片段**（`#vp2p=…`）传递，**从不发送到任何服务器**。拥有链接的人即拥有密钥，因此请通过你信任的渠道分享。
+- 你的编辑内容**仅**发送到加密的点对点通道：对等节点直接连接（WebRTC），路径中没有任何可以读取内容的服务器。
+- **轮换**会生成全新的房间和链接，旧链接随即失效。可用于收回之前分享出去的链接。
+- 只读对等节点可以看到实时编辑，但无法进行具有权威性的修改。
+- 被篡改或格式错误的邀请链接只会加入失败，编辑器会保持正常的本地模式。
 
-> Note: the peer-to-peer channel needs a peer-discovery transport to be reachable. By default the Liwan server you are using provides one itself (`/api/rendezvous/*`), so nothing needs configuring; an admin may instead put Liwan behind a Vulos OS / Pier deployment (the `/api/peering/*` fabric) or point it at a self-hosted `vulos-relayd` (`collab.rendezvous_url` — see [CONFIGURATION.md](CONFIGURATION.md)). Only if an admin disables the built-in surface *and* configures neither of the others can invite-link collaboration not connect peers; account-based live collaboration (6.1) is the path that works regardless.
-
----
-
-## 7. Offline behavior
-
-Liwan is deliberately resilient to bad networks:
-
-- **App shell offline**: the service worker caches the application itself, so the app opens even with no network. API data is never cached — you see the app, and your locally cached work, not stale server state.
-- **Crash-safe drafts**: before every save to the server, the document is written to a local IndexedDB draft. If the browser crashes or you go offline mid-edit, the editor offers to **restore the pending draft** on reload. Drafts are cleared after a successful save.
-- **Save state**: the editor surfaces its save status (dirty / saving / saved / error) so you always know whether your work has reached the server.
-- **Collaboration while offline**: edits keep applying locally and are buffered; when the connection returns, the session exchanges state with the server/peers and **converges without losing either side's edits** (the merge is CRDT-based — see [COLLABORATION.md](COLLABORATION.md)).
-- **Conflict on save**: if the file changed on the server since you loaded it (e.g. a colleague saved from another device), the save is refused rather than silently overwriting, and the editor reconciles with the current server revision and retries.
+> 注意：点对点通道需要对等节点发现传输层才能连通。默认情况下，你所使用的 Liwan 服务器自身会提供该功能（`/api/rendezvous/*`），因此无需任何配置；管理员也可以将 Liwan 部署在 Vulos OS / Pier 之后（使用 `/api/peering/*` 接口），或将其指向自托管的 `vulos-relayd`（`collab.rendezvous_url`，参见 [CONFIGURATION.md](CONFIGURATION.md)）。只有当管理员同时禁用了内置功能，并且没有配置其他两种方式时，邀请链接协作才无法连接对等节点；基于账户的实时协作（6.1）在任何情况下都可以使用。
 
 ---
 
-## 8. Import & Export
+## 7. 离线行为
 
-### Opening (import) — supported formats
+Liwan 有意设计为能够应对糟糕的网络环境：
 
-| Surface | Formats you can open |
+- **离线应用外壳**：Service Worker 会缓存应用本身，因此即使没有网络，应用也能打开。API 数据从不缓存：你看到的是应用和本地缓存的工作内容，而不是过时的服务器状态。
+- **防崩溃草稿**：每次保存到服务器之前，文档都会先写入本地 IndexedDB 草稿。如果浏览器崩溃，或你在编辑过程中断网，重新加载时编辑器会提示**恢复待处理草稿**。草稿在成功保存后会被清除。
+- **保存状态**：编辑器会显示保存状态（未保存 / 保存中 / 已保存 / 出错），让你随时了解工作内容是否已到达服务器。
+- **离线时协作**：编辑会继续在本地生效并缓存；连接恢复后，会话会与服务器/对等节点交换状态，并**收敛且不丢失任何一方的编辑**（合并基于 CRDT，参见 [COLLABORATION.md](COLLABORATION.md)）。
+- **保存时冲突**：如果自你加载文件以来服务器上的文件已发生变化（例如同事从其他设备保存了），保存会被拒绝而不是静默覆盖。编辑器会与服务器的当前版本协调并重试。
+
+---
+
+## 8. 导入与导出
+
+### 打开（导入）— 支持的格式
+
+| 模块 | 可打开的格式 |
 |---------|----------------------|
-| Docs | `.md`, `.txt`, `.docx`, `.rtf`, `.html`/`.htm`, `.odt` |
-| Sheets | `.xlsx`, `.xls`, `.csv`, `.tsv`, `.ods` |
-| Slides | `.pptx`, `.odp` |
+| 文档 | `.md`、`.txt`、`.docx`、`.rtf`、`.html`/`.htm`、`.odt` |
+| 表格 | `.xlsx`、`.xls`、`.csv`、`.tsv`、`.ods` |
+| 幻灯片 | `.pptx`、`.odp` |
 | PDF | `.pdf` |
 
-Legacy binary **`.doc` / `.xls` / `.ppt` are not supported** — re-save them as `.docx` / `.xlsx` / `.pptx` (or ODF) first; the Open dialog will tell you the same.
+旧版二进制格式 **`.doc` / `.xls` / `.ppt` 不受支持**，请先另存为 `.docx` / `.xlsx` / `.pptx`（或 ODF）格式；打开对话框也会给出相同提示。
 
-Notes on import fidelity:
+关于导入保真度的说明：
 
-- `.docx` import extracts embedded images as inline data — nothing is fetched from the network during import, and remote image references in the source file are dropped rather than fetched.
-- All imported HTML passes through the sanitizer before it reaches the editor.
-- Import size and archive bounds are enforced, so a hostile file can't hang the app.
+- `.docx` 导入会将嵌入的图片提取为内联数据。导入过程中不会从网络获取任何内容；源文件中的远程图片引用会被丢弃，而不会被获取。
+- 所有导入的 HTML 在进入编辑器之前都会经过净化器处理。
+- 导入的大小和压缩包边界受到限制，因此恶意文件不会导致应用卡死。
 
-### Exporting
+### 导出
 
-| Surface | Export formats | Where it happens |
+| 模块 | 导出格式 | 执行位置 |
 |---------|----------------|------------------|
-| Docs | **PDF** (via print), **DOCX**, **ODT**, **Markdown**, **HTML** | PDF/DOCX also available server-side; ODT/MD/HTML in the browser |
-| Sheets | **XLSX**, **CSV**, **ODS** | XLSX also available server-side |
-| Slides | **PDF** (via print), **PPTX** | PPTX is generated in the browser |
-| Signed PDFs | Sealed **PDF** + audit **manifest** download | Server-side |
+| 文档 | **PDF**（通过打印）、**DOCX**、**ODT**、**Markdown**、**HTML** | PDF/DOCX 也可在服务器端导出；ODT/MD/HTML 在浏览器中导出 |
+| 表格 | **XLSX**、**CSV**、**ODS** | XLSX 也可在服务器端导出 |
+| 幻灯片 | **PDF**（通过打印）、**PPTX** | PPTX 在浏览器中生成 |
+| 已签署 PDF | 已封存的 **PDF** + 审计**清单**下载 | 服务器端 |
 
-Sheets exports neutralize spreadsheet formula injection: cells beginning with `=`, `+`, `-`, or `@` are escaped on the way out so a malicious sheet can't attack another spreadsheet program.
+表格导出会对电子表格公式注入进行防护：以 `=`、`+`、`-` 或 `@` 开头的单元格在导出时会被转义，以防恶意表格攻击其他电子表格程序。
 
-There is also a scripting-friendly REST API (`/v1/documents/...`) that can create, read, and export documents — see [API.md](API.md).
-
----
-
-## 9. PDFs and signing
-
-The PDF surface lets you:
-
-- **View** PDFs, and **reorder** (drag thumbnails), **rotate**, and **delete** pages.
-- **Annotate** — text, freehand drawing, shapes.
-- **Fill forms** — interactive AcroForm fields are detected and can be filled.
-- **Sign** — draw, type, or upload a signature.
-- **Signing envelopes** — send a document to multiple signers, sequentially or in parallel, from the envelope dashboard (`/envelopes`). Each signer receives a link to a public signer page (`/sign/<token>`) — no account needed — and can sign or decline. You can track status and cancel.
-- **Sealed output** — when an envelope completes, download the sealed PDF and its cryptographic **manifest**; anyone can check a signed document on the public **verify** page (`/verify`).
+此外还提供便于脚本调用的 REST API（`/v1/documents/...`），可用于创建、读取和导出文档 — 参见 [API.md](API.md)。
 
 ---
 
-## 10. Keyboard shortcuts
+## 9. PDF 与签署
 
-`Mod` means `Cmd` on macOS, `Ctrl` elsewhere.
+PDF 模块可以让你：
 
-### Docs
+- **查看** PDF，并**重新排序**（拖动缩略图）、**旋转**和**删除**页面。
+- **批注**：文字、手绘、形状。
+- **填写表单**：会检测交互式 AcroForm 字段，并可进行填写。
+- **签署**：手绘、输入或上传签名。
+- **签署信封**：从信封面板（`/envelopes`）将文档发送给多位签署人，可按顺序或并行签署。每位签署人都会收到一个指向公开签署页面（`/sign/<token>`）的链接，无需账户，即可签署或拒签。你可以跟踪状态并取消。
+- **封存输出**：信封完成后，可下载封存的 PDF 及其加密**清单**；任何人都可以在公开的**验证**页面（`/verify`）上检验已签署的文档。
 
-| Shortcut | Action |
+---
+
+## 10. 键盘快捷键
+
+`Mod` 在 macOS 上表示 `Cmd`，在其他系统上表示 `Ctrl`。
+
+### 文档
+
+| 快捷键 | 操作 |
 |----------|--------|
-| `Mod+B` | Bold |
-| `Mod+I` | Italic (standard editor binding) |
-| `Mod+U` | Underline (standard editor binding) |
-| `Mod+K` | Insert/edit link on selection |
-| `Mod+,` | Subscript |
-| `Mod+.` | Superscript |
-| `Mod+F` | Find |
-| `Mod+H` | Find & replace |
-| `Mod+P` | Print / print-to-PDF |
-| `Mod+Alt+M` | Focus comment at caret, or open the comments panel |
-| `Mod+Z` / `Mod+Shift+Z` | Undo / redo (standard editor binding) |
+| `Mod+B` | 粗体 |
+| `Mod+I` | 斜体（编辑器标准绑定） |
+| `Mod+U` | 下划线（编辑器标准绑定） |
+| `Mod+K` | 在选中内容上插入/编辑链接 |
+| `Mod+,` | 下标 |
+| `Mod+.` | 上标 |
+| `Mod+F` | 查找 |
+| `Mod+H` | 查找与替换 |
+| `Mod+P` | 打印 / 打印为 PDF |
+| `Mod+Alt+M` | 聚焦光标处的评论，或打开评论面板 |
+| `Mod+Z` / `Mod+Shift+Z` | 撤销 / 重做（编辑器标准绑定） |
 
-Docs also supports typographic input shortcuts (e.g. straight quotes to smart quotes) and markdown-style input for lists and headings via the editor's input rules.
+文档模块还支持排版输入快捷方式（例如直引号自动转换为弯引号），并可通过编辑器的输入规则使用 Markdown 风格的列表和标题输入。
 
-### Sheets
+### 表格
 
-| Shortcut | Action |
+| 快捷键 | 操作 |
 |----------|--------|
-| `Mod+/` | Show the shortcuts help overlay |
-| `Mod+;` | Insert today's date in the focused cell |
-| `Mod+Shift+;` | Insert the current time |
-| `Mod+Shift+V` | Paste values only (plain TSV, no formatting) |
+| `Mod+/` | 显示快捷键帮助浮层 |
+| `Mod+;` | 在当前单元格插入今天的日期 |
+| `Mod+Shift+;` | 插入当前时间 |
+| `Mod+Shift+V` | 仅粘贴数值（纯 TSV，无格式） |
 
-The in-app help overlay (`Mod+/` in Sheets) is always the authoritative list for your version.
+应用内帮助浮层（表格中的 `Mod+/`）始终是你所用版本的权威快捷键列表。
 
 ---
 
-## 11. Settings and notifications
+## 11. 设置与通知
 
-- **Settings** (`/settings`) — account, storage and admin info; admins additionally get the **Admin** panel with invite management and the audit log.
-- **Notifications** — the bell lists events like shares and comment mentions; mark items (or everything) read.
+- **设置**（`/settings`）— 账户、存储和管理员信息；管理员还可以使用**管理**面板，进行邀请管理并查看审计日志。
+- **通知**：铃铛图标会列出共享、评论提及等事件；可将条目（或全部）标记为已读。
 
-## 12. Where to go next
+## 12. 下一步
 
-- Something not syncing or exporting? → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-- How collaboration and encryption actually work → [COLLABORATION.md](COLLABORATION.md)
-- Running your own instance → [ADMIN-GUIDE.md](ADMIN-GUIDE.md)
+- 有内容无法同步或导出？→ [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- 协作和加密的实际工作原理 → [COLLABORATION.md](COLLABORATION.md)
+- 运行你自己的实例 → [ADMIN-GUIDE.md](ADMIN-GUIDE.md)

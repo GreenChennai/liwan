@@ -1,147 +1,97 @@
-# Security Testing — Liwan
+# 安全测试 — Liwan
 
-This document describes the **pentest / adversarial test suite** for the
-`liwan` backend (Go) and the document/slide HTML render path (JSX/vitest).
+本文档描述 `liwan` 后端（Go）以及文档/幻灯片 HTML 渲染路径（JSX/vitest）的**渗透/对抗测试套件**。
 
-> Liwan is the documents-only product. Chat and video are third-party
-> (Matrix/Element; Element Call / Jitsi), not Vulos products; this document covers
-> only Liwan's own attack surface.
+> Liwan 是仅包含文档的产品。聊天和视频由第三方提供（Matrix/Element；Element Call / Jitsi），并非 Vulos 产品；本文档仅涵盖 Liwan 自身的攻击面。
 
-The suites are written attacker-first: every test **attempts a concrete attack
-and asserts it is blocked**. A green run means the corresponding defense holds.
-If one of these tests ever goes red, treat it as a **live vulnerability**, not a
-flaky test.
+这些套件采用攻击者视角编写：每个测试都**尝试一次具体的攻击，并断言其被阻止**。运行全部通过，意味着相应的防御措施有效。如果其中任何一个测试变红，应将其视为**正在存在的漏洞**，而不是不稳定的测试。
 
-## How to run
+## 运行方法
 
-Go (backend) pentests:
+Go（后端）渗透测试：
 
 ```bash
 cd liwan
 
-# Run only the pentest suites (verbose):
+# 仅运行渗透测试套件（详细输出）：
 CGO_ENABLED=0 go test ./backend/... -run 'Pentest' -v
 
-# Or the whole backend test suite (includes pentests + unit tests):
+# 或运行整个后端测试套件（包括渗透测试和单元测试）：
 CGO_ENABLED=0 go build ./... && CGO_ENABLED=0 go vet ./... && CGO_ENABLED=0 go test ./...
 ```
 
-Frontend (HTML render / sanitiser) pentest:
+前端（HTML 渲染 / 净化器）渗透测试：
 
 ```bash
 cd liwan
 npx vitest run src/apps/slides/sanitize.test.js
-# or the full vitest suite:
+# 或完整的 vitest 套件：
 npm test
 ```
 
-## Where the tests live
+## 测试文件位置
 
-| File | Layer | Attack classes |
+| 文件 | 层级 | 攻击类别 |
 |------|-------|----------------|
-| `backend/middleware/pentest_token_test.go` | Auth middleware | 1 (auth/token), 2 (identity at middleware) |
-| `backend/handlers/pentest_files_test.go` | File handlers | 2 (identity spoof), 3 (file IDOR), 6 (CSRF/ambient authority) |
-| `backend/handlers/pentest_authorid_test.go` | Comment/author binding | 2 (author-id forgery) |
-| `backend/handlers/pentest_envelopes_test.go` | Signing envelopes | 3 (envelope/signer authz) |
-| `backend/handlers/pentest_localfiles_test.go` | Local-file serve | 3 (path traversal) |
-| `backend/handlers/pentest_creds_test.go` | Auth/creds | 5 (per-user credentials) |
-| `backend/handlers/pentest_helpers_test.go` / `pentest_storage_test.go` | test harness | (support) |
-| `backend/handlers/sharelink_sec_test.go` | Share-link view route | 3 (write escalation from a token), 7 (brute force / existence oracle) |
-| `backend/handlers/sharelink_token_once_test.go` | Share-link management API | 7 (credential-at-rest: no endpoint may re-emit a link token) |
-| `backend/storage/local_sharelinks_hash_test.go` / `postgres_sharelinks_test.go` | Share-link persistence | 7 (credential-at-rest: no backend may store a token in the clear) |
-| `src/apps/slides/sanitize.test.js` | JSX render path | 4 (XSS) |
+| `backend/middleware/pentest_token_test.go` | 认证中间件 | 1（认证/令牌），2（中间件层的身份） |
+| `backend/handlers/pentest_files_test.go` | 文件处理器 | 2（身份伪造），3（文件 IDOR），6（CSRF/环境权限） |
+| `backend/handlers/pentest_authorid_test.go` | 评论/作者绑定 | 2（作者 id 伪造） |
+| `backend/handlers/pentest_envelopes_test.go` | 签署信封 | 3（信封/签署人授权） |
+| `backend/handlers/pentest_localfiles_test.go` | 本地文件服务 | 3（路径穿越） |
+| `backend/handlers/pentest_creds_test.go` | 认证/凭据 | 5（每用户凭据） |
+| `backend/handlers/pentest_helpers_test.go` / `pentest_storage_test.go` | 测试框架 | （辅助） |
+| `backend/handlers/sharelink_sec_test.go` | 分享链接查看路由 | 3（凭令牌进行写入提权），7（暴力破解 / 存在性探测） |
+| `backend/handlers/sharelink_token_once_test.go` | 分享链接管理 API | 7（静态凭据：任何端点都不得重新输出链接令牌） |
+| `backend/storage/local_sharelinks_hash_test.go` / `postgres_sharelinks_test.go` | 分享链接持久化 | 7（静态凭据：任何后端都不得以明文存储令牌） |
+| `src/apps/slides/sanitize.test.js` | JSX 渲染路径 | 4（XSS） |
 
-These build on (and do not replace) the pre-existing focused tests:
-`backend/middleware/auth_test.go`, `backend/handlers/files_authz_test.go`,
-`backend/handlers/auth_creds_test.go`, and `src/apps/slides/sanitize.test.js`.
+这些测试是对先前已有的专项测试的补充（而非替代）：`backend/middleware/auth_test.go`、`backend/handlers/files_authz_test.go`、`backend/handlers/auth_creds_test.go` 以及 `src/apps/slides/sanitize.test.js`。
 
-## Threat coverage (attack classes)
+## 威胁覆盖（攻击类别）
 
-### 1. Auth / token forgery (`pentest_token_test.go`)
-- Forged JWT signed with the **wrong secret** → 401.
-- **alg=none** (unsigned) token → 401 (alg-confusion blocked).
-- **RS256** token presented to an HS256 verifier → 401 (the middleware pins the
-  signing method to `*SigningMethodHMAC`).
-- **Expired** token (validly signed) → 401.
-- **Tampered** payload (signature no longer matches) → 401.
-- **Missing** token on a protected route → 401.
-- Garbage bearer value → 401.
-- **Dev-secret gating**: the well-known dev key is rejected while a real secret
-  is configured; with **no secret and dev mode off** the verifier **fails closed
-  (503)** — it never silently accepts the dev key.
+### 1. 认证 / 令牌伪造（`pentest_token_test.go`）
+- 使用**错误密钥**签名的伪造 JWT → 401。
+- **alg=none**（未签名）令牌 → 401（阻止算法混淆）。
+- 提交给 HS256 验证器的 **RS256** 令牌 → 401（中间件将签名方法固定为 `*SigningMethodHMAC`）。
+- **已过期**的令牌（签名有效）→ 401。
+- **被篡改**的负载（签名不再匹配）→ 401。
+- 受保护路由上**缺失**令牌 → 401。
+- 乱码的 bearer 值 → 401。
+- **开发密钥门控**：配置了真实密钥时，已知的开发密钥会被拒绝；在**没有密钥且未开启开发模式**时，验证器会**失败即关闭（503）**——它绝不会悄悄接受开发密钥。
 
-### 2. Identity spoofing (`pentest_token_test.go`, `pentest_files_test.go`, `pentest_authorid_test.go`)
-- A forged `X-Account-ID` header does **not** change the acting identity for a
-  non-admin; identity is taken only from the verified JWT `sub`.
-- Admin impersonation via `X-Account-ID` is gated on the **verified admin
-  scope** (`vulos:admin` audience), not on header presence.
-- A forged author id on a comment/reply is rejected — authorship is bound to the
-  verified identity, not the request body.
+### 2. 身份伪造（`pentest_token_test.go`、`pentest_files_test.go`、`pentest_authorid_test.go`）
+- 伪造的 `X-Account-ID` 头**不会**改变非管理员的操作身份；身份仅取自已验证 JWT 的 `sub`。
+- 通过 `X-Account-ID` 进行的管理员冒充，取决于**已验证的管理员范围**（`vulos:admin` audience），而不仅仅是头部是否存在。
+- 评论/回复中伪造的作者 id 会被拒绝——作者身份绑定于已验证的身份，而非请求体。
 
-### 3. File IDOR / ACL (`pentest_files_test.go`, `pentest_envelopes_test.go`, `pentest_localfiles_test.go`)
-The per-file ACL (`backend/fileacl`) is enforced by **every** file-scoped
-handler, all sharing the process-wide `SharedFileAuthz`. The pentests prove a
-non-owner cannot pivot from a denied `GET /files/:id` to an open sibling endpoint:
-- Non-owner Get/Update/Delete/**export**/**comment**/**version** → **404**
-  (no existence leak — denial mimics "not found").
-- `List` returns only the caller's accessible files (no cross-tenant leak).
-- An explicit **share** grants the grantee access across the secondary handlers;
-  a non-shared **third party is still denied**.
-- A non-owner **cannot self-share** the victim's file to gain access.
-- Admins bypass the ACL (by design).
-- Signing-envelope and signer endpoints are scoped to the document owner / the
-  scoped signer token; the local-file serve path rejects `..` traversal.
+### 3. 文件 IDOR / ACL（`pentest_files_test.go`、`pentest_envelopes_test.go`、`pentest_localfiles_test.go`）
+每个面向文件的处理器都会执行按文件的 ACL（`backend/fileacl`），它们都共享进程级的 `SharedFileAuthz`。渗透测试证明：非所有者无法从被拒绝的 `GET /files/:id` 转而访问同级的开放端点：
+- 非所有者的 Get/Update/Delete/**export**/**comment**/**version** → **404**（不泄露存在性——拒绝与“未找到”一致）。
+- `List` 仅返回调用者可访问的文件（无跨租户泄露）。
+- 显式**共享**会授予被授权者在各个次级处理器上的访问权限；未共享的**第三方仍然被拒绝**。
+- 非所有者**无法自行共享**受害者的文件以获得访问权限。
+- 管理员按设计绕过 ACL。
+- 签署信封与签署人端点限定于文档所有者 / 限定范围的签署人令牌；本地文件服务路径会拒绝 `..` 穿越。
 
-### 4. XSS (`src/apps/slides/sanitize.test.js`)
-Exercises the document/slide HTML render pipeline (DOMPurify `sanitize()` →
-`dangerouslySetInnerHTML`) with hostile content (`<script>`, `<img onerror>`,
-`<svg onload>`, `<iframe>`, `javascript:` / `vbscript:` URLs, autofocus/ontoggle
-handlers). Assertions are **DOM-level**: no executable element survives and no
-element carries an `on*` handler or a `javascript:`/`vbscript:` URL attribute.
+### 4. XSS（`src/apps/slides/sanitize.test.js`）
+针对文档/幻灯片的 HTML 渲染管线（DOMPurify `sanitize()` → `dangerouslySetInnerHTML`），使用恶意内容进行测试（`<script>`、`<img onerror>`、`<svg onload>`、`<iframe>`、`javascript:` / `vbscript:` URL、autofocus/ontoggle 处理器）。断言是 **DOM 级别**的：没有可执行元素存活，且没有元素带有 `on*` 处理器或 `javascript:`/`vbscript:` URL 属性。
 
-### 5. Per-user credentials (`pentest_creds_test.go`, plus `auth_creds_test.go`)
-- Once a user is registered, the legacy **shared password** can no longer
-  authenticate that account (self-asserted-identity hole stays closed).
-- Wrong password → rejected.
-- **No user-enumeration oracle**: an unknown account and a wrong password return
-  the same `ErrInvalidCredential`; the store also runs a dummy bcrypt compare to
-  keep timing roughly constant.
-- Empty password never authenticates.
-- Registration validation: duplicate registration is rejected (no account
-  takeover); passwords shorter than 8 chars are rejected.
+### 5. 每用户凭据（`pentest_creds_test.go`，以及 `auth_creds_test.go`）
+- 一旦某用户完成注册，旧版**共享密码**就无法再对该账户进行认证（自断言身份漏洞保持关闭）。
+- 密码错误 → 被拒绝。
+- **无用户枚举探测点**：不存在的账户与密码错误都返回相同的 `ErrInvalidCredential`；存储还会执行一次虚拟的 bcrypt 比较，以使耗时大致恒定。
+- 空密码永远无法通过认证。
+- 注册校验：重复注册被拒绝（防止账户被接管）；少于 8 个字符的密码被拒绝。
 
-### 6. CSRF / method (`pentest_files_test.go`)
-The office API is **bearer/JWT-driven**: every handler trusts only the
-context identity derived from the verified token (`Authorization: Bearer` or an
-explicit token). A cross-site request cannot attach the `Authorization` header,
-so **classic CSRF is N/A** for the bearer path. The session **cookie** path is
-mitigated with `HttpOnly` + `SameSite=Lax` (see `backend/handlers/auth.go`
-`Login`), and the token is never returned in the response body. The pentest
-proves there is **no ambient authority**: a state-changing request that carries
-no verified token (and only a forged `X-Account-ID`) is attributed to the local
-`self` identity, **never** to an attacker-named account.
+### 6. CSRF / 方法（`pentest_files_test.go`）
+Office API 由 **bearer/JWT 驱动**：每个处理器都只信任从已验证令牌（`Authorization: Bearer` 或显式令牌）派生出的上下文身份。跨站请求无法附加 `Authorization` 头，因此在 bearer 路径上，经典 CSRF **不适用**。会话 **cookie** 路径通过 `HttpOnly` + `SameSite=Lax` 进行缓解（参见 `backend/handlers/auth.go` 的 `Login`），且令牌永远不会在响应体中返回。该渗透测试证明系统**不存在环境权限**：一个不携带已验证令牌的状态变更请求（仅携带伪造的 `X-Account-ID`），会被归属到本地 `self` 身份，而**绝不会**归属到攻击者指定的账户。
 
-### 7. Credentials at rest (`sharelink_token_once_test.go`, `local_sharelinks_hash_test.go`, `postgres_sharelinks_test.go`)
+### 7. 静态凭据（`sharelink_token_once_test.go`、`local_sharelinks_hash_test.go`、`postgres_sharelinks_test.go`）
 
-A share-link token is a bearer capability: possession is access. It was stored
-**in the clear** — as the filename and a `token` field in
-`data/sharelinks/<token>.json`, and in `share_links.token` on Postgres — so
-read access to the store was read access to every document those links pointed
-at. `backend/invites` had the right shape all along (SHA-256 of the raw token,
-raw shown once at mint); share links now match it.
+分享链接令牌是一种 bearer 能力：持有即拥有访问权。它过去以**明文**形式存储——作为 `data/sharelinks/<token>.json` 的文件名以及其中的 `token` 字段，在 Postgres 中则存储于 `share_links.token`——因此，对存储的读取权限就等于对这些链接所指向的每一份文档的读取权限。`backend/invites` 从一开始就采用了正确的设计（对原始令牌做 SHA-256，原始令牌仅在创建时展示一次）；现在分享链接也与之保持一致。
 
-The suites above assert the negative space directly: that the plaintext is
-absent from the bytes on disk and from the database column, that no read path
-on any backend can return a token, that the management endpoint emits no
-`token` key at all, and that presenting the stored hash to the view route does
-not open the document. Records written by the previous release convert in place
-on first use, and there are tests for that too — an existing link that stopped
-working would be as much a defect as a leaked one.
+上述测试直接断言了“不应存在”的部分：明文不出现在磁盘字节或数据库列中；任何后端的任何读取路径都不能返回令牌；管理端点根本不输出 `token` 键；将存储的哈希提交给查看路由也不会打开文档。上一版本写入的记录会在首次使用时就地转换，对此也有相应测试——一个已存在的链接停止工作，与一个泄露的链接同样是缺陷。
 
-## Findings
+## 发现的问题
 
-One finding, fixed: share-link tokens were stored in plaintext (see class 7
-above). Everything else in this suite was already blocked when the tests were
-written. If you add a new file-scoped, signer-scoped, or admin-scoped endpoint,
-extend the relevant pentest suite with a negative test before shipping — and if
-you add a new bearer credential, store its hash, not it.
+已修复一项问题：分享链接令牌以明文存储（见上文第 7 类）。本套件中的其他内容在编写测试时就已被阻止。如果你新增了面向文件、签署人或管理员范围的端点，请在发布前为相应的渗透测试套件补充一个负面测试；如果你新增了 bearer 凭据，请存储其哈希，而不是凭据本身。

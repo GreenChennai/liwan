@@ -1,16 +1,16 @@
-# Liwan – Service Level Objectives
+# Liwan – 服务等级目标（SLO）
 
-| # | Surface | Target | Measurement | Error budget (99.9% / month) | Rollback trigger |
+| # | 服务面 | 目标 | 度量方式 | 错误预算（99.9% / 月） | 回滚触发条件 |
 |---|---------|--------|-------------|------------------------------|------------------|
-| 1 | **WebSocket signaling p95** | < 100 ms for CRDT op round-trip | Trace span `crdt.sync` | 43.2 min/month | p95 > 200 ms for 5 min → halt deploy |
-| 2 | **File API p95** | < 300 ms (GET /api/files/:id) | `liwan_request_duration_seconds` p95 | 43.2 min/month | p95 > 600 ms for 5 min → alert |
-| 3 | **Signing workflow p99** | < 2 s from POST /sign/:envelope/send | Trace span `signing.send` | 43.2 min/month | p99 > 5 s → alert |
-| 4 | **API error rate** | < 0.5% | `liwan_error_count_total / liwan_request_count_total` | 26 min/month | Rate > 2% for 2 min → halt deploy + alert |
-| 5 | **Availability** | 99.5% | HTTP `/api/auth/status` probe every 60 s | 3.6 h/month | 3 consecutive failures → restart + alert |
-| 6 | **CRDT merge time** | < 50 ms for a 1 000-op document | Trace span `crdt.merge` | Advisory | Merge > 200 ms p95 → alert; investigate before next deploy |
+| 1 | **WebSocket 信令 p95** | CRDT 操作往返 < 100 ms | 追踪 span `crdt.sync` | 43.2 分钟/月 | p95 > 200 ms 持续 5 分钟 → 暂停发布 |
+| 2 | **文件 API p95** | < 300 ms（GET /api/files/:id） | `liwan_request_duration_seconds` 的 p95 | 43.2 分钟/月 | p95 > 600 ms 持续 5 分钟 → 告警 |
+| 3 | **签署工作流 p99** | 从 POST /sign/:envelope/send 起 < 2 s | 追踪 span `signing.send` | 43.2 分钟/月 | p99 > 5 s → 告警 |
+| 4 | **API 错误率** | < 0.5% | `liwan_error_count_total / liwan_request_count_total` | 26 分钟/月 | 错误率 > 2% 持续 2 分钟 → 暂停发布 + 告警 |
+| 5 | **可用性** | 99.5% | 每 60 秒探测 HTTP `/api/auth/status` | 3.6 小时/月 | 连续 3 次失败 → 重启 + 告警 |
+| 6 | **CRDT 合并耗时** | 1 000 操作的文档 < 50 ms | 追踪 span `crdt.merge` | 仅供参考 | 合并 p95 > 200 ms → 告警；在下次发布前排查 |
 
-## Notes
+## 说明
 
-- WebSocket signaling SLO covers the server-side fan-out path; client RTT is excluded.
-- Signing SLO covers server-side envelope creation + email dispatch initiation.
-- CRDT merge is advisory; excessive merge time indicates a modeling issue requiring investigation, not rollback.
+- WebSocket 信令 SLO 仅覆盖服务端的扇出路径；客户端往返时延不计入。
+- 签署 SLO 覆盖服务端的信封创建 + 邮件派发启动。
+- CRDT 合并仅作参考；合并耗时过长表明存在建模问题，需要排查，而不是回滚。

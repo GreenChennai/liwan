@@ -1,15 +1,12 @@
-# Threat Model — Liwan
+# 威胁模型 — Liwan
 
-STRIDE pass. Last updated: 2026-06-26.
+STRIDE 分析。最后更新：2026-06-26。
 
-> **Scope:** Liwan is the **documents-only** product (Docs, Sheets, Slides,
-> PDF/Signing). Calendar/Contacts come from the bring-your-own-mailbox PIM connector
-> (lilmail, CalDAV/CardDAV), and chat/video are third-party (Matrix/Element; Element
-> Call / Jitsi) — those surfaces are out of scope here.
+> **范围：** Liwan 是**仅包含文档的**产品（Docs、Sheets、Slides、PDF/Signing）。日历/通讯录来自自带邮箱的 PIM 连接器（lilmail，CalDAV/CardDAV），聊天和视频由第三方提供（Matrix/Element；Element Call / Jitsi）——这些界面不在本文档范围之内。
 
 ---
 
-## Scope and Trust Boundaries
+## 范围与信任边界
 
 ```
 [Browser clients (multiple users)]
@@ -24,67 +21,67 @@ STRIDE pass. Last updated: 2026-06-26.
 [Storage (SQLite + blob)]
 ```
 
-Trust boundaries:
-- **Browser ↔ Backend API**: authenticated session. Browser input is untrusted.
-- **Backend API ↔ Storage**: server-internal; storage is private to the backend process.
-- **PDF signing**: signing key is held server-side; signing operation is privileged.
+信任边界：
+- **浏览器 ↔ 后端 API**：已认证会话。浏览器输入是不可信的。
+- **后端 API ↔ 存储**：服务器内部；存储对后端进程是私有的。
+- **PDF 签名**：签名密钥保存在服务器端；签名操作属于特权操作。
 
 ---
 
-## Component 1: CRDT Fabric
+## 组件一：CRDT Fabric
 
-### Trust boundaries
-- CRDT operations are submitted by authenticated clients.
-- The merge engine applies operations from all participants; each participant's operations are trusted within their session scope.
-- A malicious or buggy client can submit valid-looking but semantically destructive operations.
+### 信任边界
+- CRDT 操作由已认证的客户端提交。
+- 合并引擎会应用所有参与者的操作；每个参与者的操作在其会话范围内被视为可信。
+- 恶意或有缺陷的客户端可以提交看似有效、但语义上具有破坏性的操作。
 
-### Top 3 STRIDE threats
+### STRIDE 前三大威胁
 
-| # | Category | Threat |
-|---|----------|--------|
-| 1 | **Tampering** | A client submits a large number of CRDT operations in rapid succession, causing unbounded memory growth in the merge engine (algorithmic DoS). |
-| 2 | **Tampering** | Crafted CRDT operation vector clocks with forged peer IDs allow a client to replay or suppress another client's edits. |
-| 3 | **Information Disclosure** | Deleted CRDT operations (tombstones) retain original content in the operation log; a user who should no longer have access can reconstruct deleted data. |
+| # | 类别 | 威胁 |
+|---|------|------|
+| 1 | **篡改（Tampering）** | 客户端在短时间内提交大量 CRDT 操作，导致合并引擎内存无界增长（算法型拒绝服务）。 |
+| 2 | **篡改（Tampering）** | 伪造的 CRDT 操作向量时钟与伪造的对等方 ID，使客户端能够重放或抑制另一客户端的编辑。 |
+| 3 | **信息泄露（Information Disclosure）** | 已删除的 CRDT 操作（墓碑，tombstone）在操作日志中保留了原始内容；一个本不该再有访问权限的用户可以重建已删除的数据。 |
 
-### Mitigations in code
-- Per-session operation rate limiting in `crdt/` handlers.
-- Peer IDs in operations are derived from the authenticated session, not supplied by the client.
-- Document compaction (tombstone GC) implemented in `crdt/` to prune old operation history.
+### 代码中的缓解措施
+- 在 `crdt/` 处理器中实施按会话的操作频率限制。
+- 操作中的对等方 ID 派生自已认证会话，而不是由客户端提供。
+- 在 `crdt/` 中实现文档压缩（墓碑回收，tombstone GC），以清理旧的操作历史。
 
-### Residual risks
-- Compaction is manual / scheduled; tombstone data persists until GC runs.
-- CRDT convergence proofs for custom document types are informal; corner-case divergence is possible.
-
----
-
-## Component 2: PDF Auto-Sign
-
-### Trust boundaries
-- Signing key stored server-side; accessible only to the signing handler.
-- Client supplies the document to be signed; document content is untrusted.
-- Signed output is written to blob storage and returned to the client.
-
-### Top 3 STRIDE threats
-
-| # | Category | Threat |
-|---|----------|--------|
-| 1 | **Tampering** | Maliciously crafted PDF (e.g. with incremental update or JavaScript) causes the signing library to sign unexpected content or execute code during parsing. |
-| 2 | **Repudiation** | No audit log of which user triggered signing of which document; disputes about authorised signatures cannot be resolved. |
-| 3 | **Elevation of Privilege** | Path traversal in the document input path allows an attacker to sign arbitrary server-side files. |
-
-### Mitigations in code
-- PDF parsed and re-serialised to a clean PDF/A-like structure before signing, stripping JavaScript and incremental updates.
-- Signing audit log records: document hash, signing user, timestamp, and resulting signature ID.
-- Document input resolved under `UPLOAD_ROOT`; `..` traversal rejected.
-
-### Residual risks
-- PDF re-serialisation completeness depends on library coverage; novel PDF attack surfaces may not be normalised.
-- Signing key rotation process is manual; no automated key expiry enforcement.
+### 残余风险
+- 压缩是手动或定时进行的；在 GC 运行之前，墓碑数据会一直保留。
+- 针对自定义文档类型的 CRDT 收敛性证明是非形式化的；存在边角情况下发生分歧的可能。
 
 ---
 
-## Overall Residual Risks
+## 组件二：PDF 自动签名
 
-1. PDF re-serialisation provides best-effort normalisation; novel PDF attack vectors may survive.
-2. CRDT tombstone data retention until GC creates a window where deleted content is recoverable.
-3. Signing key rotation is manual; long-lived keys increase blast radius of a key compromise.
+### 信任边界
+- 签名密钥存储在服务器端；仅签名处理器可以访问。
+- 客户端提供待签名的文档；文档内容是不可信的。
+- 签名输出被写入 blob 存储并返回给客户端。
+
+### STRIDE 前三大威胁
+
+| # | 类别 | 威胁 |
+|---|------|------|
+| 1 | **篡改（Tampering）** | 恶意构造的 PDF（例如包含增量更新或 JavaScript）导致签名库对非预期内容进行签名，或在解析期间执行代码。 |
+| 2 | **抵赖（Repudiation）** | 没有记录哪个用户对哪份文档触发了签名的审计日志；关于已授权签名的争议无法解决。 |
+| 3 | **权限提升（Elevation of Privilege）** | 文档输入路径中的路径穿越允许攻击者对服务器上任意文件进行签名。 |
+
+### 代码中的缓解措施
+- PDF 在签名前会被解析并重新序列化为干净的类 PDF/A 结构，同时剥离 JavaScript 和增量更新。
+- 签名审计日志记录：文档哈希、签名用户、时间戳以及生成的签名 ID。
+- 文档输入路径在 `UPLOAD_ROOT` 下解析；拒绝包含 `..` 的路径穿越。
+
+### 残余风险
+- PDF 重新序列化的完整性取决于库的覆盖范围；新型 PDF 攻击面可能无法被规范化。
+- 签名密钥轮换过程是手动的；没有自动化的密钥过期强制执行。
+
+---
+
+## 整体残余风险
+
+1. PDF 重新序列化只能提供尽力而为的规范化；新型 PDF 攻击向量可能会绕过。
+2. 在 GC 之前，CRDT 墓碑数据的保留形成了一个窗口，在此期间已删除的内容仍可被恢复。
+3. 签名密钥轮换是手动的；长期密钥会增大密钥泄露的影响范围。

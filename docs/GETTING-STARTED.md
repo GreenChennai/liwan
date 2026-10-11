@@ -1,23 +1,23 @@
-# Liwan — Getting Started
+# Liwan — 入门指南
 
-This guide walks you through running Liwan for the first time, whether you want a quick local development environment or a production deployment.
+本指南将带你首次运行 Liwan，无论你需要的是快速搭建本地开发环境，还是进行生产环境部署。
 
 ---
 
-## Prerequisites
+## 前置条件
 
-| Requirement | Minimum | Recommended |
+| 要求 | 最低版本 | 推荐版本 |
 |-------------|---------|-------------|
 | Go | 1.21 | 1.22+ |
 | Node.js | 18 | 20 LTS |
 | npm | 9 | 10 |
-| OS | Linux / macOS | Linux (production) |
+| 操作系统 | Linux / macOS | Linux（生产环境） |
 
 ---
 
-## Option A — Development server (recommended first step)
+## 方案 A — 开发服务器（推荐的第一步）
 
-The dev server runs Vite (frontend, hot-reload) and the Go API side by side:
+开发服务器会同时运行 Vite（前端，支持热重载）和 Go API：
 
 ```bash
 git clone https://github.com/GreenChennai/liwan.git
@@ -29,15 +29,15 @@ go mod tidy
 npm run dev:web
 ```
 
-- Frontend: [http://localhost:5173](http://localhost:5173)
-- Go API: [http://localhost:8080](http://localhost:8080)
-- Vite proxies `/api/*` to the Go backend automatically.
+- 前端：[http://localhost:5173](http://localhost:5173)
+- Go API：[http://localhost:8080](http://localhost:8080)
+- Vite 会自动将 `/api/*` 代理到 Go 后端。
 
-Auth is **disabled** by default (`auth.enabled: false` in `config.yaml`), so no login is required for local use.
+默认情况下认证处于**禁用**状态（`config.yaml` 中的 `auth.enabled: false`），因此本地使用无需登录。
 
 ---
 
-## Option B — Production binary
+## 方案 B — 生产环境二进制文件
 
 ```bash
 # Build the frontend, then compile everything into a single Go binary
@@ -49,11 +49,11 @@ go build -o liwan .
 ./liwan
 ```
 
-Open [http://localhost:8080](http://localhost:8080).
+打开 [http://localhost:8080](http://localhost:8080)。
 
 ---
 
-## Option C — Docker
+## 方案 C — Docker
 
 ```sh
 docker run -d \
@@ -64,13 +64,13 @@ docker run -d \
   ghcr.io/greenchennai/liwan:latest
 ```
 
-The image runs the server from `/srv` (see the Dockerfile), so mount `/srv/data` (SQLite stores + the JSON file/document store) and `/srv/uploads` (uploaded file staging) for persistence — both are declared `VOLUME`s in the image. Pass `-e LIWAN_JWT_SECRET=<secret>` when enabling auth.
+镜像从 `/srv` 运行服务器（参见 Dockerfile），因此请挂载 `/srv/data`（SQLite 存储 + JSON 文件/文档存储）和 `/srv/uploads`（上传文件暂存区）以实现持久化——这两个路径在镜像中均已声明为 `VOLUME`。启用认证时，请传入 `-e LIWAN_JWT_SECRET=<secret>`。
 
 ---
 
-## Option D — Vulos OS bundle (recommended for production)
+## 方案 D — Vulos OS 捆绑包（推荐用于生产环境）
 
-If you run the full Vulos OS stack, use the bundle installer which provisions OS + mail + office together:
+如果你运行的是完整的 Vulos OS 技术栈，请使用捆绑安装程序，它会同时部署 OS、邮件和办公套件：
 
 ```sh
 # Tigris-backed (default)
@@ -82,13 +82,13 @@ curl -fsSL https://get.vulos.org | sudo bash -s -- --storage=minio
 sudo systemctl enable --now vulos-bundle.target
 ```
 
-See [INSTALL.md](INSTALL.md) for co-location details and shared storage config.
+同机部署的细节与共享存储配置参见 [INSTALL.md](INSTALL.md)。
 
 ---
 
-## Configuration
+## 配置
 
-Copy or edit `config.yaml` at the repo root:
+复制或编辑仓库根目录下的 `config.yaml`：
 
 ```yaml
 server:
@@ -114,25 +114,24 @@ storage:
     sslmode: "disable"
 ```
 
-For the full environment variable and observability reference see [CONFIGURATION.md](CONFIGURATION.md).
+完整的环境变量与可观测性参考参见 [CONFIGURATION.md](CONFIGURATION.md)。
 
 ---
 
-## First use
+## 首次使用
 
-1. Open the app. Without auth the home screen loads immediately.
-2. Click **New** to create a document, sheet, or presentation.
-3. Open a PDF to view, annotate, or set up signing.
+1. 打开应用。未启用认证时，主屏幕会立即加载。
+2. 点击 **New**，创建文档、表格或演示文稿。
+3. 打开 PDF，即可查看、批注或设置签名。
 
-> Calendar and Contacts are no longer part of Liwan — they come through the mail
-> connector (CalDAV/CardDAV via lilmail). The Liwan sidebar deep-links to that surface.
+> 日历和通讯录已不再是 Liwan 的组成部分——它们通过邮件连接器（经由 lilmail 的 CalDAV/CardDAV）提供。Liwan 侧边栏会直接链接到该功能界面。
 
 ---
 
-## Next steps
+## 后续步骤
 
-- [CONFIGURATION.md](CONFIGURATION.md) — env vars, SMTP, OTEL, org-bucket
-- [ARCHITECTURE.md](ARCHITECTURE.md) — how the pieces fit together
-- [DEPLOY.md](DEPLOY.md) — production deployment options
-- [INSTALL.md](INSTALL.md) — single-box co-location with Vulos OS
-- [../ROADMAP.md](../ROADMAP.md) — planned features
+- [CONFIGURATION.md](CONFIGURATION.md) — 环境变量、SMTP、OTEL、org-bucket
+- [ARCHITECTURE.md](ARCHITECTURE.md) — 各组件如何协同工作
+- [DEPLOY.md](DEPLOY.md) — 生产部署选项
+- [INSTALL.md](INSTALL.md) — 与 Vulos OS 的单机同机部署
+- [../ROADMAP.md](../ROADMAP.md) — 规划中的功能

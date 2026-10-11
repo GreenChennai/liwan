@@ -1,64 +1,54 @@
-# Liwan — Static Deploy Guide
+# Liwan — 静态部署指南
 
-Liwan ships the `office` SPA, built with Vite and uploaded to Tigris
-object storage for CDN delivery.
+Liwan 会发布 `office` 单页应用（SPA），使用 Vite 构建，并上传至 Tigris 对象存储以通过 CDN 分发。
 
-> Liwan is the **documents-only** product (Docs, Sheets, Slides, PDF/Signing).
-> Calendar and Contacts come from the bring-your-own-mailbox PIM connector
-> (**lilmail**), surfaced by the OS as standalone widgets — not from Liwan.
-> Chat and video are third-party (Matrix/Element; Element Call / Jitsi), not
-> Vulos products. The **Vulos OS** is the shell that hosts the apps.
+> Liwan 是**仅包含文档类功能**的产品（文档、表格、幻灯片、PDF/签名）。日历和通讯录来自自带邮箱的 PIM 连接器（**lilmail**），由 OS 以独立组件的形式呈现——而非来自 Liwan。聊天与视频则是第三方服务（Matrix/Element；Element Call / Jitsi），而不是 Vulos 产品。**Vulos OS** 是承载这些应用的外壳。
 
-## Prerequisites
+## 前置条件
 
-- AWS CLI v2 (used to upload to Tigris via the S3-compatible API)
-- Node.js 20+ and npm (for Vite builds)
+- AWS CLI v2（通过 S3 兼容 API 上传至 Tigris）
+- Node.js 20+ 与 npm（用于 Vite 构建）
 
-## Credentials
+## 凭据
 
-| Variable | Description |
+| 变量 | 说明 |
 |---|---|
-| `TIGRIS_ACCESS_KEY_ID` | Tigris access key |
-| `TIGRIS_SECRET_ACCESS_KEY` | Tigris secret key |
-| `TIGRIS_BUCKET` | Bucket name (e.g. `liwan-static`) |
-| `TIGRIS_ENDPOINT` | Optional; defaults to `https://fly.storage.tigris.dev` |
+| `TIGRIS_ACCESS_KEY_ID` | Tigris 访问密钥 |
+| `TIGRIS_SECRET_ACCESS_KEY` | Tigris 私有密钥 |
+| `TIGRIS_BUCKET` | 存储桶名称（例如 `liwan-static`） |
+| `TIGRIS_ENDPOINT` | 可选；默认为 `https://fly.storage.tigris.dev` |
 
-## Usage
+## 用法
 
-Deploy all targets:
+部署所有目标：
 ```sh
 ./scripts/deploy-static.sh
 ```
 
-Deploy a single target:
+仅部署单个目标：
 ```sh
 ./scripts/deploy-static.sh office
 ```
 
-Deploy and write a `latest` pointer so CDN routing resolves the current SHA:
+部署并写入 `latest` 指针，以便 CDN 路由能够解析当前的 SHA：
 ```sh
 ./scripts/deploy-static.sh office --latest
 ./scripts/deploy-static.sh all --latest
 ```
 
-## CDN URLs
+## CDN 地址
 
-Each deploy uploads to `<target>/<sha>/` in the bucket, served via Tigris static:
+每次部署都会上传到存储桶中的 `<target>/<sha>/`，并通过 Tigris 静态托管提供服务：
 
-| Target | Served under | Bucket path |
+| 目标 | 访问路径 | 存储桶路径 |
 |---|---|---|
 | office | `app.vulos.org/office/` | `office/<sha>/` |
 
-Static files are served under the Vulos app hub (`app.vulos.org`, Tigris-backed,
-configured in your `fly.toml` or DNS CNAME). Apps are reached by **path** under
-the app hub — there are no per-product subdomains, per the canonical
-vulos-naming-and-urls URL scheme.
+静态文件通过 Vulos 应用中心（`app.vulos.org`，由 Tigris 提供支持，在你的 `fly.toml` 或 DNS CNAME 中配置）提供服务。应用通过应用中心下的**路径**访问——不存在按产品划分的子域名，符合标准的 vulos-naming-and-urls URL 规范。
 
-## SPA Fallback
+## SPA 回退
 
-All targets are single-page applications that rely on the HTML5 History API.
-Configure your Fly.io `fly.toml` or static server to serve `index.html` for
-any unmatched path:
+所有目标都是依赖 HTML5 History API 的单页应用。请配置你的 Fly.io `fly.toml` 或静态服务器，使其对所有未匹配的路径返回 `index.html`：
 
 ```toml
 [[http_service]]
@@ -72,15 +62,10 @@ any unmatched path:
   fallback = "index.html"
 ```
 
-## How the `--latest` flag works
+## `--latest` 标志的工作原理
 
-With `--latest`, the script writes the deployed SHA as a plain-text object at
-`<target>/latest` in the bucket. Your CDN router or Fly proxy can read this to
-resolve the current deployment without a full directory listing.
+使用 `--latest` 时，脚本会将已部署的 SHA 以纯文本对象的形式写入存储桶中的 `<target>/latest`。你的 CDN 路由或 Fly 代理可以读取该文件来解析当前部署版本，而无需列出完整目录。
 
-## Tigris + the app hub (`app.vulos.org`)
+## Tigris 与应用中心（`app.vulos.org`）
 
-Static assets are uploaded to Tigris (`fly.storage.tigris.dev`) and served
-under the Vulos app hub (`app.vulos.org`). The Tigris bucket must have public static serving
-enabled. See the [Tigris docs](https://www.tigrisdata.com/docs/objects/static-website/)
-for bucket configuration.
+静态资源上传至 Tigris（`fly.storage.tigris.dev`），并通过 Vulos 应用中心（`app.vulos.org`）提供服务。Tigris 存储桶必须启用公开静态服务。存储桶配置参见 [Tigris 文档](https://www.tigrisdata.com/docs/objects/static-website/)。

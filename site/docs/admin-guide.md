@@ -1,12 +1,12 @@
-# Liwan — Admin Guide
+# Liwan 议事厅 — 管理员指南
 
-This chapter is for the person who runs Liwan: deploying it (bare binary, Docker, Fly.io, or as part of a Vulos OS bundle), configuring it (`config.yaml` + environment variables), understanding where documents actually live on disk, enabling multi-user auth, integrating with the Vulos OS, and backing it all up. Liwan is a **single Go binary with the entire web app embedded** — the default deployment is one process, one port (`:8080`), one data directory, no external dependencies. Every endpoint and variable named here exists in the code of this repository.
+本章面向运行 Liwan 议事厅的管理员：涵盖部署（裸二进制、Docker、Fly.io，或作为 Vulos OS 套件的一部分）、配置（`config.yaml` + 环境变量）、了解文档在磁盘上的实际存储位置、启用多用户认证、与 Vulos OS 集成，以及备份。Liwan 是一个**内嵌完整 Web 应用的单一 Go 二进制文件**，默认部署为一个进程、一个端口（`:8080`）、一个数据目录，无需任何外部依赖。本文中提到的每个端点和变量都存在于本仓库的代码中。
 
 ---
 
-## 1. Deployment options
+## 1. 部署方式
 
-### 1.1 Single binary (simplest)
+### 1.1 单一二进制文件（最简单）
 
 ```bash
 npm install
@@ -15,9 +15,9 @@ npm run build          # builds the frontend into dist/ and compiles the Go bina
 # → http://localhost:8080
 ```
 
-Data lands in `./data` and `./uploads` relative to the working directory. With zero configuration you get single-user mode: no auth, local storage, no cloud.
+数据存放在工作目录下的 `./data` 和 `./uploads` 中。在零配置的情况下，将以单用户模式运行：无认证、本地存储、不连接云端。
 
-Useful invocations:
+常用调用方式：
 
 ```bash
 ./liwan --version            # print build version
@@ -40,13 +40,13 @@ docker run -d \
   ghcr.io/greenchennai/liwan:latest
 ```
 
-Image facts (from the `Dockerfile`):
+镜像信息（来自 `Dockerfile`）：
 
-- Runs as non-root user `vulos` (uid 10001), `WORKDIR /srv`, so data is at **`/srv/data`** and uploads at **`/srv/uploads`**. Mount a volume at `/srv/data` (and at `/srv/uploads` if you want uploaded images to survive redeploys — the stock image only declares the data volume).
-- `EXPOSE 8080`; built-in `HEALTHCHECK` polls `GET /healthz`.
-- The binary is static (CGO off; Postgres via pure-Go pgx) on Alpine.
+- 以非 root 用户 `vulos`（uid 10001）运行，`WORKDIR /srv`，因此数据位于 **`/srv/data`**，上传文件位于 **`/srv/uploads`**。请将卷挂载到 `/srv/data`（如果希望上传的图片在重新部署后保留，还需挂载到 `/srv/uploads`，因为标准镜像只声明了数据卷）。
+- `EXPOSE 8080`；内置的 `HEALTHCHECK` 会轮询 `GET /healthz`。
+- 二进制文件为静态编译（关闭 CGO；通过纯 Go 实现的 pgx 访问 Postgres），运行在 Alpine 上。
 
-**Building the image yourself**: the WebRTC collaboration fabric is first-party source under `src/lib/collab/webrtc/` (no separate package, no sibling-repo checkout needed), so a plain build from the repo root always works:
+**自行构建镜像**：WebRTC 协作组件是 `src/lib/collab/webrtc/` 下的自有源代码（无需单独的包，也无需检出同级仓库），因此在仓库根目录下直接构建总是可行的：
 
 ```bash
 docker build -t ghcr.io/greenchennai/liwan:latest .
@@ -54,7 +54,7 @@ docker build -t ghcr.io/greenchennai/liwan:latest .
 
 ### 1.3 Fly.io
 
-`fly.toml` is checked in. Because Fly's build context is the config file's directory, build and push the image out-of-band, then deploy by image reference:
+仓库中已包含 `fly.toml`。由于 Fly 的构建上下文为配置文件所在目录，请先在外部构建并推送镜像，然后通过镜像引用进行部署：
 
 ```bash
 docker build -t ghcr.io/greenchennai/liwan:latest .
@@ -62,17 +62,17 @@ docker push ghcr.io/greenchennai/liwan:latest
 fly deploy -c fly.toml --image ghcr.io/greenchennai/liwan:latest
 ```
 
-The config mounts a volume `office_data` at `/srv/data`, checks `/healthz`, forces HTTPS, and documents setting `DATABASE_URL` / `IDENTITY_URL` / `VULOS_CP_TOKEN` as Fly secrets.
+该配置会挂载卷 `office_data` 到 `/srv/data`，检查 `/healthz`，强制使用 HTTPS，并说明需要将 `DATABASE_URL` / `IDENTITY_URL` / `VULOS_CP_TOKEN` 设置为 Fly 密钥。
 
-### 1.4 Vulos OS bundle
+### 1.4 Vulos OS 套件
 
-For a full sovereign box (OS + Mail + Liwan sharing one identity and storage fabric), use the bundle installer described in [INSTALL.md](INSTALL.md) / [GETTING-STARTED.md](GETTING-STARTED.md). The bundle also provides the `/api/peering/*` fabric endpoints, which light up low-latency P2P collaboration and cross-app presence and are the one discovery path that can bind an authenticated account session to a peer identity. A standalone Liwan binary does not serve those — it serves its own equivalent discovery surface at `/api/rendezvous/*` instead (on by default), so peer-to-peer collaboration works either way (see [COLLABORATION.md](COLLABORATION.md) §3).
+若要部署一台完整的自主主机（OS + 邮件 + Liwan 共享同一身份和存储架构），请使用 [INSTALL.md](INSTALL.md) / [GETTING-STARTED.md](GETTING-STARTED.md) 中描述的套件安装程序。该套件还提供 `/api/peering/*` 架构端点，可启用低延迟的点对点协作和跨应用在线状态，并且是唯一能将已认证的账户会话绑定到对等节点身份的发现途径。独立运行的 Liwan 二进制文件不提供这些端点，而是在 `/api/rendezvous/*` 上提供其自身的等效发现接口（默认开启），因此点对点协作在两种方式下均可使用（参见 [COLLABORATION.md](COLLABORATION.md) §3）。
 
 ---
 
-## 2. Configuration
+## 2. 配置
 
-The server reads **`config.yaml` from its working directory** (the `migrate` subcommand accepts `-config <path>`; the server itself loads `./config.yaml`). Missing file ⇒ defaults, with a log line `Config error: … — using defaults`. Environment variables override the file.
+服务器从**工作目录中读取 `config.yaml`**（`migrate` 子命令接受 `-config <path>`；服务器本身加载 `./config.yaml`）。若文件缺失则使用默认值，并输出日志 `Config error: … — using defaults`。环境变量会覆盖文件中的配置。
 
 ```yaml
 server:
@@ -98,109 +98,109 @@ storage:
     sslmode: "disable"
 ```
 
-### Environment variables
+### 环境变量
 
-Core:
+核心：
 
-| Variable | Purpose |
+| 变量 | 用途 |
 |----------|---------|
-| `DATABASE_URL` | Full `postgres://…` URL. When set, selects Postgres storage (schema `office`) and overrides `storage.type`. |
-| `VULOS_DATABASE_URL` | Alias, checked if `DATABASE_URL` unset. |
-| `LIWAN_JWT_SECRET` | HS256 secret for session JWTs. **Required when `auth.enabled: true`** — the server refuses to start without it (fatal at boot). |
-| `LIWAN_DEV` | `1` = clearly-labelled insecure dev secret. Never in production. |
-| `LIWAN_CORS_ORIGINS` | Comma-separated allowed origins (credentials allowed). Unset ⇒ all origins allowed *without* credentials — the startup log states which mode you're in. |
-| `LIWAN_REGISTRATION_TOKEN` | Static fallback registration token (prefer minted invites). |
+| `DATABASE_URL` | 完整的 `postgres://…` URL。设置后将选用 Postgres 存储（schema 为 `office`），并覆盖 `storage.type`。 |
+| `VULOS_DATABASE_URL` | 别名，在 `DATABASE_URL` 未设置时检查。 |
+| `LIWAN_JWT_SECRET` | 用于会话 JWT 的 HS256 密钥。**当 `auth.enabled: true` 时必填** — 没有该密钥服务器将拒绝启动（启动时致命错误）。 |
+| `LIWAN_DEV` | `1` 表示使用明确标注的不安全开发密钥。切勿在生产环境中使用。 |
+| `LIWAN_CORS_ORIGINS` | 逗号分隔的允许来源列表（允许携带凭据）。未设置时 ⇒ 允许所有来源，但**不携带凭据** — 启动日志会说明当前处于哪种模式。 |
+| `LIWAN_REGISTRATION_TOKEN` | 静态的备用注册令牌（建议使用已生成的邀请令牌）。 |
 
-SQLite store paths (defaults under `data_dir`):
+SQLite 存储路径（默认位于 `data_dir` 下）：
 
-| Variable | Default |
+| 变量 | 默认值 |
 |----------|---------|
 | `VULOS_USERAUTH_DB` | `./data/userauth.db` |
 | `VULOS_INVITES_DB` | `./data/invites.db` |
 | `VULOS_AUDIT_DB` | `./data/audit.db` |
 | `VULOS_FILEACL_DB` | `./data/fileacl.db` |
 
-SSO / cloud seams (all optional; unset = fully standalone):
+SSO / 云端接口（均为可选；未设置则完全独立运行）：
 
-| Variable | Purpose |
+| 变量 | 用途 |
 |----------|---------|
-| `IDENTITY_URL` | Identity provider base URL. When set, Liwan validates the browser's `vc_session` cookie via `POST {IDENTITY_URL}/api/session/introspect`, **fail-closed** (401 on invalid/unreachable). Unset ⇒ SSO path disabled. |
-| `VULOS_CP_BASE_URL` | External control-plane URL (Vulos operates none — this points at your own, if you run one). Enables the entitlements/usage adapter and the `vk_` API-key introspection path for `/v1`. Unset ⇒ none of that code runs. |
-| `VULOS_CP_TOKEN` | Service token presented as `X-Relay-Auth` to the CP / identity provider. Not a signing key. |
-| `VULOS_ORG_ID` | Tenant/org scoping used by the cloud adapter and storage. |
+| `IDENTITY_URL` | 身份提供方的基础 URL。设置后，Liwan 会通过 `POST {IDENTITY_URL}/api/session/introspect` 验证浏览器的 `vc_session` Cookie，并采用**失败即拒绝**策略（无效或无法访问时返回 401）。未设置 ⇒ 禁用 SSO 路径。 |
+| `VULOS_CP_BASE_URL` | 外部控制平面 URL（Vulos 不运营任何控制平面 — 如果你自己运行控制平面，请填写其地址）。启用权益/用量适配器，以及 `/v1` 的 `vk_` API 密钥内省路径。未设置 ⇒ 不运行上述任何代码。 |
+| `VULOS_CP_TOKEN` | 以 `X-Relay-Auth` 形式提交给控制平面 / 身份提供方的服务令牌。它不是签名密钥。 |
+| `VULOS_ORG_ID` | 云适配器和存储使用的租户/组织范围标识。 |
 
-Object storage / bundle (optional): `TIGRIS_ENDPOINT`, `TIGRIS_REGION`, `TIGRIS_ACCESS_KEY_ID`, `TIGRIS_SECRET_ACCESS_KEY`, and the bundle-shared `VULOS_STORAGE_MODE`, `VULOS_MINIO_ENDPOINT`, `VULOS_MINIO_REGION`, `VULOS_MINIO_BUCKET`, `VULOS_MINIO_CREDS_REF` — see [CONFIGURATION.md](CONFIGURATION.md) for that matrix.
+对象存储 / 套件（可选）：`TIGRIS_ENDPOINT`、`TIGRIS_REGION`、`TIGRIS_ACCESS_KEY_ID`、`TIGRIS_SECRET_ACCESS_KEY`，以及套件共享的 `VULOS_STORAGE_MODE`、`VULOS_MINIO_ENDPOINT`、`VULOS_MINIO_REGION`、`VULOS_MINIO_BUCKET`、`VULOS_MINIO_CREDS_REF` — 完整对照表请参阅 [CONFIGURATION.md](CONFIGURATION.md)。
 
-Observability: `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_SERVICE_NAME` (default `liwan`).
+可观测性：`OTEL_EXPORTER_OTLP_ENDPOINT`、`OTEL_SERVICE_NAME`（默认 `liwan`）。
 
-SMTP (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`) — only relevant for outbound notification mail in standalone setups.
+SMTP（`SMTP_HOST`、`SMTP_PORT`、`SMTP_USER`、`SMTP_PASSWORD`、`SMTP_FROM`）— 仅在独立部署中用于发送外发通知邮件时相关。
 
-Auth precedence per request: `vk_` API key → Liwan session JWT → SSO `vc_session` introspection → 401. Introspection results are cached in-process ~45 s.
+每个请求的认证优先级：`vk_` API 密钥 → Liwan 会话 JWT → SSO `vc_session` 内省 → 401。内省结果会在进程内缓存约 45 秒。
 
 ---
 
-## 3. Where documents live (storage)
+## 3. 文档的存储位置（存储）
 
-### 3.1 Local storage (default)
+### 3.1 本地存储（默认）
 
-Everything is human-inspectable JSON under `data_dir`:
+所有内容都是可直接查看的 JSON 文件，位于 `data_dir` 下：
 
-| Path | Contents |
+| 路径 | 内容 |
 |------|----------|
-| `data/<fileID>.json` | One JSON file per document (metadata + content) |
-| `data/versions/<fileID>_<versionID>.json` | Version snapshots |
-| `data/folders/` | Folder tree |
-| `data/comments/`, `data/replies/`, `data/suggestions/` | Annotations |
-| `data/envelopes/`, `data/signers/`, `data/sealed/` | Signing envelopes, signer records, sealed PDFs |
-| `data/audit/<envelopeID>/<eventID>.json` | Per-envelope signing audit events |
-| `data/userauth.db`, `invites.db`, `audit.db`, `fileacl.db` | SQLite: credentials, invites, security audit log, per-file ACLs |
-| `uploads/` | Uploaded images (10 MB cap each, content-type sniffed, UUID filenames) |
+| `data/<fileID>.json` | 每个文档一个 JSON 文件（元数据 + 内容） |
+| `data/versions/<fileID>_<versionID>.json` | 版本快照 |
+| `data/folders/` | 文件夹树 |
+| `data/comments/`、`data/replies/`、`data/suggestions/` | 批注 |
+| `data/envelopes/`、`data/signers/`、`data/sealed/` | 签署信封、签署人记录、封存的 PDF |
+| `data/audit/<envelopeID>/<eventID>.json` | 每个信封的签署审计事件 |
+| `data/userauth.db`、`invites.db`、`audit.db`、`fileacl.db` | SQLite：凭据、邀请、安全审计日志、每文件 ACL |
+| `uploads/` | 上传的图片（每个上限 10 MB，检测内容类型，使用 UUID 文件名） |
 
-Every id used to build a path is validated against a strict pattern (letters/digits/`_`/`-` only), so path traversal via crafted ids is rejected at the storage layer.
+用于构建路径的每个 ID 都会根据严格的模式进行校验（仅允许字母/数字/`_`/`-`），因此存储层会拒绝通过构造 ID 进行的路径遍历攻击。
 
-### 3.2 Postgres (multi-user / cloud)
+### 3.2 Postgres（多用户 / 云端）
 
-Set `DATABASE_URL` (or `storage.type: postgres`). Liwan uses the dedicated schema **`office`** inside the database, so it co-exists with other Vulos products in one shared Postgres/Neon project. Tables are created automatically on first boot; `./liwan migrate up` applies the same migrations explicitly (idempotent — run it before a rolling restart after upgrades), and `migrate status` lists present tables. File ACLs move into Postgres too (`backend/storage/fileacl_postgres.go`).
+设置 `DATABASE_URL`（或 `storage.type: postgres`）。Liwan 使用数据库中的专用 schema **`office`**，因此可与同一共享 Postgres/Neon 项目中的其他 Vulos 产品共存。表会在首次启动时自动创建；`./liwan migrate up` 可显式应用相同的迁移（幂等 — 升级后、滚动重启前运行即可），`migrate status` 会列出已存在的表。文件 ACL 也会迁移到 Postgres 中（`backend/storage/fileacl_postgres.go`）。
 
-### 3.3 Object storage (optional)
+### 3.3 对象存储（可选）
 
-`backend/storage/backendconfig.go` exposes `OfficeBackendConfig` (with Tigris defaults via the `TIGRIS_*` vars) for per-org S3 bucket + CRDT snapshot wiring, injected by the control plane in hosted multi-tenant deployments. Standalone installs don't need it.
-
----
-
-## 4. Enabling multi-user auth
-
-1. Set `auth.enabled: true` in `config.yaml`.
-2. `export LIWAN_JWT_SECRET="$(openssl rand -hex 32)"` — boot fails loudly without it.
-3. Start the server, then bootstrap the first user via `POST /api/auth/register` (with `LIWAN_REGISTRATION_TOKEN` or an invite), or convert an old shared-password install with `./liwan migrate-credential -admin <account>`.
-4. From an admin account, open **Settings → Admin** to mint **invite tokens** (single-use, expiring; the raw token is shown exactly once) and to read the **audit log** (ACL grants/revokes, registrations, invite events, role changes).
-
-Related behavior to be aware of:
-
-- Login is rate-limited and lockout-protected (`max_attempts` / `lockout_minutes`).
-- When auth is enabled (multi-tenant), the **local-files browse/serve routes are disabled** (`/api/local-files*`) to avoid exposing the server's home directory across tenants — the startup log says so explicitly. The "open from server folder" feature is therefore single-user-only.
-- Write endpoints (files, comments, collab ops, uploads…) share a per-IP token bucket: burst 30, refill 10/s. Disable only in trusted environments with `--no-rate-limit-writes`.
-- Uploads are gated by billing/entitlements (`GateStorage`) — in standalone mode the cap is unlimited, so this is a no-op.
+`backend/storage/backendconfig.go` 提供 `OfficeBackendConfig`（通过 `TIGRIS_*` 变量设置 Tigris 默认值），用于每个组织的 S3 存储桶 + CRDT 快照配置，由托管的多租户部署中的控制平面注入。独立安装无需此配置。
 
 ---
 
-## 5. Integration into the Vulos OS
+## 4. 启用多用户认证
 
-- **Embedding**: every editor surface ships as the npm library `liwan` with entries `liwan/docs`, `liwan/sheets`, `liwan/slides`, `liwan/whiteboard`, `liwan/pdf` — the Vulos OS (or your own app) mounts them as native panels. Built by `vite.config.lib.js` into `dist-lib/`. (The Go module and the binary it builds are named `liwan`; the npm package and the product are Liwan.)
-- **Identity**: on a Vulos OS box, set `IDENTITY_URL` so Liwan introspects the shared `vc_session` cookie — Liwan deliberately holds no session-signing power in that mode.
-- **Peering fabric**: the OS/Pier host provides `/api/peering/stream` (WebSocket signaling) and `/api/peering/ice`; Liwan's collab code discovers them same-origin and lights up P2P collaboration + presence automatically. Without a host-box fabric, Liwan serves its **own** discovery surface at `/api/rendezvous/*` (`collab.builtin_rendezvous`, on by default), so P2P works on a bare binary with nothing configured; you can point it at a self-hosted `vulos-relayd` instead with `collab.rendezvous_url` / `VULOS_RENDEZVOUS_URL` (see [CONFIGURATION.md](CONFIGURATION.md)). Only with the built-in surface turned off *and* no relay configured does it degrade to local-only.
-- **Control plane** (self-wired, multi-tenant): `VULOS_CP_BASE_URL` + `VULOS_CP_TOKEN` + `VULOS_ORG_ID` enable entitlements (`GET {CP}/api/entitlements`, fails open on transient CP outage), usage metering (fire-and-forget `POST {CP}/api/usage`), and `vk_` API-key introspection for `/v1` (fail-closed `503` if the CP is unreachable during key validation). Vulos operates no control plane for you to point this at. See [SELFHOST.md](SELFHOST.md) for the full seam contract.
+1. 在 `config.yaml` 中设置 `auth.enabled: true`。
+2. `export LIWAN_JWT_SECRET="$(openssl rand -hex 32)"` — 缺少该密钥时启动会明确失败。
+3. 启动服务器，然后通过 `POST /api/auth/register` 创建第一个用户（使用 `LIWAN_REGISTRATION_TOKEN` 或邀请令牌），或使用 `./liwan migrate-credential -admin <account>` 将旧的共享密码安装转换为新方式。
+4. 使用管理员账户，打开**设置 → 管理**，生成**邀请令牌**（一次性使用，有有效期；原始令牌仅显示一次），并查看**审计日志**（ACL 授予/撤销、注册、邀请事件、角色变更）。
+
+需要注意的相关行为：
+
+- 登录有速率限制和锁定保护（`max_attempts` / `lockout_minutes`）。
+- 启用认证（多租户）后，**本地文件浏览/服务路由已禁用**（`/api/local-files*`），以避免在租户之间暴露服务器的主目录；启动日志会明确说明这一点。因此“从服务器文件夹打开”功能仅限单用户使用。
+- 写入端点（文件、评论、协作操作、上传等）共享每 IP 令牌桶：突发 30，每秒补充 10 个。仅在可信环境中使用 `--no-rate-limit-writes` 禁用。
+- 上传受计费/权益限制（`GateStorage`）— 在独立模式下上限不受限制，因此此项无实际作用。
 
 ---
 
-## 6. Running behind a reverse proxy
+## 5. 与 Vulos OS 集成
 
-Liwan serves the app + API on one port, so proxying is one location block. Note: Liwan itself hosts **no** long-lived collaboration stream — collaboration is peer-to-peer with no central document server (see [COLLABORATION.md](COLLABORATION.md)). One path needs care, and only on a Vulos OS/Pier host:
+- **嵌入**：每个编辑器模块都以 npm 库 `liwan` 的形式发布，入口为 `liwan/docs`、`liwan/sheets`、`liwan/slides`、`liwan/whiteboard`、`liwan/pdf`，Vulos OS（或你自己的应用）可将它们挂载为原生面板。由 `vite.config.lib.js` 构建到 `dist-lib/`。（Go 模块及其构建的二进制文件名为 `liwan`；npm 包和产品名称都是 Liwan。）
+- **身份**：在 Vulos OS 主机上，设置 `IDENTITY_URL`，使 Liwan 通过内省验证共享的 `vc_session` Cookie — 在该模式下 Liwan 有意不持有任何会话签名权限。
+- **对等网络架构**：OS/Pier 主机提供 `/api/peering/stream`（WebSocket 信令）和 `/api/peering/ice`；Liwan 的协作代码会同源发现它们，并自动启用点对点协作和在线状态。如果没有主机端架构，Liwan 会在 `/api/rendezvous/*` 上提供自己的发现接口（`collab.builtin_rendezvous`，默认开启），因此点对点协作在裸二进制上无需任何配置即可运行；你也可以通过 `collab.rendezvous_url` / `VULOS_RENDEZVOUS_URL` 将其指向自托管的 `vulos-relayd`（参见 [CONFIGURATION.md](CONFIGURATION.md)）。只有在内置接口被关闭**且**未配置中继时，才会降级为仅本地模式。
+- **控制平面**（自行配置，多租户）：`VULOS_CP_BASE_URL` + `VULOS_CP_TOKEN` + `VULOS_ORG_ID` 可启用权益检查（`GET {CP}/api/entitlements`，在控制平面临时故障时放行）、用量计量（即发即忘的 `POST {CP}/api/usage`），以及 `/v1` 的 `vk_` API 密钥内省（密钥验证期间若控制平面不可达，则以 `503` 失败关闭）。Vulos 不为你运营任何控制平面可供指向。完整的接口约定请参阅 [SELFHOST.md](SELFHOST.md)。
 
-- **WebSocket** (`/api/peering/stream`): the content-blind peer-discovery signaling channel. It only exists when a Vulos OS/Pier host provides the peering fabric; if you proxy such a deployment, `Upgrade`/`Connection` headers must be forwarded and read timeouts kept long, or peers fail to discover each other (see [TROUBLESHOOTING.md](TROUBLESHOOTING.md) §3).
-- **`/api/rendezvous/*`** (the built-in peer discovery a standalone binary serves itself — on by default): ordinary same-origin JSON over `GET`/`POST`, **no WebSocket upgrade needed**. It does **long-poll**, holding a request open for up to 25 seconds while it waits for a peer's signal, so a proxy read timeout below ~30s will chop every poll and make discovery slow or fail. The `proxy_read_timeout 1h` below covers both this and the WS above. A `404` on `/api/rendezvous/healthz` through the proxy, when the binary answers it directly, means the proxy is not passing the path through.
+---
 
-nginx sketch:
+## 6. 在反向代理之后运行
+
+Liwan 在同一端口上同时提供应用和 API，因此代理只需一个 location 块。注意：Liwan 本身**不托管**任何长连接的协作流 — 协作是点对点的，没有中心化文档服务器（参见 [COLLABORATION.md](COLLABORATION.md)）。只有一种路径需要特别注意，并且仅出现在 Vulos OS/Pier 主机上：
+
+- **WebSocket**（`/api/peering/stream`）：对内容不可见的对等发现信令通道。它仅在 Vulos OS/Pier 主机提供对等网络架构时存在；如果你代理了此类部署，必须转发 `Upgrade`/`Connection` 头部并保持较长的读取超时，否则对等节点将无法互相发现（参见 [TROUBLESHOOTING.md](TROUBLESHOOTING.md) §3）。
+- **`/api/rendezvous/*`**（独立二进制自身提供的内置对等发现，默认开启）：普通的同源 JSON，通过 `GET`/`POST` 传输，**不需要 WebSocket 升级**。它采用**长轮询**，会将请求挂起最多 25 秒，等待对等节点的信令，因此代理的读取超时若低于约 30 秒，会切断每次轮询，导致发现变慢或失败。下面的 `proxy_read_timeout 1h` 同时覆盖此项和上面的 WebSocket。如果直接访问二进制时 `/api/rendezvous/healthz` 返回正常，而经过代理后返回 `404`，说明代理没有正确转发该路径。
+
+nginx 示例：
 
 ```nginx
 location / {
@@ -214,67 +214,67 @@ location / {
 }
 ```
 
-Also remember the per-IP rate limits — writes (burst 30, refill 10/s) and the built-in discovery surface (burst 240, refill 40/s). If the proxy hides client IPs, **all users share one bucket**. Preserve real client addresses (`X-Forwarded-For` above, and make sure Liwan trusts it), or relax limits deliberately. A whole office behind one NAT address is comfortably inside the discovery limit; a proxy that presents every user as `127.0.0.1` is not the same thing as a limit that is too tight.
+同时也请注意每 IP 的速率限制：写入（突发 30，每秒补充 10）以及内置发现接口（突发 240，每秒补充 40）。如果代理隐藏了客户端 IP，**所有用户将共享同一个令牌桶**。请保留真实的客户端地址（如上面的 `X-Forwarded-For`，并确保 Liwan 信任该头部），或有意放宽限制。整个办公室位于同一 NAT 地址之后，完全处于发现限制范围之内；而如果代理将每个用户都显示为 `127.0.0.1`，那么这与限制过于严格是两回事。
 
 ---
 
-## 7. Security hardening checklist
+## 7. 安全加固清单
 
-- [ ] `auth.enabled: true` + strong `LIWAN_JWT_SECRET` (32+ random bytes); never `LIWAN_DEV=1` in production.
-- [ ] TLS in front (reverse proxy or Fly `force_https`); session cookies are HttpOnly, but the transport is on you.
-- [ ] `LIWAN_CORS_ORIGINS` set to your exact origins if anything embeds Liwan or calls it cross-origin.
-- [ ] First admin bootstrapped, then registration only via **invites** (avoid leaving a static `LIWAN_REGISTRATION_TOKEN` around).
-- [ ] Keep the write rate-limit on (don't ship `--no-rate-limit-writes` to the internet).
-- [ ] Volumes for `data/` *and* `uploads/`; backups tested (see §9).
-- [ ] Review the audit log (Settings → Admin) periodically — every share/role/invite/registration event is recorded append-only.
-- [ ] If cloud seams are unused, leave `VULOS_CP_BASE_URL`, `IDENTITY_URL` unset — the adapter code then never runs.
-- [ ] Communicate the E2E "Collaborate via link" posture to your users: those sessions are content-blind to your server and not centrally auditable ([COLLABORATION.md](COLLABORATION.md) §5).
+- [ ] `auth.enabled: true` 并设置强 `LIWAN_JWT_SECRET`（32 字节以上的随机数据）；生产环境中切勿使用 `LIWAN_DEV=1`。
+- [ ] 前端使用 TLS（反向代理或 Fly 的 `force_https`）；会话 Cookie 为 HttpOnly，但传输安全由你负责。
+- [ ] 如果有任何组件嵌入 Liwan 或从其他来源调用它，请将 `LIWAN_CORS_ORIGINS` 设置为你的确切来源。
+- [ ] 首个管理员创建后，仅通过**邀请**进行注册（避免保留静态的 `LIWAN_REGISTRATION_TOKEN`）。
+- [ ] 保持写入速率限制开启（不要在面向互联网的环境中使用 `--no-rate-limit-writes`）。
+- [ ] 为 `data/` **和** `uploads/` 配置卷，并测试备份（参见 §9）。
+- [ ] 定期查看审计日志（设置 → 管理）— 每一次共享/角色/邀请/注册事件都会以只追加方式记录。
+- [ ] 如果未使用云端接口，请保持 `VULOS_CP_BASE_URL`、`IDENTITY_URL` 未设置 — 此时适配器代码根本不会运行。
+- [ ] 向用户说明“通过链接协作”的端到端加密特性：这些会话对你的服务器内容不可见，且无法进行集中审计（[COLLABORATION.md](COLLABORATION.md) §5）。
 
-The repo also ships [SECURITY.md](../SECURITY.md), [THREAT-MODEL.md](THREAT-MODEL.md), and [SECURITY-TESTING.md](SECURITY-TESTING.md) with the full model and its regression tests.
+仓库中还附带了 [SECURITY.md](../SECURITY.md)、[THREAT-MODEL.md](THREAT-MODEL.md) 和 [SECURITY-TESTING.md](SECURITY-TESTING.md)，其中包含完整的安全模型及其回归测试。
 
 ---
 
-## 8. Observability and operations
+## 8. 可观测性与运维
 
-| Endpoint | Purpose |
+| 端点 | 用途 |
 |----------|---------|
-| `GET /healthz` | Liveness — `{"status":"ok","version":"…"}` (used by Docker/Fly health checks) |
-| `GET /version` | Build version |
-| `GET /metrics` | Prometheus metrics (always on) |
+| `GET /healthz` | 存活检查 — `{"status":"ok","version":"…"}`（供 Docker/Fly 健康检查使用） |
+| `GET /version` | 构建版本 |
+| `GET /metrics` | Prometheus 指标（始终开启） |
 
-- **Logs go to stdout/stderr** (standard Go log + Gin request log). There is no log file — capture with `docker logs`, `journalctl`, or `fly logs`. Startup lines announce every important mode decision: `[seam] integration mode: …`, `[sso] session introspection …`, `[cors] …`, `[rate-limit] …`, `[v1] API-key path …`, `[local-files] …`, `[apps] …`.
-- **Traces**: set `OTEL_EXPORTER_OTLP_ENDPOINT` for OpenTelemetry export.
-- **Security audit**: the application-level audit trail (shares, roles, invites, registrations) is in `data/audit.db`, readable in the admin panel. Signing envelopes keep their own audit events under `data/audit/`.
+- **日志输出到 stdout/stderr**（标准 Go log + Gin 请求日志）。没有日志文件 — 请使用 `docker logs`、`journalctl` 或 `fly logs` 进行采集。启动时会输出各项重要模式决策的信息行：`[seam] integration mode: …`、`[sso] session introspection …`、`[cors] …`、`[rate-limit] …`、`[v1] API-key path …`、`[local-files] …`、`[apps] …`。
+- **追踪**：设置 `OTEL_EXPORTER_OTLP_ENDPOINT` 以导出 OpenTelemetry 数据。
+- **安全审计**：应用级审计记录（共享、角色、邀请、注册）保存在 `data/audit.db` 中，可在管理面板中查看。签署信封的审计事件则单独保存在 `data/audit/` 下。
 
 ---
 
-## 9. Backup and restore
+## 9. 备份与恢复
 
-What to back up:
+需要备份的内容：
 
-| Deployment | Back up |
+| 部署方式 | 备份内容 |
 |------------|---------|
-| Local storage (default) | The whole **`data/`** directory (documents, versions, annotations, envelopes, sealed PDFs, and all four SQLite DBs) **and `uploads/`** (inline images live here — losing it breaks images in documents) |
-| Docker | The volume(s) at `/srv/data` (+ `/srv/uploads` if mounted) |
-| Postgres | `pg_dump` of the `office` schema, plus `uploads/` (uploads stay on local disk unless object storage is configured) |
-| `config.yaml` + env/secrets | Always — especially `LIWAN_JWT_SECRET` (losing it invalidates all sessions, not data) |
+| 本地存储（默认） | 整个 **`data/`** 目录（文档、版本、批注、信封、封存的 PDF，以及全部四个 SQLite 数据库）**和 `uploads/`**（文档中的内嵌图片存放在此处 — 丢失将导致文档中的图片失效） |
+| Docker | `/srv/data` 处的卷（若挂载了 `/srv/uploads` 则一并备份） |
+| Postgres | `office` schema 的 `pg_dump`，以及 `uploads/`（除非配置了对象存储，否则上传文件保存在本地磁盘） |
+| `config.yaml` + 环境变量/密钥 | 始终需要备份 — 尤其是 `LIWAN_JWT_SECRET`（丢失将使所有会话失效，但不会丢失数据） |
 
-Practical notes:
+实用建议：
 
-- Everything in local mode is flat files + SQLite: a filesystem snapshot or `tar` of `data/` + `uploads/` while traffic is quiescent is a complete backup. For hot backups of the SQLite stores, prefer `sqlite3 <db> ".backup <dest>"` over raw copy.
-- Version history is part of `data/versions/` — backing up documents without it loses restore points.
-- **E2E "Collaborate via link" rooms store nothing on the server** — each participant's browser keeps local snapshots, and their own saves land in their account's storage as usual. There is nothing extra to back up, and nothing server-side to recover if a room's link is lost (rotate/reshare instead).
-- Restore = put `data/` + `uploads/` back in the working directory (or restore the volume / `psql` the dump), then start the binary; run `./liwan migrate up` after restoring a Postgres dump onto a newer binary.
-- Test restores by starting a scratch container against a copy of the backup and hitting `/healthz` + opening a document.
+- 本地模式下的所有内容都是平面文件 + SQLite：在流量静止时对 `data/` + `uploads/` 进行文件系统快照或 `tar` 打包，即可得到完整备份。对 SQLite 存储进行热备份时，建议使用 `sqlite3 <db> ".backup <dest>"`，而不是直接复制文件。
+- 版本历史属于 `data/versions/` 的一部分 — 只备份文档而不备份版本，将丢失恢复点。
+- **“通过链接协作”的端到端加密房间不在服务器上存储任何内容** — 每位参与者的浏览器会保存本地快照，而他们自己的保存内容则像平常一样进入其账户存储。因此无需额外备份，如果房间链接丢失，服务器端也无法恢复（请轮换或重新分享）。
+- 恢复：将 `data/` + `uploads/` 放回工作目录（或恢复卷 / 对转储文件执行 `psql`），然后启动二进制文件；若将 Postgres 转储恢复到较新版本的二进制上，请先运行 `./liwan migrate up`。
+- 测试恢复：启动一个临时容器，使用备份副本运行，然后访问 `/healthz` 并打开一份文档以验证。
 
 ---
 
-## 10. Upgrade checklist
+## 10. 升级检查清单
 
-1. Back up (above).
-2. Pull/build the new image or binary.
-3. Postgres: `./liwan migrate up` (idempotent) before or during the rolling restart; local storage migrates transparently.
-4. Watch the startup log lines for the mode announcements you expect (seam/SSO/CORS/rate-limit).
-5. Verify `/healthz`, then log in and open a document.
+1. 备份（如上所述）。
+2. 拉取/构建新的镜像或二进制文件。
+3. Postgres：在滚动重启之前或期间运行 `./liwan migrate up`（幂等）；本地存储会自动迁移。
+4. 观察启动日志中你期望看到的模式提示行（seam/SSO/CORS/速率限制）。
+5. 验证 `/healthz`，然后登录并打开一份文档。
 
-For failure symptoms and their fixes, continue to [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+有关故障现象及其解决方法，请继续阅读 [TROUBLESHOOTING.md](TROUBLESHOOTING.md)。

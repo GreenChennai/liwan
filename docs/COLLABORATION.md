@@ -1,291 +1,289 @@
-# Liwan — How Collaboration Works
+# Liwan — 协作如何工作
 
-This chapter explains real-time collaboration in Liwan end to end: how documents merge concurrent edits (CRDTs), how edits travel **peer-to-peer** with no central document server, what is and is not encrypted, how rooms are gated, and what happens on conflicts. It is written for users who want to understand what they're trusting, and for admins who need to know what their server can and cannot see. Everything here describes the actual implementation in this repository.
+本章从头到尾说明 Liwan 中的实时协作：CRDT 如何合并并发编辑，编辑如何通过**点对点**方式传输而无需中央文档服务器，哪些内容加密、哪些不加密，房间如何受控，以及冲突时会发生什么。本文面向希望了解自己所信任对象的用户，以及需要了解服务器能看到和看不到什么的管理员。本文描述的一切都以本仓库中的实际实现为准。
 
 ---
 
-## 1. The one-minute model
+## 1. 一分钟模型
 
-- Collaboration in Liwan is **always peer-to-peer**. There is **no central document server** — no server ever stores, relays, or reads your document's collaborative edits. This is the defining difference from server-mediated office suites (Collabora, OnlyOffice), where every keystroke passes through a document server.
-- Every edit becomes a small **CRDT update**. CRDT updates are commutative and idempotent: peers can receive them in any order, more than once, over more than one channel, and still converge to the same document.
-- The document you see is always your **local** copy, hydrated from your own saved content. Collaboration never blocks typing: if no peer is reachable, you keep editing locally and your changes autosave to your own storage.
-- When you collaborate, edits ride an **end-to-end-encrypted peer-to-peer room**. Peers connect **directly** to each other over WebRTC; a relay is used only as a last-resort fallback for hard NATs, and even then it is **content-blind** (it moves ciphertext it cannot read).
+- Liwan 中的协作**始终是点对点的**。**不存在中央文档服务器**——没有任何服务器会存储、中转或读取你文档的协作编辑内容。这正是它与基于服务器中转的办公套件（Collabora、OnlyOffice）的根本区别，后者的每一次按键都要经过文档服务器。
+- 每次编辑都会变成一个小的 **CRDT 更新**。CRDT 更新满足交换律和幂等性：对等方可以以任意顺序、重复地、通过多个通道接收它们，仍然会收敛到同一份文档。
+- 你看到的文档始终是你**本地**的副本，由你自己保存的内容加载而来。协作永远不会阻塞输入：如果没有对等方可以连接，你仍可继续在本地编辑，你的更改会自动保存到你自己的存储中。
+- 协作时，编辑内容通过一个**端到端加密的点对点房间**传输。对等方通过 WebRTC **直接**互相连接；中继仅作为硬 NAT 下的最后手段回退方案，即使如此，它也是**内容盲的**（只转发它无法读取的密文）。
 
-| What travels | Where it goes | Who can read it |
+| 传输的内容 | 去向 | 谁能读取 |
 |--------------|---------------|-----------------|
-| Your document's collaborative edits | Directly between peers (WebRTC), E2E-encrypted | Only peers holding the invite key |
-| Fallback when peers can't connect directly | A content-blind relay circuit (ciphertext only) | Nobody but the peers — the relay is blind |
-| Peer discovery (rendezvous) | **By default, this Liwan binary's own `/api/rendezvous/*`** — or the host's signaling + ICE endpoints, or a configured self-hosted relayd (see §3) | Whichever one you use learns *that* peers share a room (a random id) — never content |
-| Your own saved copy | Your own file storage (your box) | You (and whomever you grant account access) |
+| 你文档的协作编辑 | 通过 WebRTC 直接在对等方之间传输，端到端加密 | 仅持有邀请密钥的对等方 |
+| 对等方无法直接连接时的回退 | 内容盲的中继电路（仅密文） | 除对等方外无人能读——中继是盲的 |
+| 对等方发现（会合，rendezvous） | **默认是本 Liwan 二进制文件自身的 `/api/rendezvous/*`**——或主机的信令 + ICE 端点，或配置的自托管 relayd（见 §3） | 你所使用的那个服务会得知*某些对等方共享一个房间*（一个随机 id）——但绝不会得知内容 |
+| 你自己保存的副本 | 你自己的文件存储（你的盒子） | 你（以及你授予账户访问权限的人） |
 
 ---
 
-## 2. The CRDTs
+## 2. CRDT
 
-All CRDT code lives in `src/lib/crdt/` (frontend).
+所有 CRDT 代码都位于 `src/lib/crdt/`（前端）。
 
-- **Docs** — a **Yjs** document (`ydoc.js`). The ProseMirror/TipTap document is kept in lock-step with a `Y.XmlFragment` by y-prosemirror. Remote changes arrive as Yjs updates and become ProseMirror transactions with real positions — so **formatting and structure** (bold, headings, tables, lists, images, links) propagate correctly, and a remote change can never land at a wrong text offset. Yjs is a CRDT, so peers converge with **no central authority** — exactly what a serverless model requires.
-- **Whiteboards** — a **Yjs** scene (`boardYdoc.js`): Excalidraw elements live one-per-id in a `Y.Map` so concurrent edits to *different* shapes merge cleanly, and image blobs in a second `Y.Map`. The whiteboard rides the **same** `yP2PSession` transport, the same E2E-encrypted room and the same content-blind relay fallback as Docs — there is **no** separate whiteboard/collab server. The session validates an untrusted peer's update through a fail-closed board validator (element/file ceilings + a raster-only image allow-list) instead of the ProseMirror one; the seam is a pluggable `applyUpdate` on the Y context.
-- **Sheets grid** — a **last-writer-wins register per cell**, computed by the **shared KOTVA Sync engine** (`substrateGrid.js` over the published `@vul-os/kotva-sync` package — the same compiled algebra another product running the substrate uses, not a second implementation of the spec). Concurrent writes to the *same cell* resolve by HLC to the later writer; writes to different cells merge cleanly. Charts, pivots, and conditional-formatting rules broadcast as their own ops. Liwan's earlier hand-rolled engine (`grid.js`) is still shipped and selectable deployment-wide with `VITE_SUBSTRATE_SYNC=off` — see [CONFIGURATION.md](CONFIGURATION.md), including what happens if the WASM engine fails to load (it does **not** silently swap algebra on a session that can replicate).
-  - **Two peers on different grid engines refuse to sync, loudly.** The two engines share the fabric's message types but not their op payloads or their total order, so a mixed room merged *nothing* while both editors reported "Live". A grid session now advertises which algebra it folds ops with, infers a peer's engine from the shape of any op that peer sends (which catches a peer on a bundle too old to advertise — deploy skew is the commonest cause), and on a mismatch stops sending and applying ops entirely for that session. The user sees a red "Not syncing" pill and a plain banner; editing and autosave continue. This is a deliberate choice of a visible loss of collaboration over an invisible loss of data — see `src/lib/crdt/gridEngine.js`.
-- **Slides tree** — a **fractional-index tree CRDT** (`tree.js`) for slide/object ordering and object properties.
-- **Comments and suggestions** have their own CRDTs (`comments.js`, `suggestions.js`).
+- **Docs**——一个 **Yjs** 文档（`ydoc.js`）。ProseMirror/TipTap 文档通过 y-prosemirror 与 `Y.XmlFragment` 保持逐步同步。远程更改以 Yjs 更新的形式到达，并转换为带有真实位置的 ProseMirror 事务——因此**格式与结构**（粗体、标题、表格、列表、图片、链接）能够正确传播，远程更改永远不会落在错误的文本偏移处。Yjs 是一种 CRDT，因此对等方无需中央权威即可收敛——这正是无服务器模型所需要的。
+- **白板**——一个 **Yjs** 场景（`boardYdoc.js`）：Excalidraw 元素按 id 逐个存放在一个 `Y.Map` 中，因此对*不同*图形的并发编辑可以干净地合并，图片 blob 则放在第二个 `Y.Map` 中。白板运行在与 Docs **相同**的 `yP2PSession` 传输层之上，使用相同的端到端加密房间和相同的内容盲中继回退——**不存在**单独的白板/协作服务器。会话通过一个经过故障即关闭（fail-closed）校验的白板校验器来校验不可信对等方的更新（元素/文件上限 + 仅限栅格图片的允许列表），而不是使用 ProseMirror 的校验器；其接缝是 Yjs 上下文中可插拔的 `applyUpdate`。
+- **Sheets 表格**——**每个单元格一个后写者胜出（LWW）寄存器**，由**共享的 KOTVA Sync 引擎**计算（基于已发布的 `@vul-os/kotva-sync` 包的 `substrateGrid.js`——即另一款运行该 substrate 的产品所使用的同一套已编译代数，而不是对规范的第二份实现）。对*同一单元格*的并发写入通过 HLC 解析为较晚的写入者；对不同单元格的写入则干净地合并。图表、数据透视表和条件格式规则都会作为各自的操作进行广播。Liwan 早期的手写引擎（`grid.js`）仍然随包提供，并可通过 `VITE_SUBSTRATE_SYNC=off` 在全部署范围内选择——参见 [CONFIGURATION.md](CONFIGURATION.md)，包括 WASM 引擎加载失败时会发生什么（它**不会**在可以复制的会话上悄悄切换代数）。
+  - **使用不同表格引擎的两个对等方会拒绝同步，并且会明确报错。** 两个引擎共享 fabric 的消息类型，但不共享操作负载或全序，因此混合房间中什么都没有合并，而两个编辑器却都显示“Live”。现在，表格会话会广播其用于折叠操作的代数，根据对等方发送的任何操作的结构推断其引擎（这能捕获一个过旧、无法广播的构建版本上的对等方——部署版本偏差是最常见的原因），并在检测到不匹配时，停止在该会话中发送和应用操作。用户会看到一个红色的“未同步”标签和一条明确的横幅；编辑和自动保存仍会继续。这是一个有意的选择：宁可让协作功能明显中断，也不要让数据悄无声息地丢失——参见 `src/lib/crdt/gridEngine.js`。
+- **Slides 树**——用于幻灯片/对象排序及对象属性的**分数索引树 CRDT**（`tree.js`）。
+- **评论与修改建议**拥有各自的 CRDT（`comments.js`、`suggestions.js`）。
 
-**Ingress is fail-closed.** Every inbound update is untrusted (an invite link can be forwarded to anyone). It is decoded, applied to a **shadow document** first, converted to a ProseMirror document against the real schema, and checked (renderable? image/link clamps?) before it is allowed to touch the live document. A rejected update is dropped and counted; it never throws, never half-applies, and never reaches the renderer.
-
----
-
-## 3. The transport — direct peer-to-peer first, content-blind relay only as fallback
-
-Liwan uses its own first-party `FabricClient` (`src/lib/collab/webrtc/fabric.js` — re-homed from the vendored relay-client SDK so Liwan depends on no other Vulos product's package) to move CRDT updates between peers. Its connection strategy, in order:
-
-1. **Direct WebRTC data channel (the default).** For each peer, the client negotiates an `RTCPeerConnection` and opens a data channel. Once connected (`connectionState === 'connected'`), edits flow **directly browser-to-browser** — nothing in the middle. NAT traversal uses **ICE/STUN** servers (and, when a peer pair needs it, **TURN** — a WebRTC-layer relay of already-encrypted traffic, still content-blind) from either the host's ICE endpoint or Liwan's own configurable fallback (`VITE_STUN_URLS`/`VITE_TURN_*`, see [CONFIGURATION.md](CONFIGURATION.md)). Self-hosting your own TURN server (no other Vulos product required) is covered in [COTURN.md](COTURN.md).
-2. **Content-blind relay circuit (fallback only).** If the direct connection *fails outright* — no ICE candidate pair works at all, TURN included, within a short timeout — the client falls back to a separate, application-level relay circuit built into `FabricClient` itself (HTTP deposit/pickup against the host box's `/api/peering/relay/*`, or a configured rendezvous relayd's mailbox surface). Payloads on this path are sealed with a per-session X25519 box, so the relay **routes ciphertext it cannot read**. This is the one fallback that does depend on a host box or a self-hosted `vulos-relayd` being present; it still never sees plaintext, and with a TURN server configured it should rarely trigger at all.
-
-Both of the above need peer discovery: a place to exchange WebRTC offer/answer/ICE candidates, and ICE/STUN-TURN config. Liwan picks **one of four transports** for that discovery, in this priority order (`src/lib/collab/transportSelection.js`, resolved fresh for every collab session):
-
-1. **Host-box peering (`/api/peering/*`)** — this Liwan server itself is fronted by a **Vulos OS / Pier** deployment, which mounts:
-   - Signaling: `wss://<host>/api/peering/stream` — exchanges offer/answer/ICE candidates.
-   - ICE config: `GET /api/peering/ice` — returns the STUN/TURN servers to use.
-
-   This is the original, unchanged default. It carries no document content, and it is the one transport that can bind an authenticated account session (an `authToken`) to the peer identity.
-
-2. **Any relayd rendezvous (no Vulos OS / host box needed).** When host-box peering isn't reachable — most notably a **standalone** Liwan binary, which mounts no `/api/peering/*` at all (see `main.go`) — Liwan checks for a configured **rendezvous URL**: `config.yaml` `collab.rendezvous_url` / env `VULOS_RENDEZVOUS_URL` (see [CONFIGURATION.md](CONFIGURATION.md)). When set, the session uses that relayd's OPEN announce/resolve/signal/mailbox + ICE surface (`RendezvousClient` / `RendezvousSignalingClient`, part of Liwan's first-party `src/lib/collab/webrtc/`) — any self-hosted `vulos-relayd` is enough, with **no Vulos OS and no account**. Everything else about the session is identical: direct WebRTC first, the same content-blind relay-circuit fallback, the same E2E crypto. **This is what makes a bare standalone Liwan capable of real peer-to-peer collaboration** — and it is proven end to end, against a real relayd binary in a real browser, by `e2e-p2p/` (`npm run test:e2e:p2p`).
-
-   **How the browser reaches it.** The browser calls the configured relayd's origin **directly**, cross-origin — Liwan's server is not in the discovery path at all and never sees even the (already content-blind) rendezvous envelopes. What is in the loop is the relayd you chose, and nothing else. Stated plainly:
-
-   - The **relayd** sees discovery metadata: a room's derived id, Ed25519 addresses, timing, sizes, IPs. Metadata only, and only the relay's.
-   - It is **content-blind**: every signal/mailbox payload is sealed under the room key, which lives in the invite link's URL fragment and reaches no server.
-   - Live document edits never traverse it. This is **discovery only**; edits ride the WebRTC data channel (or the content-blind relay circuit).
-   - Still no Vulos OS, no account, no host box.
-
-   This works because relayd's rendezvous role serves **CORS** (`Access-Control-Allow-Origin: *` on reads, a preflight that answers `POST` + `Content-Type`, and — deliberately — **never** `Allow-Credentials`, since the protocol authenticates with Ed25519 signatures in the body rather than with ambient cookies). `e2e-p2p/` asserts that posture against a real relayd *and* from a real browser on a different origin, so a relay that regressed it fails the suite instead of the field.
-
-   Two operator consequences: the relay must be reachable from wherever users load Liwan, and an **https** page cannot call an **http** relay — a public deployment needs TLS on the relay.
-
-   > **History.** Until Ephor shipped CORS on the rendezvous role, its surface sent no CORS headers and answered the preflight with `405`, so a direct call was impossible in a browser. Liwan carried a same-origin pass-through proxy at `/api/rendezvous/*` as a workaround. That proxy — and the `rendezvous_proxy_path` field it was advertised through — has been **removed**; the server-side of discovery is now nothing at all.
-
-3. **Liwan's own built-in surface — the DEFAULT.** No host box, and no relay named in the config: Liwan serves the *same* announce/resolve/signal/mailbox protocol **itself**, at `/api/rendezvous/*` on its own origin (`backend/rendezvous`). One `liwan` binary on one box is therefore all two people need — **no Vulos OS, no Pier, no relay, no account**.
-
-   It is on by default and can be turned off with `collab.builtin_rendezvous: false` (see [CONFIGURATION.md](CONFIGURATION.md)), which degrades to item 4 rather than to anything broken.
-
-   **Why it exists.** WebRTC cannot introduce two browsers to each other unaided: something has to carry the first offer/answer/ICE frames. Until this surface existed, Liwan could only get that from *another product* — a Vulos OS / Pier host, or an operator-run `vulos-relayd`. With neither, every session fell through to item 4 and a standalone binary had no peer-to-peer at all. Pier is now a **choice** (one shared relay across several deployments, or its NAT-traversal help), not a prerequisite.
-
-   **What the server can see.** Discovery metadata, and nothing else: which Ed25519 keys are present, which key sent bytes to which, sizes, timing. Every payload it moves is opaque — sealed under the room key, which lives in the invite link's URL fragment and is never sent in an HTTP request (§4) — and live document edits never traverse it at all. That metadata is visible only to your own box, which is strictly less exposure than handing it to somebody else's relay.
-
-   **Safe on the open internet**, because a cloud node is exposed:
-   - Every **write** is Ed25519-signed by the key it claims to act for, over a domain-separated, length-prefixed canonical message. Nothing is trusted for merely arriving.
-   - Each write carries a fresh **nonce** and a **timestamp**; a replay is refused, and so is anything outside the clock-skew window.
-   - `resolve` is the only unauthenticated read, and it returns only what its subject signed about itself.
-   - Payload size, queue depth, key count and TTLs are all **capped**, enforced before anything is stored, and the whole surface is per-IP rate-limited — so an anonymous caller cannot make the box allocate without bound.
-   - Every failure is a **refusal**: a bad signature is 403, a stale or replayed envelope 409, an over-cap payload 413, and nothing is stored in any of those cases.
-   - It is same-origin in practice (the only browsers that need it already loaded Liwan from this origin) and it authenticates **only** by body signature, never by cookie — so ambient credentials buy an attacker nothing here.
-
-   The wire protocol is byte-for-byte the one an external relayd speaks, so a deployment can move between this surface and a relay with no rebuild. The two implementations of the signed canonical message — Go and JavaScript — are pinned against shared fixed vectors (`backend/rendezvous/canonical_interop_test.go` and `src/lib/collab/webrtc/__tests__/canonicalInterop.test.js`), so they cannot drift apart into a wall of 403s.
-
-   Proven end to end, with nothing mocked and nothing external, by `e2e-p2p/builtin-rendezvous-p2p.e2e.js`: one real binary, two real browser contexts, a real WebRTC data channel, the server's own presence state read back as ground truth, and the negative control. It has no external dependency, so unlike the relay suite it can never be skipped.
-
-4. **Local-only.** None of the above is reachable (or the machine reaches no network at all): peers cannot discover each other, so collaboration stays **local-only** (you keep editing; your work autosaves) and the UI says so honestly — an "Offline" pill and a plain explanation in the share dialog, never a false "Live".
-
-**No default endpoint, in any branch.** Every URL Liwan uses for discovery comes from *this* deployment: your own config, or the page's own origin. Nothing points at a Vulos-run service, and a deployment with the built-in surface disabled and no relay configured stays honestly local-only rather than silently phoning somewhere.
+**入口采用失败即关闭（fail-closed）策略。** 每个入站更新都是不可信的（邀请链接可以被转发给任何人）。它会先被解码，应用到一个**影子文档**上，再按真实 schema 转换为 ProseMirror 文档，并经过检查（能否渲染？图片/链接是否被钳制？），之后才被允许触及实时文档。被拒绝的更新会被丢弃并计数；它从不抛出异常，从不只应用一半，也绝不会到达渲染器。
 
 ---
 
-## 4. E2E-encrypted rooms ("Collaborate via link")
+## 3. 传输——优先直接点对点，内容盲中继仅作回退
 
-Collaboration is entered by sharing an **invite link**. Implementation: `src/lib/crdt/p2pRoom.js` (crypto), `src/lib/crdt/yP2PSession.js` (the Yjs document over the room), `src/apps/docs/useP2PCollab.js` + `P2PShareModal` (Docs UI).
+Liwan 使用自己的第一方 `FabricClient`（`src/lib/collab/webrtc/fabric.js`——从 vendored relay-client SDK 迁入，因此 Liwan 不依赖任何其他 Vulos 产品的包）在对等方之间传递 CRDT 更新。其连接策略按以下顺序进行：
 
-### Room creation and invites
+1. **直接 WebRTC 数据通道（默认）。** 对每个对等方，客户端协商一个 `RTCPeerConnection` 并打开一个数据通道。一旦连接建立（`connectionState === 'connected'`），编辑内容就会**浏览器到浏览器直接**传输——中间没有任何节点。NAT 穿透使用 **ICE/STUN** 服务器（当某对对等方需要时，还会使用 **TURN**——一种 WebRTC 层的中继，转发已加密的流量，且仍是内容盲的），这些服务器来自主机的 ICE 端点，或 Liwan 自己可配置的回退（`VITE_STUN_URLS`/`VITE_TURN_*`，参见 [CONFIGURATION.md](CONFIGURATION.md)）。如何自托管你自己的 TURN 服务器（无需任何其他 Vulos 产品）在 [COTURN.md](COTURN.md) 中有说明。
+2. **内容盲中继电路（仅作回退）。** 如果直接连接*彻底失败*——所有 ICE 候选对都无法工作（包括 TURN），且在很短的超时时间内——客户端会回退到 `FabricClient` 自身内置的一条独立的应用层中继电路（通过 HTTP 存取（deposit/pickup）主机盒子的 `/api/peering/relay/*`，或已配置的会合 relayd 的邮箱接口）。此路径上的负载使用每会话 X25519 box 加密，因此中继**转发的是它无法读取的密文**。这是唯一一条确实依赖主机盒子或自托管 `vulos-relayd` 存在的回退路径；但它仍然从不看到明文，并且如果配置了 TURN 服务器，它应该很少被触发。
 
-- Sharing mints a random **32-byte room key**.
-- The invite payload (version, room id, capability, room key) is base64url-encoded into the **URL fragment**: `…/docs/collab#vp2p=<payload>`. Fragments are never sent in HTTP requests, so **no server ever receives the key**.
-- Two links are minted from the *same* key: a **read-write** link (`cap=rw`) and a **read-only** link (`cap=ro`).
+以上两种方式都需要对等发现：一个用于交换 WebRTC offer/answer/ICE 候选的地方，以及 ICE/STUN-TURN 配置。Liwan 会按以下优先级顺序，在**四种传输方式中选择一种**来完成该发现（`src/lib/collab/transportSelection.js`，每个协作会话都会重新解析）：
 
-### Key derivation and framing
+1. **主机盒子对等（`/api/peering/*`）**——这台 Liwan 服务器本身前面挂载着一个 **Vulos OS / Pier** 部署，它会挂载：
+   - 信令：`wss://<host>/api/peering/stream`——交换 offer/answer/ICE 候选。
+   - ICE 配置：`GET /api/peering/ice`——返回要使用的 STUN/TURN 服务器。
 
-From the single room key, HKDF-SHA256 (WebCrypto, no third-party crypto JS) derives three independent values:
+   这是最初的、未经改动的默认方式。它不携带任何文档内容，并且是唯一能够将已认证的账户会话（`authToken`）绑定到对等身份的传输方式。
 
-| Derived value | Held by | Purpose |
+2. **任意 relayd 会合（无需 Vulos OS 或主机盒子）。** 当主机盒子对等无法访问时——最典型的是**独立**运行的 Liwan 二进制文件，它根本不挂载 `/api/peering/*`（参见 `main.go`）——Liwan 会检查是否配置了**会合 URL**：`config.yaml` 中的 `collab.rendezvous_url` / 环境变量 `VULOS_RENDEZVOUS_URL`（参见 [CONFIGURATION.md](CONFIGURATION.md)）。设置后，会话将使用该 relayd 的开放 announce/resolve/signal/mailbox + ICE 接口（`RendezvousClient` / `RendezvousSignalingClient`，属于 Liwan 第一方 `src/lib/collab/webrtc/` 的一部分）——任何自托管的 `vulos-relayd` 即可满足，**无需 Vulos OS，也无需账户**。会话的其他部分完全相同：优先直接 WebRTC，同样的内容盲中继电路回退，同样的端到端加密。**正是这一点使得单独运行的 Liwan 能够实现真正的点对点协作**——并且已由 `e2e-p2p/`（`npm run test:e2e:p2p`）在真实浏览器中针对真实的 relayd 二进制文件端到端地证明。
+
+   **浏览器如何访问它。** 浏览器**直接**跨源调用所配置 relayd 的源，Liwan 的服务器完全不在发现路径中，也从不看到（即便已是内容盲的）会合信封。真正参与其中的只有你所选的那个 relayd，别无其他。明确地说：
+
+   - **relayd** 能看到发现元数据：房间派生的 id、Ed25519 地址、时间、大小、IP。仅限元数据，且仅限中继本身的。
+   - 它是**内容盲的**：每个信令/邮箱负载都在房间密钥下封装，而房间密钥位于邀请链接的 URL 片段中，不会到达任何服务器。
+   - 实时文档编辑从不经过它。它**仅用于发现**；编辑通过 WebRTC 数据通道（或内容盲中继电路）传输。
+   - 仍然无需 Vulos OS、无需账户、无需主机盒子。
+
+   这之所以可行，是因为 relayd 的会合角色提供了 **CORS**（读取时 `Access-Control-Allow-Origin: *`，预检请求可以应答 `POST` + `Content-Type`，并且——有意地——**从不**设置 `Allow-Credentials`，因为该协议通过请求体中的 Ed25519 签名进行认证，而不是依赖环境 cookie）。`e2e-p2p/` 会针对真实 relayd 以及来自不同源的真实浏览器来断言这一安全态势，因此若某个中继在此处出现退化，测试套件会失败，而不是等到线上才暴露。
+
+   对运维人员有两点影响：中继必须能够从用户加载 Liwan 的任何地方访问；并且 **https** 页面无法调用 **http** 中继——公共部署需要为中继配置 TLS。
+
+   > **历史。** 在 Ephor 为会合角色提供 CORS 之前，它的接口不发送任何 CORS 头，并以 `405` 回应预检请求，因此浏览器中不可能直接调用。Liwan 曾经提供一个同源透传代理，位于 `/api/rendezvous/*`，作为变通方案。该代理——以及它所通过宣告的 `rendezvous_proxy_path` 字段——现已**被移除**；发现的服务器端部分现在已完全不存在。
+
+3. **Liwan 自带的内置接口——默认方式。** 没有主机盒子，配置中也没有指定任何中继：Liwan 自身在其自己的源下的 `/api/rendezvous/*`（`backend/rendezvous`）上提供*同一套* announce/resolve/signal/mailbox 协议。因此，**一台机器上的一个 `liwan` 二进制文件，就足以让两个人协作**——无需 Vulos OS、无需 Pier、无需中继、无需账户。
+
+   该功能默认开启，可通过 `collab.builtin_rendezvous: false` 关闭（参见 [CONFIGURATION.md](CONFIGURATION.md)），关闭后会降级到第 4 项，而不会出现任何故障。
+
+   **为什么需要它。** WebRTC 无法在无人协助的情况下把两个浏览器互相引荐：必须有某个东西来转发最初的 offer/answer/ICE 帧。在这个接口出现之前，Liwan 只能从*另一个产品*获得这种帮助——Vulos OS / Pier 主机，或运营方自行运行的 `vulos-relayd`。两者都没有时，每个会话都会落入第 4 项，独立的二进制文件根本没有点对点能力。现在，Pier 已成为一种**选择**（多个部署共享一个中继，或借助其 NAT 穿透能力），而不再是前提条件。
+
+   **服务器能看到什么。** 仅有发现元数据，别无其他：存在哪些 Ed25519 密钥、哪个密钥向哪个密钥发送了字节、大小、时间。它转发的每个负载都是不透明的——在房间密钥下封装，而房间密钥位于邀请链接的 URL 片段中，且从不在 HTTP 请求中发送（§4）——实时文档编辑则根本不经过它。这些元数据仅对你自己的盒子可见，这比把它交给别人的中继要少暴露得多。
+
+   **在公网上是安全的**，因为云节点是暴露在外的：
+   - 每一次**写入**都由它所声称代表的密钥进行 Ed25519 签名，签名基于带域分隔、带长度前缀的规范消息。任何东西都不会因为仅仅到达而被信任。
+   - 每次写入都带有新的 **nonce** 和**时间戳**；重放会被拒绝，超出时钟偏差窗口的内容也同样被拒绝。
+   - `resolve` 是唯一未经认证的读取操作，它只返回主体对其自身所签名的内容。
+   - 负载大小、队列深度、密钥数量和 TTL 都有**上限**，并在存储之前强制执行，整个接口按 IP 限速——因此匿名调用者无法使盒子无限制地分配内存。
+   - 每种失败都是一次**拒绝**：签名无效返回 403，过期或重放的信封返回 409，超出上限的负载返回 413，且在这些情况下都不会存储任何内容。
+   - 实际上它是同源的（唯一需要它的浏览器本来就是从这个源加载 Liwan 的），并且它**仅**通过请求体签名进行认证，从不通过 cookie 认证——因此环境凭据对攻击者在这里毫无用处。
+
+   该线路协议与外部 relayd 所说的逐字节一致，因此部署可以在这个接口与中继之间迁移，而无需重新构建。规范消息的两种实现——Go 和 JavaScript——都以共享的固定测试向量进行锁定（`backend/rendezvous/canonical_interop_test.go` 与 `src/lib/collab/webrtc/__tests__/canonicalInterop.test.js`），以防止它们偏离并导致大量 403 错误。
+
+   通过端到端证明，不使用任何模拟，也不依赖任何外部服务：`e2e-p2p/builtin-rendezvous-p2p.e2e.js`——一个真实二进制文件、两个真实浏览器上下文、一个真实的 WebRTC 数据通道、以服务器自身的在线状态读回作为事实依据，以及负面对照。由于它没有任何外部依赖，因此与中继套件不同，它永远不会被跳过。
+
+4. **仅本地。** 以上所有方式都无法访问（或机器根本无法连接任何网络）：对等方无法互相发现，因此协作保持**仅本地**（你仍可继续编辑；你的工作会自动保存），并且 UI 会如实说明——显示“离线”标签，在分享对话框中给出清晰的说明，绝不会显示错误的“Live”。
+
+**任何分支都没有默认端点。** Liwan 用于发现的每个 URL 都来自*本部署*：要么是你自己的配置，要么是页面自身的源。没有任何东西指向 Vulos 运营的服务；当内置接口被禁用且未配置中继的部署，会保持如实的仅本地状态，而不会悄悄地向某处“回电”。
+
+---
+
+## 4. 端到端加密房间（“通过链接协作”）
+
+协作是通过分享**邀请链接**进入的。实现位于：`src/lib/crdt/p2pRoom.js`（加密）、`src/lib/crdt/yP2PSession.js`（房间上的 Yjs 文档）、`src/apps/docs/useP2PCollab.js` + `P2PShareModal`（Docs 界面）。
+
+### 房间创建与邀请
+
+- 分享时会生成一个随机的 **32 字节房间密钥**。
+- 邀请负载（版本、房间 id、权限、房间密钥）经 base64url 编码后放入 **URL 片段**中：`…/docs/collab#vp2p=<payload>`。片段永远不会在 HTTP 请求中发送，因此**没有任何服务器会收到该密钥**。
+- 从*同一个*密钥会生成两个链接：一个**读写**链接（`cap=rw`）和一个**只读**链接（`cap=ro`）。
+
+### 密钥派生与帧格式
+
+从单一的房间密钥出发，HKDF-SHA256（WebCrypto，不使用任何第三方加密 JS）派生出三个相互独立的值：
+
+| 派生值 | 持有者 | 用途 |
 |---------------|---------|---------|
-| `encKey` | rw + ro peers | AES-256-GCM content key — seals every update/presence frame |
-| `macKeyRw` | **rw peers only** | HMAC proving read-write authority on document frames |
-| `roomId` | everyone incl. relay | Non-secret rendezvous id |
+| `encKey` | 读写 + 只读对等方 | AES-256-GCM 内容密钥——封装每一个更新/在线状态帧 |
+| `macKeyRw` | **仅读写对等方** | 证明对文档帧具有读写权限的 HMAC |
+| `roomId` | 所有人，包括中继 | 非机密的会合 id |
 
-Every frame on the wire is `magic "VP2P1" ‖ flags ‖ 12-byte fresh nonce ‖ AES-256-GCM(ciphertext‖tag)`, with authenticated associated data. The fabric session id is the derived `roomId` — **knowing the roomId admits nothing**; without `encKey` you cannot produce or read a single valid frame.
+线路上的每一帧都是 `magic "VP2P1" ‖ flags ‖ 12 字节新 nonce ‖ AES-256-GCM(密文‖标签)`，并带有认证附加数据（associated data）。fabric 会话 id 就是派生出的 `roomId`——**知道 roomId 不会获得任何权限**；没有 `encKey`，你无法生成或读取任何一个有效帧。
 
-### What this guarantees (and what it doesn't)
+### 这能保证什么（以及不能保证什么）
 
-Encrypted: document updates, snapshots (state-vector deltas), and presence frames. The relay and the host are **content-blind**.
+已加密：文档更新、快照（状态向量增量）以及在线状态帧。中继和主机都是**内容盲的**。
 
-- **The link is the key.** Anyone who obtains a link — from a chat log, a forwarded email, a shoulder-surf — has full access at that link's capability. There is no per-person identity inside the room. Treat rw links like passwords.
-- **Revocation = rotation.** "Rotate" mints a brand-new room + key and re-shares; old links go dead. There is no finer-grained revocation.
-- **Read-only is enforced cryptographically.** ro sessions never receive `macKeyRw` (it is stripped before the session is constructed), so an ro peer's update frames carry no RW MAC and rw peers reject them. An ro peer *can* decrypt content (it holds `encKey`) — read-only means "cannot write", not "cannot read".
-- **Not hidden:** the fact that *some* peers share a room (the discovery service sees `roomId`, peer count, timing, IPs). This is metadata, not content.
-- A malformed or tampered invite **fails closed**: the join throws, the editor logs `[p2p] join from link failed: …`, and stays in local mode.
-- **Persistence is yours.** The room stores nothing anywhere central. Each participant's own copy autosaves through their normal document save path (to their own storage); a browser-local snapshot aids offline recovery.
-
----
-
-## 5. The life of an edit
-
-1. **Keystroke** — the editor updates instantly; the change becomes a Yjs update. Read-only sessions stop here (they produce no authoritative updates).
-2. **Seal + send** — the update is sealed (AES-256-GCM, fresh nonce) and sent over the room: directly to each connected peer's WebRTC data channel, or over the content-blind relay circuit if direct failed.
-3. **Apply** — receiving peers run the update through the fail-closed ingress (shadow-apply → validate → live-apply). Duplicates are no-ops (Yjs dedups by `(client, clock)`).
-4. **Late joiners & reconnects** — on join (and after any reconnect) a peer sends its **state vector**; peers answer with exactly the delta it lacks. Two peers who both edited offline both keep their edits — a union merge, never "whoever has more wins".
-5. **Presence** — cursor moves are coalesced (~120 ms); a roster entry not heard from for ~15 s is dropped (that's how a crashed tab disappears). Presence rides the same E2E room; it is never persisted.
-6. **Autosave** — independently, your own copy autosaves to your storage with a crash-safe IndexedDB draft, and every save leaves a restorable version snapshot.
-
-### A worked example
-
-Alice (rw) shares a `#vp2p=` link with Bob (rw); Carol opens the ro link.
-
-- Alice types "risks" into paragraph 2 while Bob deletes a sentence in paragraph 4 — both see their own change instantly, and each other's within a WebRTC round-trip. Yjs keeps both; no dialog, no lock.
-- Carol's caret is visible (presence), but her write frames carry no RW MAC, so Alice and Bob discard them — she reads live, cannot write.
-- Bob's laptop sleeps. Alice keeps editing. Bob wakes 10 minutes later: his session reconnects and sends its state vector; Alice's peer answers with exactly the edits he missed. Both converge — with no server involved.
+- **链接即密钥。** 任何获得链接的人——无论来自聊天记录、转发的邮件，还是旁人窥视——都会在该链接的权限范围内拥有完全访问权。房间内部没有针对个人的身份。请像对待密码一样对待读写链接。
+- **撤销 = 轮换。** “轮换”会生成一个全新的房间和密钥并重新分享；旧链接随即失效。没有更细粒度的撤销机制。
+- **只读是经过密码学强制执行的。** 只读会话从不接收 `macKeyRw`（它在会话构造之前就被剥离），因此只读对等方的更新帧不携带读写 MAC，读写对等方会拒绝它们。只读对等方*能够*解密内容（它持有 `encKey`）——只读的含义是“不能写”，而不是“不能读”。
+- **不隐藏的内容：** 有*某些*对等方共享一个房间这一事实（发现服务能看到 `roomId`、对等方数量、时间、IP）。这是元数据，而非内容。
+- 格式错误或被篡改的邀请会**失败即关闭**：加入操作会抛出异常，编辑器会记录 `[p2p] join from link failed: …`，并停留在本地模式。
+- **持久化由你掌控。** 房间不会在任何中心位置存储任何东西。每个参与者自己的副本都会通过其常规文档保存路径（保存到其自己的存储）自动保存；浏览器本地快照用于辅助离线恢复。
 
 ---
 
-## 6. Conflict behavior
+## 5. 一次编辑的生命周期
 
-**Live collaboration:** no locking, no "someone else is editing" dialogs. Concurrent edits merge via Yjs; both sides' edits survive. In Sheets, two simultaneous writes to the *same cell* resolve last-writer-wins; different cells always both apply.
+1. **按键**——编辑器立即更新；该更改成为一个 Yjs 更新。只读会话到此为止（它们不产生权威更新）。
+2. **封装 + 发送**——更新被封装（AES-256-GCM，新 nonce），并通过房间发送：直接发送给每个已连接对等方的 WebRTC 数据通道，或在直接连接失败时通过内容盲中继电路发送。
+3. **应用**——接收方的对等端将更新送入故障即关闭的入口（影子应用 → 校验 → 实时应用）。重复更新是无操作的（Yjs 通过 `(client, clock)` 去重）。
+4. **迟到加入者与重连**——加入时（以及任何重连之后），对等方会发送其**状态向量**；其他对等方会回应，仅发送其缺少的增量。两个离线编辑过的对等方都会保留各自的编辑——这是并集合并，绝不是“谁的内容多谁赢”。
+5. **在线状态**——光标移动会合并为约 120 毫秒的一次更新；超过约 15 秒未收到消息的成员条目会被移除（这就是崩溃的标签页消失的方式）。在线状态运行在同一个端到端加密房间中；它从不被持久化。
+6. **自动保存**——独立于上述过程，你自己的副本会通过带有崩溃安全的 IndexedDB 草稿，自动保存到你的存储中；每次保存都会留下一个可恢复的版本快照。
 
-**Duplicate delivery:** an update arriving over both a direct channel and the relay applies once — dedup by `(client, clock)`.
+### 一个实例
 
-**Offline divergence:** each side keeps editing locally; on reconnect the state-vector exchange fetches exactly what each side missed and converges. Nothing is discarded.
+Alice（读写）与 Bob（读写）分享一个 `#vp2p=` 链接；Carol 打开只读链接。
 
-**Whole-document saves (revision CAS):** independent of live collab, every file save carries the revision it was based on. A stale save gets `409 Conflict` with the current copy instead of clobbering it — the client reconciles and retries. This protects the "two devices, no live session" case.
-
-**CRDT update log (opt-in — `persistence.updatelog`):** the revision-CAS model above is last-writer-wins for the *blob*: the two-devices case still forces one side to reconcile. The update log removes that by making durability itself CRDT-native. When enabled, the server exposes a per-file **append-only log** (`GET`/`POST /api/files/:id/updates`): the client appends each debounced edit as an opaque CRDT frame (the server never reads it) with a monotonic seq, and periodically posts a compacting **snapshot** (the whole state + a `floor` seq) so the server prunes the frames the snapshot subsumes while keeping any frame *above* the floor. On open, the client replays snapshot + missing frames. Because the frames are commutative + idempotent CRDT updates, two devices that both edited **offline** converge **byte-identically** with nothing discarded — no `409`, no reconcile. It is **additive/dual-write**: the whole-document autosave keeps running alongside it, so the flag can be turned on or off without ever losing a document.
-
-All four editors are wired: **Docs** and **Whiteboard** are plain Y.Docs and use the Yjs `UpdateLogSync` (frames are base64 Yjs updates); **Sheets** (LWW grid) and **Slides** (fractional tree) are op-based CRDTs and use `OpLogSync`, which carries their discrete ops as frames and the compacted state as snapshot frames — the same offline-converge guarantee, proven by convergence tests per surface. The store backend follows `storage.type` (local/S3 → filesystem `data/updates/<id>/`; postgres → `office.file_updates` + `office.file_update_snapshots`), frame appends are storage-quota metered, and server-side compaction is **advisory only** (the server nudges a client to snapshot once the un-compacted tail is large — it cannot merge opaque frames itself). See [CONFIGURATION.md](CONFIGURATION.md) and `backend/updatelog/`.
-
-**Undo:** undo operates on your own edits (the Yjs UndoManager is user-scoped); a remote peer's edit is not undone by your `Mod+Z`.
-
-**Version history as the backstop:** every save produces restorable version snapshots with diffs, so even a semantically-wrong merge is recoverable by a human.
-
----
-
-## 7. Access control — admin summary
-
-- **Account sharing (the ACL)** — `backend/fileacl/`: roles `viewer` < `commenter` < `editor`, plus `owner`. Grants are owner-gated server-side, land in the append-only **audit log**, and no-access responses are `404` to avoid existence leaks. Read-only **share links** (256-bit token stored only as a SHA-256 hash and shown to the owner once at mint, optional bcrypt-hashed password, expiry capped at one year) reach *only* the anonymous read path. This governs who may open the document from **your storage** — it does **not** put a server in the live-collaboration path.
-- **Live collaboration** — possession of the invite fragment. The host cannot enumerate, join, or read rooms; it also cannot audit their content. If your compliance posture requires all collaboration to be server-auditable, note that Liwan's collaboration is deliberately end-to-end and peer-to-peer — auditing happens at the account-save and version-history layer, not in the wire.
-- **Peer discovery** is available by default: this Liwan binary serves it itself at `/api/rendezvous/*` (§3), so no Vulos OS, Pier, relay or account is required. A host-provided peering fabric or a configured rendezvous URL takes precedence when present. Only if you turn the built-in surface off *and* configure no relay is there no live P2P — and then the editor stays honestly local-only.
+- Alice 在第 2 段中输入“risks”，同时 Bob 在第 4 段中删除了一句话——两人都会立即看到自己的更改，并在一次 WebRTC 往返内看到对方的更改。Yjs 会同时保留两者；没有对话框，也没有锁。
+- Carol 的光标是可见的（在线状态），但她的写入帧不携带读写 MAC，因此 Alice 和 Bob 会丢弃它们——她可以实时阅读，但无法写入。
+- Bob 的笔记本电脑进入睡眠。Alice 继续编辑。10 分钟后 Bob 唤醒：他的会话重新连接并发送其状态向量；Alice 的对等端会回应，恰好发送他错过的编辑。两者收敛——全程没有服务器参与。
 
 ---
 
-## 8. Presence and cursors
+## 6. 冲突行为
 
-- The presence bar shows everyone in the room (avatar stack + roster); remote carets/selections render in the text with per-user colors.
-- Presence rides the E2E-encrypted room like everything else — the host does not learn who is in a room.
-- Presence is ephemeral: it is never persisted anywhere.
+**实时协作：** 没有锁定，也没有“有人正在编辑”的对话框。并发编辑通过 Yjs 合并，双方的编辑都会保留。在 Sheets 中，两个对*同一单元格*的同时写入通过后写者胜出解决；对不同单元格的写入始终都会生效。
+
+**重复投递：** 通过直接通道和中继同时到达的更新只会应用一次——按 `(client, clock)` 去重。
+
+**离线分歧：** 双方各自在本地继续编辑；重新连接时，状态向量交换会精确获取双方各自错过的内容，并收敛。没有任何内容被丢弃。
+
+**整文档保存（修订号 CAS）：** 与实时协作无关，每次文件保存都会携带其所基于的修订号。过期的保存会收到 `409 Conflict` 以及当前副本，而不会覆盖它——客户端会协调并重试。这保护的是“两台设备、没有实时会话”的情况。
+
+**CRDT 更新日志（可选启用 —— `persistence.updatelog`）：** 上面的修订号 CAS 模型对于 blob 而言是后写者胜出：在两台设备的情况下，仍会强制其中一方进行协调。更新日志通过使持久化本身具备 CRDT 原生特性来消除这一点。启用后，服务器会为每个文件提供一个**仅追加的日志**（`GET`/`POST /api/files/:id/updates`）：客户端将每次防抖后的编辑作为一个不透明的 CRDT 帧（服务器从不读取它）追加，并带有单调递增的 seq；同时会定期提交一个压缩用的**快照**（完整状态 + `floor` seq），使服务器裁剪被快照覆盖的帧，同时保留 *floor 以上*的任何帧。打开文档时，客户端会回放快照 + 缺失的帧。由于这些帧是满足交换律和幂等性的 CRDT 更新，两台**离线**编辑过的设备会**逐字节**收敛，且没有任何内容被丢弃——没有 `409`，也无需协调。它是**附加式/双写**的：整文档自动保存会与之并行运行，因此可以随时打开或关闭该开关，而绝不会丢失任何文档。
+
+四种编辑器已全部接入：**Docs** 和 **Whiteboard** 是普通的 Y.Doc，使用 Yjs 的 `UpdateLogSync`（帧为 base64 编码的 Yjs 更新）；**Sheets**（LWW 表格）和 **Slides**（分数树）是基于操作的 CRDT，使用 `OpLogSync`，它将离散操作作为帧携带，将压缩后的状态作为快照帧携带——每个界面都通过收敛测试证明了相同的离线收敛保证。存储后端跟随 `storage.type`（local/S3 → 文件系统 `data/updates/<id>/`；postgres → `office.file_updates` + `office.file_update_snapshots`），帧追加会计入存储配额，服务端压缩**仅为建议性的**（当未压缩的尾部较大时，服务器会提示客户端进行快照——它自己无法合并不透明的帧）。参见 [CONFIGURATION.md](CONFIGURATION.md) 以及 `backend/updatelog/`。
+
+**撤销：** 撤销作用于你自己的编辑（Yjs UndoManager 限定于用户范围）；远程对等方的编辑不会因你的 `Mod+Z` 而被撤销。
+
+**版本历史作为兜底：** 每次保存都会生成带差异的可恢复版本快照，因此即使是语义上错误的合并，也可以由人工恢复。
 
 ---
 
-## 9. Verifying it yourself (admins)
+## 7. 访问控制——管理员摘要
 
-You can confirm the serverless property from the outside:
+- **账户共享（ACL）**——`backend/fileacl/`：角色 `viewer` < `commenter` < `editor`，外加 `owner`。授权由服务器端的所有者控制，并记入仅追加的**审计日志**；无权限的响应返回 `404`，以避免泄露存在性。只读**共享链接**（256 位令牌，仅以 SHA-256 哈希形式存储，并在创建时向所有者显示一次；可选的 bcrypt 哈希密码；有效期上限为一年）*仅*可访问匿名读取路径。它管控的是谁可以从**你的存储**中打开文档——它**不会**把服务器放入实时协作路径中。
+- **实时协作**——凭的是邀请片段的持有。主机无法枚举、加入或读取房间；它也无法审计其内容。如果你的合规要求是所有协作都必须可在服务器端审计，请注意 Liwan 的协作在设计上是端到端且点对点的——审计发生在账户保存和版本历史这一层，而不在线路上。
+- **对等发现**默认可用：本 Liwan 二进制文件自己在 `/api/rendezvous/*` 上提供它（§3），因此无需 Vulos OS、Pier、中继或账户。当存在主机提供的对等网络或已配置的会合 URL 时，它们优先。只有在你同时关闭内置接口*并且*未配置任何中继的情况下，才不存在实时 P2P——此时编辑器会如实保持仅本地。
+
+---
+
+## 8. 在线状态与光标
+
+- 在线状态栏显示房间中的所有人（头像堆叠 + 成员列表）；远程光标/选区会以每位用户独有的颜色渲染在文本中。
+- 在线状态与其他一切一样运行在端到端加密房间中——主机不会得知谁在房间里。
+- 在线状态是临时的：它从不被持久化到任何地方。
+
+---
+
+## 9. 管理员自行验证
+
+你可以从外部确认无服务器特性：
 
 ```bash
-# 0. Or just run the proof: one real `liwan` binary serving its own discovery
-#    surface + two real browsers, asserting convergence, the transport used, the
-#    server's own presence state as ground truth, and that a deployment with
-#    discovery disabled stays honestly local-only. No external anything.
+# 0. 或者直接运行证明：一个真实的 `liwan` 二进制文件提供其自身的发现接口，
+#    加上两个真实浏览器，断言收敛、所用的传输方式、以服务器自身的在线状态作为事实依据，
+#    并验证禁用发现功能的部署会如实地保持仅本地。没有任何外部依赖。
 npm run test:e2e:p2p
 
-# 1. There is NO server-mediated collab endpoint. These must 404:
-curl -i "https://office.example.org/v1/documents/<id>/collab/stream"   # expect 404
-curl -i "https://office.example.org/v1/documents/<id>/collab/ops"      # expect 404
+# 1. 不存在服务器中转的协作端点。以下请求都必须返回 404：
+curl -i "https://office.example.org/v1/documents/<id>/collab/stream"   # 预期 404
+curl -i "https://office.example.org/v1/documents/<id>/collab/ops"      # 预期 404
 
-# 2. Is the peering fabric present? (host-provided, not the Liwan binary)
-curl -i "https://office.example.org/api/peering/ice"   # 404 ⇒ standalone, no host-box discovery
+# 2. 对等网络是否存在？（由主机提供，而非 Liwan 二进制文件本身）
+curl -i "https://office.example.org/api/peering/ice"   # 404 ⇒ 独立运行，无主机盒子发现
 
-# 3. What discovery does this deployment offer? One request answers it:
+# 3. 本部署提供哪种发现方式？一次请求即可得知：
 curl -s "https://office.example.org/api/reachability"
-#   builtin_rendezvous_prefix: "/api/rendezvous"  ⇒ this binary serves discovery (the default)
-#   builtin_rendezvous_prefix: ""                 ⇒ turned off
-#   rendezvous_url: "https://relay.example.org"   ⇒ an external relay is configured (it wins)
-#   rendezvous_url: ""                            ⇒ no external relay
-#   both empty (and no host box) ⇒ honestly local-only
+#   builtin_rendezvous_prefix: "/api/rendezvous"  ⇒ 本二进制文件提供发现（默认）
+#   builtin_rendezvous_prefix: ""                 ⇒ 已关闭
+#   rendezvous_url: "https://relay.example.org"   ⇒ 已配置外部中继（优先）
+#   rendezvous_url: ""                            ⇒ 未配置外部中继
+#   两者都为空（且没有主机盒子）⇒ 如实的仅本地模式
 
-# 4. The built-in surface, when it is on:
+# 4. 内置接口开启时：
 curl -i "https://office.example.org/api/rendezvous/healthz"    # {"ok":true,"service":"rendezvous"}
-# It refuses an unsigned write — the ONLY thing standing between an anonymous
-# caller and your discovery state, so check it rather than assume it:
+# 它会拒绝未签名的写入——这是匿名调用者与你的发现状态之间唯一的屏障，
+# 因此请进行验证，而不是想当然：
 curl -i -X POST -H 'Content-Type: application/json' \
   -d '{"key":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","ttl":0,"nonce":"n","ts":0,"sig":""}' \
-  "https://office.example.org/api/rendezvous/announce"         # expect 400 or 403, never 200
+  "https://office.example.org/api/rendezvous/announce"         # 预期 400 或 403，绝不会是 200
 
-# 5. When an EXTERNAL relay is configured instead, the browser calls it DIRECTLY
-#    (§3), so check the RELAY:
+# 5. 当配置的是外部中继时，浏览器会直接调用它（§3），因此请检查中继：
 curl -i "https://relay.example.org/rendezvous/healthz"          # {"role":"rendezvous"}
-# …and that a browser on Liwan's origin may call it (the CORS guarantee §3):
+# ……以及来自 Liwan 源的浏览器是否可以调用它（§3 中的 CORS 保证）：
 curl -i -H "Origin: https://office.example.org" "https://relay.example.org/rendezvous/ice"
-#   expect: Access-Control-Allow-Origin: *   and NO Access-Control-Allow-Credentials
+#   预期：Access-Control-Allow-Origin: *   且没有 Access-Control-Allow-Credentials
 ```
 
-In the browser, DevTools → Network shows the truth: opening a `#vp2p=` link produces discovery traffic — a **WebSocket to `/api/peering/stream`** (host-box), or same-origin `POST /api/rendezvous/*` (the built-in surface), or cross-origin requests to the configured relay — and then a **WebRTC data channel**. Discovery only, in every case: **no `collab/*` request ever appears**, because there is no document server to call, and the discovery bodies are base64 ciphertext. The document bytes travel inside the encrypted data channel, not any HTTP request.
+在浏览器中，DevTools → Network 会显示真相：打开 `#vp2p=` 链接会产生发现流量——一个指向 `/api/peering/stream` 的 **WebSocket**（主机盒子），或同源的 `POST /api/rendezvous/*`（内置接口），或指向所配置中继的跨源请求——然后是一个 **WebRTC 数据通道**。在所有情况下，都只是发现流量：**不会出现任何 `collab/*` 请求**，因为根本没有可调用的文档服务器，并且发现的正文是 base64 密文。文档字节是在加密的数据通道中传输的，而不是通过任何 HTTP 请求。
 
 ---
 
-## 10. Frequently asked questions
+## 10. 常见问题
 
-**Does my document ever touch a central server during collaboration?** No. Collaborative edits travel peer-to-peer, end-to-end-encrypted. The only server role is content-blind peer discovery (signed presence records, opaque signalling blobs, and ICE config) — which by default your own Liwan binary performs. Your saved copy lives in *your* storage.
+**协作期间，我的文档会接触到任何中央服务器吗？** 不会。协作编辑通过点对点端到端加密方式传输。服务器唯一的角色是内容盲的对等发现（已签名的在线状态记录、不透明的信令数据块以及 ICE 配置）——默认由你自己的 Liwan 二进制文件执行。你保存的副本位于*你的*存储中。
 
-**Can the admin read what we're editing live?** No — frames are AES-256-GCM sealed under a key that only exists in invite links (URL fragments never reach the server). The admin *can* see that a room exists (its derived id, peer count, timing, IPs) if the discovery service and relay are theirs.
+**管理员能实时读取我们正在编辑的内容吗？** 不能——帧使用 AES-256-GCM 加密，密钥只存在于邀请链接中（URL 片段永远不会到达服务器）。如果发现服务和中继归管理员所有，管理员*可以*看到某个房间存在（其派生 id、对等方数量、时间、IP）。
 
-**Can the admin read my saved document?** They can read what your storage holds, gated by the account ACL — that is ordinary file access, not collaboration. Collaboration itself is content-blind.
+**管理员能读取我保存的文档吗？** 他们可以读取你的存储中保存的内容，并受账户 ACL 控制——这是普通的文件访问，而不是协作。协作本身是内容盲的。
 
-**Why is read-only "enforcement" if ro users can still read?** ro peers hold the decryption key but not the RW MAC key, so their write frames are unauthenticated and rw peers discard them. Read-only means "cannot write".
+**为什么只读“强制执行”，而只读用户仍然能读取？** 只读对等方持有解密密钥，但没有读写 MAC 密钥，因此它们的写入帧未经认证，读写对等方会丢弃它们。只读的含义是“不能写”。
 
-**Is there a maximum number of collaborators?** No explicit cap in the collab code; the practical bound is WebRTC mesh fan-out (each peer connects to the others) and your discovery/relay capacity.
+**协作者人数有上限吗？** 协作代码中没有明确的上限；实际的限制来自 WebRTC 网状扩展（每个对等方都要与其他所有人相连），以及你的发现/中继容量。
 
-**Does collaboration work across two different Liwan servers?** Yes, as long as the peers can reach the same discovery surface — either both point at the same host-box peering fabric, or both resolve the same rendezvous URL — collaboration is between *browsers*, not servers. The document does not live on either server for the purpose of the live session.
+**协作能否跨两台不同的 Liwan 服务器进行？** 能，只要对等方能访问同一个发现接口——两者要么指向同一个主机盒子对等网络，要么解析到同一个会合 URL——协作发生在*浏览器*之间，而不是服务器之间。在实时会话期间，文档并不存放在任何一台服务器上。
 
-**Does live P2P collaboration require a Vulos OS, a Pier relay, or a Vulos account?** No — none of them, and nothing needs configuring. A bare `liwan` binary serves its own peer-discovery surface at `/api/rendezvous/*` (§3), so one binary on one box is enough for two people. You *may* delegate discovery to a self-hosted `vulos-relayd` by setting `collab.rendezvous_url` (see [CONFIGURATION.md](CONFIGURATION.md)) — for one shared relay across several deployments, or for its NAT-traversal help — and it then takes precedence. Either way discovery is content-blind and the document never touches it. This is not a claim on paper: `npm run test:e2e:p2p` boots the real binary and makes two real browsers converge through it, with the negative control included.
+**实时 P2P 协作需要 Vulos OS、Pier 中继或 Vulos 账户吗？** 不需要——以上都不需要，也无需任何配置。单独的 `liwan` 二进制文件在 `/api/rendezvous/*`（§3）提供其自己的对等发现接口，因此一台机器上的一个二进制文件就足以支持两个人。你*可以*通过设置 `collab.rendezvous_url`（参见 [CONFIGURATION.md](CONFIGURATION.md)）将发现委托给自托管的 `vulos-relayd`——例如为了让多个部署共享一个中继，或借助其 NAT 穿透能力——设置后它会优先生效。无论哪种方式，发现都是内容盲的，文档绝不会经过它。这不是纸面上的主张：`npm run test:e2e:p2p` 会启动真实的二进制文件，并让两个真实浏览器通过它收敛，其中包括负面对照。
 
-**What happens with no network at all?** You keep editing; the CRDT applies locally and an IndexedDB draft protects your work. It syncs to peers when you reconnect, and autosaves to your storage.
+**完全没有网络时会怎样？** 你可以继续编辑；CRDT 会在本地应用，IndexedDB 草稿会保护你的工作。重新连接后会同步给对等方，并自动保存到你的存储中。
 
 ---
 
-## 11. What is stored where
+## 11. 各类状态存储位置
 
-| State | Location | Lifetime |
+| 状态 | 位置 | 生命周期 |
 |-------|----------|----------|
-| The document itself | **Your** file storage (`data/<id>.json` or Postgres schema `office`) | Until deleted; every save also snapshots into version history |
-| Live collaboration edits | **Nowhere central** — only in the peers' browsers, in transit E2E-encrypted | The session; the host holds nothing |
-| Presence (who's here, cursors) | In the peers' browsers only | Seconds — never written anywhere |
-| Room recovery snapshot | Participant's browser `localStorage` | Per-browser; the server holds nothing for the room |
-| Crash-safety drafts | Browser IndexedDB (`liwan-drafts`) | Until the next successful save |
+| 文档本身 | **你的**文件存储（`data/<id>.json` 或 Postgres 的 `office` schema） | 直到被删除；每次保存也会同时写入版本历史 |
+| 实时协作编辑 | **没有中心存储**——仅在对等方的浏览器中，传输过程中端到端加密 | 会话期间；主机不保存任何内容 |
+| 在线状态（谁在这里、光标） | 仅在对等方的浏览器中 | 数秒——从不写入任何地方 |
+| 房间恢复快照 | 参与者浏览器的 `localStorage` | 按浏览器；服务器不为该房间保存任何内容 |
+| 崩溃安全草稿 | 浏览器 IndexedDB（`liwan-drafts`） | 直到下一次成功保存 |
 
-Consequences: server backups capture your saved documents and version history; they never capture live collaboration traffic (there is nothing to capture). Clearing a browser's site data erases drafts and local snapshots but never the saved document.
-
----
-
-## 12. Glossary
-
-- **CRDT** — Conflict-free Replicated Data Type: a data structure whose operations commute, so replicas converge without coordination or locks.
-- **Yjs** — the CRDT library backing the Docs document; carries structure and formatting, not just text.
-- **Update** — one atomic Yjs change, carried as an envelope `{ y:1, u:<base64> }`.
-- **Fabric** — Liwan's own first-party peering transport (`src/lib/collab/webrtc/fabric.js`, re-homed from the vendored relay-client SDK): direct WebRTC first (with STUN, and optionally a self-hosted TURN server — see [COTURN.md](COTURN.md)), content-blind relay fallback, discovery via this binary's own built-in surface, the host box's `/api/peering/*`, or a configured relayd's open rendezvous surface (see §3).
-- **Built-in rendezvous** — `/api/rendezvous/*`, served by the Liwan binary itself (`backend/rendezvous`), on by default (`collab.builtin_rendezvous`). The signed, content-blind announce/resolve/signal/mailbox protocol that lets two browsers on one deployment find each other with no other product involved. See §3.
-- **Rendezvous URL** — `config.yaml` `collab.rendezvous_url` / `VULOS_RENDEZVOUS_URL`: the base URL of a self-hosted `vulos-relayd`'s open rendezvous surface, used *instead of* the built-in one when set. The browser calls that relayd **directly**, cross-origin — Liwan's server is then not in the discovery path at all — see §3 for what the relay does and does not see, and for the CORS/TLS requirements that puts on it.
-- **Room** — an E2E-encrypted collaboration session identified by a key-derived `roomId`; membership = possession of the invite key.
-- **Capability (`rw`/`ro`)** — what an invite link grants; `rw` links carry MAC authority to write, `ro` links can only decrypt.
-- **Rotation** — minting a fresh room + key to revoke all previously shared links.
-- **STUN / TURN** — NAT-traversal helpers; STUN discovers your public address for a direct connection, TURN relays (content-blind here) when direct fails. Configurable **at runtime** via `collab.ice.*` in config.yaml / `VULOS_STUN_URLS` / `VULOS_TURN_*`, served to browsers at `GET /api/rendezvous/ice` — which is what lets a downloaded release binary be pointed at a TURN server without rebuilding the frontend — or **at build time** via `VITE_STUN_URLS`/`VITE_TURN_*` (see [CONFIGURATION.md](CONFIGURATION.md)). Self-hosting your own TURN server is covered in [COTURN.md](COTURN.md).
+由此得出的结论：服务器备份会包含你保存的文档和版本历史；它们永远不会包含实时协作流量（因为根本没有可备份的内容）。清除浏览器的站点数据会删除草稿和本地快照，但永远不会删除已保存的文档。
 
 ---
 
-## 13. Quick reference — "what can the server see?"
+## 12. 术语表
 
-| You did… | Live path | Server can read live edits? |
+- **CRDT**——无冲突复制数据类型（Conflict-free Replicated Data Type）：一种操作满足交换律的数据结构，因此副本无需协调或加锁即可收敛。
+- **Yjs**——支撑 Docs 文档的 CRDT 库；它携带的是结构和格式，而不只是文本。
+- **Update（更新）**——一次原子性的 Yjs 变更，以信封 `{ y:1, u:<base64> }` 的形式携带。
+- **Fabric**——Liwan 自有的第一方对等传输层（`src/lib/collab/webrtc/fabric.js`，从 vendored relay-client SDK 迁入）：优先直接 WebRTC（使用 STUN，并可选择自托管的 TURN 服务器——参见 [COTURN.md](COTURN.md)），内容盲中继回退，发现可通过本二进制文件自带的内置接口、主机盒子的 `/api/peering/*`，或已配置 relayd 的开放会合接口完成（参见 §3）。
+- **内置会合（Built-in rendezvous）**——`/api/rendezvous/*`，由 Liwan 二进制文件自身提供（`backend/rendezvous`），默认开启（`collab.builtin_rendezvous`）。这是一个经过签名、内容盲的 announce/resolve/signal/mailbox 协议，使同一部署上的两个浏览器无需任何其他产品即可互相找到。参见 §3。
+- **会合 URL（Rendezvous URL）**——`config.yaml` 中的 `collab.rendezvous_url` / `VULOS_RENDEZVOUS_URL`：自托管 `vulos-relayd` 开放会合接口的基础 URL，设置后*代替*内置接口使用。浏览器会**直接**、跨源调用该 relayd——此时 Liwan 的服务器完全不在发现路径中——关于中继能看到和看不到什么，以及它由此需要满足的 CORS/TLS 要求，参见 §3。
+- **房间（Room）**——由密钥派生的 `roomId` 标识的端到端加密协作会话；成员资格 = 持有邀请密钥。
+- **权限（Capability，`rw`/`ro`）**——邀请链接所授予的权限；`rw` 链接携带写入的 MAC 授权，`ro` 链接只能解密。
+- **轮换（Rotation）**——生成一个全新的房间和密钥，以撤销所有先前分享的链接。
+- **STUN / TURN**——NAT 穿透辅助工具；STUN 为直接连接发现你的公网地址，TURN 在直接连接失败时进行中继（在此为内容盲的）。可在**运行时**通过 config.yaml 中的 `collab.ice.*` / 环境变量 `VULOS_STUN_URLS`、`VULOS_TURN_*` 进行配置，并通过 `GET /api/rendezvous/ice` 提供给浏览器——这使得下载的发布版二进制文件无需重新构建前端即可指向 TURN 服务器——或在**构建时**通过 `VITE_STUN_URLS`/`VITE_TURN_*` 配置（参见 [CONFIGURATION.md](CONFIGURATION.md)）。自托管 TURN 服务器的方法见 [COTURN.md](COTURN.md)。
+
+---
+
+## 13. 快速参考——“服务器能看到什么？”
+
+| 你所做的操作 | 实时路径 | 服务器能否读取实时编辑？ |
 |----------|-----------|-----------------------------|
-| Clicked *Collaborate via link* / opened a `#vp2p=` link, peers connect directly | Direct WebRTC, E2E | **No** — content-blind, and no server is even in the path |
-| Same, but a peer pair can't hole-punch | Content-blind relay fallback, E2E | **No** — the relay routes ciphertext |
-| Bare standalone binary, nothing configured (**the default**) | Direct WebRTC, discovered through this binary's own `/api/rendezvous/*`, E2E (fallback: content-blind relay) | **No** — it moves signed, opaque discovery blobs; the room key never reaches it |
-| Built-in surface turned off (`collab.builtin_rendezvous: false`) and no rendezvous URL configured | Local-only (autosave) | n/a — nothing is sent |
-| A rendezvous URL is configured | Direct WebRTC via that self-hosted relayd, E2E (fallback: content-blind relay) | **No** — same content-blind guarantee, no host box or account involved |
-| Created a read-only share link | Anonymous read endpoint | Yes (it serves your saved copy) |
-| No network at all | Local CRDT + IndexedDB draft | n/a — syncs when back |
+| 点击*通过链接协作* / 打开 `#vp2p=` 链接，对等方直接连接 | 直接 WebRTC，端到端加密 | **否**——内容盲，甚至服务器都不在路径中 |
+| 同上，但某对对等方无法打洞 | 内容盲中继回退，端到端加密 | **否**——中继转发的是密文 |
+| 独立二进制文件，未配置任何东西（**默认**） | 直接 WebRTC，通过本二进制文件自身的 `/api/rendezvous/*` 发现，端到端加密（回退：内容盲中继） | **否**——它只转发已签名、不透明的发现数据块；房间密钥永远不会到达它 |
+| 关闭内置接口（`collab.builtin_rendezvous: false`）且未配置会合 URL | 仅本地（自动保存） | 不适用——什么都不会发送 |
+| 配置了会合 URL | 通过该自托管 relayd 直接 WebRTC，端到端加密（回退：内容盲中继） | **否**——同样的内容盲保证，不涉及主机盒子或账户 |
+| 创建了只读共享链接 | 匿名读取端点 | 是（它提供你保存的副本） |
+| 完全没有网络 | 本地 CRDT + IndexedDB 草稿 | 不适用——恢复连接后同步 |
 
-For symptoms and fixes (peers not connecting, docs not syncing), see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+有关症状与修复方法（对等方无法连接、文档不同步），参见 [TROUBLESHOOTING.md](TROUBLESHOOTING.md)。
