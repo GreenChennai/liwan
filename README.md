@@ -256,8 +256,7 @@ Liwan 将 HTML 净化集中在一份经过审计的 DOMPurify 策略中，将 CR
 
 ## 许可证
 
-[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE) — © VulOS. Liwan is a VulOS
-project; source and issues at [github.com/GreenChennai/liwan](https://github.com/GreenChennai/liwan).
+[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE) — © VulOS。本仓库是 [vul-os/diwan](https://github.com/vul-os/diwan) 的中文本地化并改名的版本（Liwan 议事厅），沿用原许可证与原版权声明；它不是 VulOS 官方发布的项目。源码与问题反馈：[github.com/GreenChennai/liwan](https://github.com/GreenChennai/liwan)。
 
 ---
 
