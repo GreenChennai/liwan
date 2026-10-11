@@ -283,9 +283,8 @@ function includesCI(hay: unknown, needle: unknown): boolean {
 }
 
 function fmtDate(d: Date): string {
-  // Locale-independent, stable label: e.g. "Jul 14, 2026".
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
+  // Locale-independent, stable label: e.g. "2026年7月14日".
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
 }
 
 function isoDate(d: Date): string {
@@ -345,7 +344,7 @@ export function buildChipSuggestions(
       label: name,
       refId: p.id,
       refHref: '',
-      hint: 'Person',
+      hint: '人员',
     })
     if (out.length >= 40) break
   }
@@ -353,7 +352,7 @@ export function buildChipSuggestions(
   // Files (the user's own documents — link chips).
   for (const f of files) {
     if (!f || !f.id) continue
-    const name = f.name || 'Untitled'
+    const name = f.name || '未命名'
     if (!includesCI(name, q)) continue
     const route = routeForFileType(f.type)
     out.push({
@@ -362,7 +361,7 @@ export function buildChipSuggestions(
       label: name,
       refId: f.id,
       refHref: route ? `${route}/${f.id}` : '',
-      hint: 'File',
+      hint: '文件',
     })
     if (out.length >= 60) break
   }
@@ -372,8 +371,8 @@ export function buildChipSuggestions(
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const tomorrow = new Date(today.getTime() + 86400000)
   const dateOpts = [
-    { label: `Today (${fmtDate(today)})`, d: today, kw: 'today' },
-    { label: `Tomorrow (${fmtDate(tomorrow)})`, d: tomorrow, kw: 'tomorrow' },
+    { label: `今天 (${fmtDate(today)})`, d: today, kw: 'today' },
+    { label: `明天 (${fmtDate(tomorrow)})`, d: tomorrow, kw: 'tomorrow' },
   ]
   for (const o of dateOpts) {
     if (q && !includesCI(o.kw, q) && !includesCI(o.label, q)) continue
@@ -383,7 +382,7 @@ export function buildChipSuggestions(
       label: fmtDate(o.d),
       refId: isoDate(o.d),
       refHref: '',
-      hint: 'Date',
+      hint: '日期',
     })
   }
   // Explicit parse (e.g. "@2026-08-01" or "@Aug 1 2026"). Guard against Date's
@@ -398,7 +397,7 @@ export function buildChipSuggestions(
         label: fmtDate(d),
         refId: isoDate(d),
         refHref: '',
-        hint: 'Date',
+        hint: '日期',
       })
     }
   }
@@ -411,7 +410,7 @@ export function buildChipSuggestions(
       label: q,
       refId: '',
       refHref: '',
-      hint: 'Place / label',
+      hint: '地点 / 标签',
     })
   }
 

@@ -63,7 +63,7 @@ export default function NumberFormatMenu({ selection, activeCell, data, onChange
 
   return (
     <div ref={ref} className="relative">
-      <Tooltip label="Number format">
+      <Tooltip label="数字格式">
         <IconButton size="sm" active={open} onClick={() => setOpen((v) => !v)} aria-haspopup="menu" aria-expanded={open}>
           <Hash size={14} />
           <ChevronDown size={10} className="opacity-60 -ml-0.5" />
@@ -72,7 +72,7 @@ export default function NumberFormatMenu({ selection, activeCell, data, onChange
       {open && (
         <div
           role="menu"
-          aria-label="Number format presets"
+          aria-label="数字格式预设"
           className={[
             'absolute right-0 top-full mt-0.5 w-48 py-1',
             'bg-paper border border-line rounded-md shadow-e2 z-40 text-sm',

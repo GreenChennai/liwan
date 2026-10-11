@@ -163,10 +163,10 @@ function SuggestionItem({ item, onAccept, onReject, busy }: SuggestionItemProps)
 
 // ─── SuggestionPanel ─────────────────────────────────────────────────────────
 const TAB_ITEMS = [
-  { value: 'pending',  label: 'Pending'  },
-  { value: 'all',      label: 'All'      },
-  { value: 'accepted', label: 'Accepted' },
-  { value: 'rejected', label: 'Rejected' },
+  { value: 'pending',  label: '待处理'  },
+  { value: 'all',      label: '全部'      },
+  { value: 'accepted', label: '已接受' },
+  { value: 'rejected', label: '已拒绝' },
 ]
 
 interface SuggestionPanelProps {
@@ -212,9 +212,9 @@ export default function SuggestionPanel({
       <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-bg-elev2 flex-shrink-0">
         <div className="flex items-center gap-2">
           <Type size={13} className="text-success" />
-          <span className="text-sm font-semibold text-ink tracking-tightish">Suggestions</span>
+          <span className="text-sm font-semibold text-ink tracking-tightish">修订建议</span>
         </div>
-        <IconButton size="sm" onClick={onClose} title="Close">
+        <IconButton size="sm" onClick={onClose} title="关闭">
           <X size={14} />
         </IconButton>
       </div>
@@ -233,8 +233,8 @@ export default function SuggestionPanel({
           <EmptyState
             size="sm"
             icon={GitBranch}
-            title={filter === 'pending' ? 'No pending suggestions.' : `No ${filter} suggestions.`}
-            hint={filter === 'pending' ? 'Turn on Suggesting mode to propose edits others can review.' : undefined}
+            title={filter === 'pending' ? '暂无待处理的建议。' : filter === 'accepted' ? '暂无已接受的建议。' : filter === 'rejected' ? '暂无已拒绝的建议。' : '暂无建议。'}
+            hint={filter === 'pending' ? '开启建议模式，即可提出他人可审阅的修改。' : undefined}
           />
         )}
         {filtered.map(item => (
@@ -252,7 +252,7 @@ export default function SuggestionPanel({
       {/* ── Footer hint ── */}
       <div className="px-4 py-2.5 border-t border-line bg-bg-elev2 flex-shrink-0">
         <p className="text-2xs text-ink-faint leading-relaxed">
-          Accepting folds the change into the document. Rejecting discards it.
+          接受会将修改合并到文档中，拒绝则会丢弃该修改。
         </p>
       </div>
     </div>

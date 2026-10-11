@@ -81,11 +81,11 @@ export function buildPresenterHTML(slides: PresenterSlide[], activeIdx: number, 
   })))
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Presenter View — Vulos Slides</title>
+  <title>演讲者视图 — Liwan 幻灯片</title>
   <link rel="stylesheet" href="${REVEAL_CORE_CSS_URL}" />
   <link rel="stylesheet" href="${presenterThemeUrl(themeId)}" />
   <style>
@@ -156,7 +156,7 @@ export function buildPresenterHTML(slides: PresenterSlide[], activeIdx: number, 
   </div>
   <div id="right">
     <div>
-      <div id="next-label">Next slide</div>
+      <div id="next-label">下一张幻灯片</div>
       <div id="next-slide">
         <div id="next-slide-inner">
           <div id="next-title"></div>
@@ -166,23 +166,23 @@ export function buildPresenterHTML(slides: PresenterSlide[], activeIdx: number, 
     </div>
     <div id="timer-box">
       <div id="timer">0:00</div>
-      <div id="slide-timer">Slide: 0:00</div>
+      <div id="slide-timer">本页：0:00</div>
     </div>
     <div id="progress-box">
-      <div id="progress-text">1 of 1</div>
+      <div id="progress-text">1 / 1</div>
       <div id="progress-bar-wrap">
         <div id="progress-bar" style="width:0%"></div>
       </div>
     </div>
     <div id="controls">
-      <button class="ctrl-btn" id="btn-blank" title="b — blank screen">Blank</button>
-      <button class="ctrl-btn" id="btn-fs" title="f — fullscreen">Fullscreen</button>
+      <button class="ctrl-btn" id="btn-blank" title="b — 黑屏">黑屏</button>
+      <button class="ctrl-btn" id="btn-fs" title="f — 全屏">全屏</button>
     </div>
-    <div id="keyboard-hint">← → Space — advance &nbsp;|&nbsp; b blank &nbsp;|&nbsp; f fullscreen</div>
+    <div id="keyboard-hint">← → 空格 — 下一张 &nbsp;|&nbsp; b 黑屏 &nbsp;|&nbsp; f 全屏</div>
     <div id="audience-link"></div>
   </div>
   <div id="notes">
-    <div id="notes-label">Speaker notes</div>
+    <div id="notes-label">演讲者备注</div>
     <div id="notes-body"></div>
   </div>
 </div>
@@ -213,14 +213,14 @@ export function buildPresenterHTML(slides: PresenterSlide[], activeIdx: number, 
     document.getElementById('notes-body').textContent = slide.notes || '';
 
     // next slide
-    document.getElementById('next-title').textContent = next ? next.title : '(end)';
+    document.getElementById('next-title').textContent = next ? next.title : '（结束）';
     document.getElementById('next-content').textContent = next
       ? next.content.replace(/<[^>]+>/g, ' ').slice(0, 80)
       : '';
 
     // progress
     var total = SLIDES.length;
-    document.getElementById('progress-text').textContent = (idx+1) + ' of ' + total;
+    document.getElementById('progress-text').textContent = (idx+1) + ' / ' + total;
     document.getElementById('progress-bar').style.width = (total > 1 ? (idx / (total-1)) * 100 : 100) + '%';
 
     // reveal advance
@@ -241,7 +241,7 @@ export function buildPresenterHTML(slides: PresenterSlide[], activeIdx: number, 
   setInterval(function() {
     var now = Date.now();
     document.getElementById('timer').textContent = formatTime(now - startTime);
-    document.getElementById('slide-timer').textContent = 'Slide: ' + formatTime(now - slideStartTime);
+    document.getElementById('slide-timer').textContent = '本页：' + formatTime(now - slideStartTime);
   }, 1000);
 
   function goNext() {
@@ -291,7 +291,7 @@ export function buildPresenterHTML(slides: PresenterSlide[], activeIdx: number, 
 
   // Audience view link
   var link = document.getElementById('audience-link');
-  link.innerHTML = 'Audience: <a href="' + window.opener?.location?.href + '" target="_blank">' + (window.opener?.location?.href || location.href) + '</a>';
+  link.innerHTML = '观众页：<a href="' + window.opener?.location?.href + '" target="_blank">' + (window.opener?.location?.href || location.href) + '</a>';
 
   // Boot reveal.js
   var script = document.createElement('script');

@@ -48,7 +48,7 @@ describe('buildRegulation — dropdown from a range (incl. cross-sheet)', () => 
   it('stores the range as value1, which Fortune-Sheet reads as a live list source', () => {
     const reg = buildRegulation({ kind: 'dropdownRange', sourceRange: 'Sheet2!A1:A5', rejectInvalid: true })
     expect(reg).toMatchObject({ type: 'dropdown', type2: '', value1: 'Sheet2!A1:A5', prohibitInput: true })
-    expect(validationSummary(reg)).toBe('Dropdown · from Sheet2!A1:A5')
+    expect(validationSummary(reg)).toBe('下拉列表 · 来自 Sheet2!A1:A5')
   })
   it('multi-select sets the native type2 flag', () => {
     expect(buildRegulation({ kind: 'dropdownRange', sourceRange: 'A1:A5', allowMulti: true })!.type2).toBe('true')
@@ -63,12 +63,12 @@ describe('buildRegulation — checkbox', () => {
   it('is a two-value dropdown (TRUE/FALSE by default) that always rejects other input', () => {
     const reg = buildRegulation({ kind: 'checkbox' })
     expect(reg).toMatchObject({ type: 'dropdown', value1: 'TRUE,FALSE', checkbox: true, prohibitInput: true })
-    expect(validationSummary(reg)).toBe('Checkbox · TRUE / FALSE')
+    expect(validationSummary(reg)).toBe('复选框 · TRUE / FALSE')
   })
   it('accepts custom checked/unchecked values', () => {
     const reg = buildRegulation({ kind: 'checkbox', checkedValue: 'Yes', uncheckedValue: 'No' })
     expect(reg!.value1).toBe('Yes,No')
-    expect(validationSummary(reg)).toBe('Checkbox · Yes / No')
+    expect(validationSummary(reg)).toBe('复选框 · Yes / No')
   })
   it('refuses two identical values (a checkbox with one state is not a checkbox)', () => {
     expect(buildRegulation({ kind: 'checkbox', checkedValue: 'Y', uncheckedValue: 'Y' })).toBeNull()
@@ -79,7 +79,7 @@ describe('buildRegulation — date', () => {
   it('maps our conditions onto the native date type2 tokens', () => {
     const reg = buildRegulation({ kind: 'date', condition: 'earlierThan', value1: '2026-07-14' })
     expect(reg).toMatchObject({ type: 'date', type2: 'earlierThan', value1: '2026-07-14', value2: '' })
-    expect(validationSummary(reg)).toBe('Date is before 2026-07-14')
+    expect(validationSummary(reg)).toBe('日期 早于 2026-07-14')
   })
   it('between needs both dates', () => {
     expect(buildRegulation({ kind: 'date', condition: 'between', value1: '2026-01-01' })).toBeNull()
@@ -97,14 +97,14 @@ describe('buildRegulation — text content + text length', () => {
   it('text contains / does not contain / is exactly', () => {
     const reg = buildRegulation({ kind: 'text', condition: 'include', value1: 'INV-' })
     expect(reg).toMatchObject({ type: 'text_content', type2: 'include', value1: 'INV-' })
-    expect(validationSummary(reg)).toBe('Text contains “INV-”')
+    expect(validationSummary(reg)).toBe('文本 包含 “INV-”')
     expect(buildRegulation({ kind: 'text', condition: 'exclude', value1: 'x' })!.type2).toBe('exclude')
     expect(buildRegulation({ kind: 'text', condition: 'equal', value1: 'x' })!.type2).toBe('equal')
   })
   it('text length takes whole numbers only', () => {
     const reg = buildRegulation({ kind: 'textLength', condition: 'lessThanOrEqualTo', value1: '10' })
     expect(reg).toMatchObject({ type: 'text_length', type2: 'lessThanOrEqualTo', value1: '10' })
-    expect(validationSummary(reg)).toBe('Text length less than or equal 10')
+    expect(validationSummary(reg)).toBe('文本长度 小于或等于 10')
     expect(buildRegulation({ kind: 'textLength', condition: 'between', value1: '2', value2: '8' })!.value2).toBe('8')
     expect(buildRegulation({ kind: 'textLength', condition: 'equal', value1: '3.5' })).toBeNull()
     expect(buildRegulation({ kind: 'textLength', condition: 'between', value1: '2' })).toBeNull()
@@ -234,14 +234,14 @@ describe('clampDataValidation — the load gate', () => {
     const rules = listValidationRules(clampDataValidation(data)[0])
     expect(rules).toHaveLength(1)
     expect(rules[0].count).toBe(3)
-    expect(rules[0].summary).toBe('Date is before 2026-07-14')
+    expect(rules[0].summary).toBe('日期 早于 2026-07-14')
   })
   it('a checkbox and a plain dropdown over the same values stay distinct rules', () => {
     let data = applyValidation([{ name: 'Sheet1', celldata: [], config: {} }], 'A1', buildRegulation({ kind: 'checkbox' }), parseRange)
     data = applyValidation(data, 'B1', buildRegulation({ kind: 'dropdown', items: 'TRUE,FALSE' }), parseRange)
     const rules = listValidationRules(clampDataValidation(data)[0])
     expect(rules).toHaveLength(2)
-    expect(rules.map((r) => r.summary).sort()).toEqual(['Checkbox · TRUE / FALSE', 'Dropdown · 2 items'])
+    expect(rules.map((r) => r.summary).sort()).toEqual(['下拉列表 · 2 个选项', '复选框 · TRUE / FALSE'])
   })
 })
 

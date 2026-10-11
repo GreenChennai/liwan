@@ -246,7 +246,7 @@ function FreezePanel({ workbookRef }: { workbookRef: React.RefObject<WorkbookIns
 
   return (
     <div ref={panelRef} className="relative">
-      <Tooltip label="Freeze rows / columns">
+      <Tooltip label="冻结行 / 列">
         <IconButton size="sm" active={open} onClick={() => { setOpen((v) => !v); setMode(null) }}>
           <Lock size={14} />
         </IconButton>
@@ -267,14 +267,14 @@ function FreezePanel({ workbookRef }: { workbookRef: React.RefObject<WorkbookIns
                 onClick={() => freeze('row', 1, 0)}
                 className="w-full text-left px-3 py-2 hover:bg-accent-tint text-ink-muted"
               >
-                Freeze top row
+                冻结首行
               </button>
               <button
                 role="menuitem"
                 onClick={() => freeze('column', 0, 1)}
                 className="w-full text-left px-3 py-2 hover:bg-accent-tint text-ink-muted"
               >
-                Freeze first column
+                冻结首列
               </button>
               <hr className="border-line my-1" />
               <button
@@ -282,14 +282,14 @@ function FreezePanel({ workbookRef }: { workbookRef: React.RefObject<WorkbookIns
                 onClick={() => { setMode('rows'); setCount(2) }}
                 className="w-full text-left px-3 py-2 hover:bg-accent-tint text-ink-muted"
               >
-                Freeze rows…
+                冻结行…
               </button>
               <button
                 role="menuitem"
                 onClick={() => { setMode('cols'); setCount(2) }}
                 className="w-full text-left px-3 py-2 hover:bg-accent-tint text-ink-muted"
               >
-                Freeze columns…
+                冻结列…
               </button>
               <hr className="border-line my-1" />
               <button
@@ -297,13 +297,13 @@ function FreezePanel({ workbookRef }: { workbookRef: React.RefObject<WorkbookIns
                 onClick={() => freeze('both', 0, 0)}
                 className="w-full text-left px-3 py-2 hover:bg-accent-tint text-ink-muted"
               >
-                Unfreeze
+                取消冻结
               </button>
             </>
           ) : (
             <div className="px-3 py-2 flex flex-col gap-2">
               <label className="text-2xs font-semibold uppercase tracking-eyebrow text-ink-faint">
-                {mode === 'rows' ? 'Rows to freeze' : 'Columns to freeze'}
+                {mode === 'rows' ? '要冻结的行数' : '要冻结的列数'}
               </label>
               <input
                 type="number"
@@ -323,13 +323,13 @@ function FreezePanel({ workbookRef }: { workbookRef: React.RefObject<WorkbookIns
                   onClick={() => freeze(mode === 'rows' ? 'row' : 'column', mode === 'rows' ? count : 0, mode === 'cols' ? count : 0)}
                   className="flex-1 h-7 rounded-sm bg-accent text-white text-xs font-medium hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:shadow-focus"
                 >
-                  Apply
+                  应用
                 </button>
                 <button
                   onClick={() => setMode(null)}
                   className="h-7 px-2 rounded-sm border border-line text-xs text-ink-muted hover:border-line-strong transition-colors"
                 >
-                  Back
+                  返回
                 </button>
               </div>
             </div>
@@ -406,7 +406,7 @@ function CellCommentPanel({ data, activeCell, onChange, onClose }: CellCommentPa
       ref={panelRef}
       role="dialog"
       aria-modal="true"
-      aria-label={`Comment on cell ${cellLabel}`}
+      aria-label={`单元格 ${cellLabel} 的评论`}
       className={[
         'absolute right-4 left-4 sm:left-auto top-4 z-40 w-auto sm:w-72 bg-paper border border-line rounded-lg shadow-e3',
         'flex flex-col animate-scale-in',
@@ -414,12 +414,12 @@ function CellCommentPanel({ data, activeCell, onChange, onClose }: CellCommentPa
     >
       <div className="flex items-center justify-between px-3 py-2 border-b border-line">
         <span className="text-xs font-semibold text-ink">
-          Comment · <span className="text-ink-faint font-mono">{cellLabel}</span>
+          评论 · <span className="text-ink-faint font-mono">{cellLabel}</span>
         </span>
         <button
           onClick={onClose}
           className="text-ink-faint hover:text-ink transition-colors rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
-          aria-label="Close comment panel"
+          aria-label="关闭评论面板"
         >
           <X size={13} />
         </button>
@@ -427,7 +427,7 @@ function CellCommentPanel({ data, activeCell, onChange, onClose }: CellCommentPa
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Add a comment…"
+        placeholder="添加评论…"
         rows={4}
         className={[
           'flex-1 w-full p-3 text-sm bg-transparent border-none outline-none resize-none',
@@ -440,20 +440,20 @@ function CellCommentPanel({ data, activeCell, onChange, onClose }: CellCommentPa
             onClick={() => { setText(''); handleSave() }}
             className="text-xs text-danger hover:underline rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
           >
-            Delete
+            删除
           </button>
         )}
         <button
           onClick={onClose}
           className="h-7 px-3 rounded-sm border border-line text-xs text-ink-muted hover:border-line-strong transition-colors focus-visible:outline-none focus-visible:shadow-focus"
         >
-          Cancel
+          取消
         </button>
         <button
           onClick={handleSave}
           className="h-7 px-3 rounded-sm bg-accent text-white text-xs font-medium hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:shadow-focus"
         >
-          Save
+          保存
         </button>
       </div>
     </div>
@@ -470,7 +470,7 @@ export default function SheetsEditor() {
   const navigate = useNavigate()
   const { files, saveFileWithDraft, markDirty } = useFilesStore()
   const [file, setFile] = useState<LiwanFile | undefined>(files.find((f) => f.id === id))
-  const [title, setTitle] = useState(file?.name || 'Untitled Sheet')
+  const [title, setTitle] = useState(file?.name || '未命名表格')
   // Account-based sharing (named users, role-scoped, ACL-enforced).
   const [showShare, setShowShare] = useState(false)
   const myAccountId = useAuthStore((s) => s.accountId)
@@ -846,7 +846,7 @@ export default function SheetsEditor() {
         setTitle(df.name)
         loadDocument(loadContent(df.content))
       }).catch(() => {
-        showToast('Could not open this spreadsheet.', 'error')
+        showToast('无法打开此表格。', 'error')
         // BrowserRouter (declarative) mode, per main.tsx — navigate() is
         // always synchronous void here, never returns a Promise. void just
         // makes that explicit against NavigateFunction's wider (data-router)
@@ -933,7 +933,7 @@ export default function SheetsEditor() {
       const e = err as { status?: number; error?: string; message?: string } | null
       if (e?.status === 403) {
         setRetryCount(0)
-        showToast(e?.error || e?.message || 'This range is protected — your change was not saved.', 'error')
+        showToast(e?.error || e?.message || '该区域受保护，您的更改未保存。', 'error')
         return
       }
       if (retryNum < 3) {
@@ -1066,8 +1066,7 @@ export default function SheetsEditor() {
         // The writer is the authority on what actually made it into the file: if
         // it had to skip a chart the dialog didn't predict, say so now.
         if (skipped?.length) {
-          showToast(`Exported. ${skipped.length} chart${skipped.length === 1 ? '' : 's'} could not be embedded and ` +
-            'ride only in the “Vulos Charts” sheet.', 'error')
+          showToast(`已导出。${skipped.length} 个图表无法嵌入文件，仅保存在“Vulos Charts”工作表中。`, 'error')
         }
       } else if (fmt === 'ods') {
         exportSheetsToOds(cast<ExportSheet[]>(data), title)
@@ -1084,7 +1083,7 @@ export default function SheetsEditor() {
         a.remove()
       }
     } catch (e: unknown) {
-      showToast(`Export failed: ${e instanceof Error ? e.message : 'unknown error'}`, 'error')
+      showToast(`导出失败：${e instanceof Error ? e.message : '未知错误'}`, 'error')
     }
   }, [data, title, id, showToast])
 
@@ -1204,10 +1203,10 @@ export default function SheetsEditor() {
         saveTimer.current = setTimeout(() => { void doSave(next) }, AUTOSAVE_DELAY_MS)
         return next
       })
-      showToast(`Imported “${file.name}”`, 'success')
+      showToast(`已导入“${file.name}”`, 'success')
     } catch (err) {
       console.error('CSV import failed:', err)
-      showToast('Could not import CSV — check the file and try again.', 'error')
+      showToast('无法导入 CSV，请检查文件后重试。', 'error')
     }
     e.target.value = ''
   }
@@ -1237,14 +1236,14 @@ export default function SheetsEditor() {
       // keep them.
       const orphaned = (imported[0]?.charts || []).map((c) => ({
         title: c.title,
-        reason: 'a chart must sit on the first sheet — open this file on its own (Open, from the file list) to keep its charts',
+        reason: '图表必须位于第一个工作表上——若要保留其图表，请单独打开此文件（在文件列表中点击“打开”）',
       }))
       const lost = combineImportNotes(notes, makeImportNotes({ charts: orphaned, filename: file.name }))
 
       setData((prev) => {
         const used = new Set(prev.map((s) => s.name))
         const appended = cast<Sheet[]>(imported).map((s) => {
-          let name = s.name || 'Sheet'
+          let name = s.name || '工作表'
           let n = 1
           while (used.has(name)) name = `${s.name} (${++n})`
           used.add(name)
@@ -1262,12 +1261,12 @@ export default function SheetsEditor() {
         return next
       })
       const summary = importLossSummary(lost)
-      if (summary) showToast(`Imported “${file.name}” — ${summary}`, 'info')
-      else showToast(`Imported “${file.name}”`, 'success')
+      if (summary) showToast(`已导入“${file.name}”——${summary}`, 'info')
+      else showToast(`已导入“${file.name}”`, 'success')
     } catch (err: unknown) {
       console.error('Spreadsheet import failed:', err)
       const msg = err instanceof Error ? err.message : String(err)
-      showToast(`Could not import “${file.name}” — ${msg}`, 'error')
+      showToast(`无法导入“${file.name}”——${msg}`, 'error')
     }
     e.target.value = ''
   }
@@ -1284,7 +1283,7 @@ export default function SheetsEditor() {
 
   // ── Save status display ─── rendered via the shared <SaveStatus> below.
   const saveStatusText =
-    saveStatus.status === 'error' && retryCount > 0 ? `Retrying ${retryCount}/3` : undefined
+    saveStatus.status === 'error' && retryCount > 0 ? `正在重试 ${retryCount}/3` : undefined
 
   // Only one side panel open at a time (except comments). Close the OTHER
   // panels — never the one being toggled: closing self inside this setter's own
@@ -1351,16 +1350,16 @@ export default function SheetsEditor() {
       {draft && (
         <div className="flex items-center gap-3 px-3 sm:px-4 py-2 bg-warning-bg border-b border-line text-xs text-warning animate-fade-in">
           <AlertCircle size={14} className="flex-shrink-0" />
-          <span className="flex-1 text-ink-muted">Unsaved changes from a previous session were found.</span>
-          <Button variant="primary"   size="sm" onClick={handleRestoreDraft}>Restore</Button>
-          <Button variant="secondary" size="sm" onClick={handleDiscardDraft}>Discard</Button>
+          <span className="flex-1 text-ink-muted">发现上次会话中未保存的更改。</span>
+          <Button variant="primary"   size="sm" onClick={handleRestoreDraft}>恢复</Button>
+          <Button variant="secondary" size="sm" onClick={handleDiscardDraft}>放弃</Button>
         </div>
       )}
 
       {/* Top bar */}
       <Topbar
         leading={
-          <Tooltip label="Back to Sheets">
+          <Tooltip label="返回表格列表">
             <IconButton size="sm" onClick={() => void navigate('/sheets')}><ArrowLeft size={15} /></IconButton>
           </Tooltip>
         }
@@ -1368,8 +1367,8 @@ export default function SheetsEditor() {
           <input
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Untitled sheet"
-            aria-label="Sheet title"
+            placeholder="未命名表格"
+            aria-label="表格标题"
             className={[
               'flex-1 min-w-0 text-sm font-semibold tracking-tightish',
               'bg-transparent border border-transparent rounded-sm px-2 py-1',
@@ -1401,13 +1400,13 @@ export default function SheetsEditor() {
         actions={
           <>
             {/* Share — account-based (named users) + P2P E2E link */}
-            <Tooltip label="Share">
+            <Tooltip label="分享">
               <IconButton size="sm" active={showShare} onClick={() => setShowShare(true)}>
                 <Share2 size={14} />
               </IconButton>
             </Tooltip>
             {/* Find/Replace stays primary (always visible) */}
-            <Tooltip label="Find / Replace (Ctrl+F)">
+            <Tooltip label="查找 / 替换 (Ctrl+F)">
               <IconButton size="sm" active={showFindReplace} onClick={() => setShowFindReplace((v) => !v)}>
                 <Search size={14} />
               </IconButton>
@@ -1417,7 +1416,7 @@ export default function SheetsEditor() {
             <div
               className="hidden lg:flex items-center gap-1"
               role="toolbar"
-              aria-label="Sheet tools"
+              aria-label="表格工具"
               aria-orientation="horizontal"
             >
               <NumberFormatMenu
@@ -1427,52 +1426,52 @@ export default function SheetsEditor() {
                 onChange={(next) => handleChange(next)}
               />
               <FreezePanel workbookRef={workbookRef} />
-              <Tooltip label="Data validation (Data → Data validation)">
+              <Tooltip label="数据验证（数据 → 数据验证）">
                 <IconButton size="sm" active={showDataValidation} onClick={togglePanel(setShowDataValidation)}>
                   <ListChecks size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Cell comment">
+              <Tooltip label="单元格评论">
                 <IconButton size="sm" active={showCellComment} onClick={() => setShowCellComment((v) => !v)}>
                   <MessageSquarePlus size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Pivot table (Insert → Pivot table)">
+              <Tooltip label="数据透视表（插入 → 数据透视表）">
                 <IconButton size="sm" active={showPivot} onClick={() => { setEditingPivotId(null); togglePanel(setShowPivot)() }}>
                   <Table2 size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Filter views (Data → Filter views)">
+              <Tooltip label="筛选视图（数据 → 筛选视图）">
                 <IconButton size="sm" active={showFilter} onClick={togglePanel(setShowFilter)}>
                   <Filter size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Conditional formatting (Format → Conditional formatting)">
+              <Tooltip label="条件格式（格式 → 条件格式）">
                 <IconButton size="sm" active={showCondFormat} onClick={togglePanel(setShowCondFormat)}>
                   <Sliders size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Named ranges (Data → Named ranges)">
+              <Tooltip label="命名区域（数据 → 命名区域）">
                 <IconButton size="sm" active={showNamedRanges} onClick={togglePanel(setShowNamedRanges)}>
                   <Tag size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Protected ranges (Data → Protect range)">
+              <Tooltip label="受保护区域（数据 → 保护区域）">
                 <IconButton size="sm" active={showProtectedRanges} onClick={togglePanel(setShowProtectedRanges)}>
                   <Shield size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Insert chart">
+              <Tooltip label="插入图表">
                 <IconButton size="sm" onClick={() => { setEditingChartId(null); setShowChartWizard(true) }}>
                   <BarChart2 size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Keyboard shortcuts (⌘/)">
+              <Tooltip label="键盘快捷键 (⌘/)">
                 <IconButton size="sm" onClick={openHelp}>
                   <Keyboard size={14} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Comments">
+              <Tooltip label="评论">
                 <IconButton size="sm" active={showComments} onClick={() => setShowComments((v) => !v)}>
                   <MessageSquare size={14} />
                 </IconButton>
@@ -1485,40 +1484,40 @@ export default function SheetsEditor() {
                 align="right"
                 width="w-56"
                 trigger={
-                  <IconButton size="sm" title="More tools">
+                  <IconButton size="sm" title="更多工具">
                     <MoreHorizontal size={16} />
                   </IconButton>
                 }
               >
                 <Menu.Item active={showDataValidation} onClick={togglePanel(setShowDataValidation)}>
-                  <ListChecks size={14} /> Data validation
+                  <ListChecks size={14} /> 数据验证
                 </Menu.Item>
                 <Menu.Item active={showCellComment} onClick={() => setShowCellComment((v) => !v)}>
-                  <MessageSquarePlus size={14} /> Cell comment
+                  <MessageSquarePlus size={14} /> 单元格评论
                 </Menu.Item>
                 <Menu.Item active={showPivot} onClick={() => { setEditingPivotId(null); togglePanel(setShowPivot)() }}>
-                  <Table2 size={14} /> Pivot table
+                  <Table2 size={14} /> 数据透视表
                 </Menu.Item>
                 <Menu.Item active={showFilter} onClick={togglePanel(setShowFilter)}>
-                  <Filter size={14} /> Filter views
+                  <Filter size={14} /> 筛选视图
                 </Menu.Item>
                 <Menu.Item active={showCondFormat} onClick={togglePanel(setShowCondFormat)}>
-                  <Sliders size={14} /> Conditional formatting
+                  <Sliders size={14} /> 条件格式
                 </Menu.Item>
                 <Menu.Item active={showNamedRanges} onClick={togglePanel(setShowNamedRanges)}>
-                  <Tag size={14} /> Named ranges
+                  <Tag size={14} /> 命名区域
                 </Menu.Item>
                 <Menu.Item active={showProtectedRanges} onClick={togglePanel(setShowProtectedRanges)}>
-                  <Shield size={14} /> Protected ranges
+                  <Shield size={14} /> 受保护区域
                 </Menu.Item>
                 <Menu.Item onClick={() => { setEditingChartId(null); setShowChartWizard(true) }}>
-                  <BarChart2 size={14} /> Insert chart
+                  <BarChart2 size={14} /> 插入图表
                 </Menu.Item>
                 <Menu.Item onClick={openHelp}>
-                  <Keyboard size={14} /> Keyboard shortcuts
+                  <Keyboard size={14} /> 键盘快捷键
                 </Menu.Item>
                 <Menu.Item active={showComments} onClick={() => setShowComments((v) => !v)}>
-                  <MessageSquare size={14} /> Comments
+                  <MessageSquare size={14} /> 评论
                 </Menu.Item>
               </Menu>
             </div>
@@ -1528,22 +1527,22 @@ export default function SheetsEditor() {
               align="right"
               trigger={
                 <button type="button" className={MENU_TRIGGER_CN}>
-                  <Upload size={12} /> Import
+                  <Upload size={12} /> 导入
                   <ChevronDown size={11} className="opacity-60" />
                 </button>
               }
             >
               <Menu.Item onClick={() => { if (importInputRef.current) { importInputRef.current.accept = '.csv'; importInputRef.current.click() } }}>
                 <span className="text-2xs font-bold tracking-eyebrow text-ink-faint w-10">CSV</span>
-                CSV file
+                CSV 文件
               </Menu.Item>
               <Menu.Item onClick={() => { if (importInputRef.current) { importInputRef.current.accept = '.xlsx,.xls'; importInputRef.current.click() } }}>
                 <span className="text-2xs font-bold tracking-eyebrow text-accent w-10">XLSX</span>
-                Excel workbook
+                Excel 工作簿
               </Menu.Item>
               <Menu.Item onClick={() => { if (importInputRef.current) { importInputRef.current.accept = '.ods'; importInputRef.current.click() } }}>
                 <span className="text-2xs font-bold tracking-eyebrow text-success w-10">ODS</span>
-                OpenDocument sheet
+                OpenDocument 表格
               </Menu.Item>
             </Menu>
 
@@ -1552,27 +1551,27 @@ export default function SheetsEditor() {
               align="right"
               trigger={
                 <button type="button" className={MENU_TRIGGER_CN}>
-                  <Download size={12} /> Export
+                  <Download size={12} /> 导出
                   <ChevronDown size={11} className="opacity-60" />
                 </button>
               }
             >
               <Menu.Item onClick={() => requestExport('xlsx')}>
                 <span className="text-2xs font-bold tracking-eyebrow text-accent w-10">XLSX</span>
-                Excel workbook
+                Excel 工作簿
               </Menu.Item>
               <Menu.Item onClick={() => requestExport('ods')}>
                 <span className="text-2xs font-bold tracking-eyebrow text-success w-10">ODS</span>
-                OpenDocument sheet
+                OpenDocument 表格
               </Menu.Item>
               <Menu.Item onClick={() => requestExport('csv')}>
                 <span className="text-2xs font-bold tracking-eyebrow text-ink-faint w-10">CSV</span>
-                Current sheet (CSV)
+                当前表格 (CSV)
               </Menu.Item>
               {id && (
                 <Menu.Item onClick={() => requestExport('xlsx-server')}>
                   <span className="text-2xs font-bold tracking-eyebrow text-accent w-10">SRV</span>
-                  Server XLSX
+                  服务器 XLSX
                 </Menu.Item>
               )}
             </Menu>
@@ -1584,7 +1583,7 @@ export default function SheetsEditor() {
               disabled={saveStatus.status === 'saving'}
             >
               {saveStatus.status === 'saving' ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-              Save
+              保存
             </Button>
           </>
         }

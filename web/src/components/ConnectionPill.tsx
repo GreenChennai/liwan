@@ -61,7 +61,7 @@ export default function ConnectionPill({ pill, peerCount = 0 }: ConnectionPillPr
 
   // Screen-reader phrasing: fold peer count into the announcement when live.
   const srText = (pill.status === 'live' && peerCount > 0)
-    ? `${pill.label} — ${peerCount} collaborator${peerCount === 1 ? '' : 's'} connected`
+    ? `${pill.label} — ${peerCount} 位协作者已连接`
     : pill.label
 
   return (

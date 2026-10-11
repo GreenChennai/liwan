@@ -38,6 +38,11 @@ interface ResizeHandle {
 
 // 8 resize handles: corners + edge midpoints. dx/dy are the unit direction the
 // handle pulls (in object-local, unrotated space).
+// 缩放手柄的中文方位名（用于无障碍标签）。
+const HANDLE_LABELS: Record<string, string> = {
+  nw: '左上', n: '上', ne: '右上', e: '右', se: '右下', s: '下', sw: '左下', w: '左',
+}
+
 const HANDLES: ResizeHandle[] = [
   { key: 'nw', dx: -1, dy: -1, cursor: 'nwse-resize' },
   { key: 'n',  dx: 0,  dy: -1, cursor: 'ns-resize' },
@@ -405,9 +410,9 @@ export default function SlideCanvas({
   let selectionAnnouncement = ''
   if (selectedIds.length === 1) {
     const o = (objects || []).find((x) => x.id === selectedIds[0])
-    selectionAnnouncement = o ? `${o.type} object selected` : 'Object selected'
+    selectionAnnouncement = o ? `已选中${OBJECT_TYPE_LABELS[o.type] ?? '对象'}` : '已选中对象'
   } else if (selectedIds.length > 1) {
-    selectionAnnouncement = `${selectedIds.length} objects selected`
+    selectionAnnouncement = `已选中 ${selectedIds.length} 个对象`
   }
 
   return (
@@ -422,7 +427,7 @@ export default function SlideCanvas({
         }}
         onPointerDown={startMarquee}
         role="group"
-        aria-label="Slide canvas"
+        aria-label="幻灯片画布"
       >
         {/* Selection announcer — polite live region so screen-reader users hear
             what got selected (object type / count) as focus + selection change. */}
@@ -441,7 +446,7 @@ export default function SlideCanvas({
               data-object-id={obj.id}
               role="button"
               tabIndex={editable ? 0 : -1}
-              aria-label={`${obj.type} object${selected ? ', selected' : ''}`}
+              aria-label={`${OBJECT_TYPE_LABELS[obj.type] ?? '对象'}${selected ? '（已选中）' : ''}`}
               aria-pressed={selected}
               className={[
                 'vslide-object absolute',
@@ -493,7 +498,7 @@ export default function SlideCanvas({
                     top: `calc(${(h.dy + 1) * 50}% - ${HANDLE / 2}px)`,
                   }}
                   onPointerDown={(e) => startResize(e, obj, h)}
-                  aria-label={`Resize ${h.key}`}
+                  aria-label={`调整大小（${HANDLE_LABELS[h.key]}）`}
                 />
               ))}
               {/* Rotate handle above the top edge */}
@@ -504,7 +509,7 @@ export default function SlideCanvas({
                   left: `calc(50% - 5px)`, top: -22,
                 }}
                 onPointerDown={(e) => startRotate(e, obj)}
-                aria-label="Rotate"
+                aria-label="旋转"
               />
               <div className="absolute bg-accent" style={{ width: 1, height: 17, left: 'calc(50% - 0.5px)', top: -17 }} aria-hidden="true" />
             </div>
@@ -561,6 +566,8 @@ export default function SlideCanvas({
 }
 
 const MAX_CHROME_Z = 200000
+
+const OBJECT_TYPE_LABELS: Record<string, string> = { text: '文本框', image: '图片', shape: '形状' }
 
 /** Render an object's inner content. SECURITY: html is pre-sanitized upstream. */
 function ObjectBody({ obj, stageW }: { obj: SlideObject; stageW: number }) {

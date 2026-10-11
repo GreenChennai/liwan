@@ -37,9 +37,9 @@ interface ErrorStateProps {
 }
 
 export default function ErrorState({
-  message = 'Something went wrong.',
+  message = '出错了。',
   onRetry,
-  retryLabel = 'Retry',
+  retryLabel = '重试',
   size = 'md',
   className = '',
 }: ErrorStateProps) {

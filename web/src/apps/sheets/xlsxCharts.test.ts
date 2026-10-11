@@ -73,7 +73,7 @@ describe('nativeXlsxSupport — the honesty predicate', () => {
     }
   })
   it('flags the histogram caveat (fixed bins) instead of pretending it recalculates', () => {
-    expect(nativeXlsxSupport('histogram').note).toMatch(/fixed values/i)
+    expect(nativeXlsxSupport('histogram').note).toMatch(/固定值/)
   })
   it('rejects an unknown/hostile type', () => {
     for (const t of ['__proto__', 'evil', '', undefined, null]) {
@@ -266,7 +266,7 @@ describe('injectChartsIntoXlsx — package surgery', () => {
     const bad = { id: 'x', type: 'evil', range: 'A1:D5', options: {}, x: 0, y: 0, w: 480, h: 300 } as unknown as Chart
     const { embedded, skipped, zip } = await xlsxWith([chart('column'), bad])
     expect(embedded).toEqual(['c_column'])
-    expect(skipped).toEqual([{ id: 'x', type: 'evil', reason: 'no Excel equivalent' }])
+    expect(skipped).toEqual([{ id: 'x', type: 'evil', reason: '无对应的 Excel 图表类型' }])
     expect(Object.keys(zip.files)).not.toContain('xl/charts/chart2.xml')
   })
 
@@ -287,7 +287,7 @@ describe('injectChartsIntoXlsx — package surgery', () => {
     const res = await injectChartsIntoXlsx(junk, [chart('column')], sheetFrom())
     expect(res.buffer).toBe(junk)                    // we never hand back a mangled file
     expect(res.embedded).toEqual([])
-    expect(res.skipped[0].reason).toMatch(/could not be re-opened/i)
+    expect(res.skipped[0].reason).toMatch(/无法重新打开/)
   })
 
   it('FAILS CLOSED when the package already carries drawings (shape we do not understand)', async () => {
@@ -299,7 +299,7 @@ describe('injectChartsIntoXlsx — package surgery', () => {
     const withDrawing = await zip.generateAsync({ type: 'arraybuffer' })
     const res = await injectChartsIntoXlsx(withDrawing, [chart('column')], sheetFrom())
     expect(res.embedded).toEqual([])
-    expect(res.skipped[0].reason).toMatch(/already contains drawings/i)
+    expect(res.skipped[0].reason).toMatch(/已包含绘图对象/)
   })
 })
 

@@ -85,7 +85,7 @@ describe('ToC export', () => {
     exportToHtml(editor, 'doc', {})
     const blob = savedBlob()
     const text = await blob.text()
-    expect(text).toContain('Table of Contents')
+    expect(text).toContain('目录')
     expect(text).toContain('Alpha')
     expect(text).toContain('Beta')
     expect(text).toContain('href="#alpha"')

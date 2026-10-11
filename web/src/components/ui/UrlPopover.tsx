@@ -38,8 +38,8 @@ interface UrlPopoverProps {
 export default function UrlPopover({
   initialValue = '',
   placeholder = 'https://…',
-  label = 'Link URL',
-  submitLabel = 'Apply',
+  label = '链接地址',
+  submitLabel = '应用',
   onSubmit,
   onRemove,
   onClose,
@@ -67,7 +67,7 @@ export default function UrlPopover({
   const submit = () => {
     const v = val.trim()
     if (!v) { if (onRemove) onRemove(); else onClose?.(); return }
-    if (!isSafeUrl(v)) { setErr('That doesn’t look like a safe URL.'); return }
+    if (!isSafeUrl(v)) { setErr('这看起来不是安全的链接地址。'); return }
     onSubmit?.(normalizeUrl(v))
   }
 
@@ -99,7 +99,7 @@ export default function UrlPopover({
       <div className="flex items-center justify-end gap-2 mt-2.5">
         {onRemove && (
           <button type="button" onClick={onRemove} className="mr-auto text-xs text-danger hover:underline">
-            Remove
+            移除
           </button>
         )}
         <button
@@ -107,7 +107,7 @@ export default function UrlPopover({
           onClick={onClose}
           className="h-7 px-2.5 rounded-md border border-line text-xs text-ink-muted hover:border-line-strong transition-colors"
         >
-          Cancel
+          取消
         </button>
         <button
           type="button"

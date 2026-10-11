@@ -35,7 +35,7 @@ export interface SlideTheme {
 export const PRESET_THEMES: SlideTheme[] = [
   {
     id: 'obsidian',
-    label: 'Obsidian',
+    label: '黑曜石',
     revealTheme: 'black',
     headingFont: '"Inter", sans-serif',
     bodyFont: '"Inter", sans-serif',
@@ -50,7 +50,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'slate',
-    label: 'Slate Night',
+    label: '石板夜色',
     revealTheme: 'night',
     headingFont: '"Sora", sans-serif',
     bodyFont: '"Sora", sans-serif',
@@ -65,7 +65,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'dracula',
-    label: 'Dracula',
+    label: '德古拉',
     revealTheme: 'dracula',
     headingFont: '"Fira Code", monospace',
     bodyFont: '"Fira Code", monospace',
@@ -80,7 +80,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'moon',
-    label: 'Moon',
+    label: '月光',
     revealTheme: 'moon',
     headingFont: '"Palatino Linotype", serif',
     bodyFont: '"Palatino Linotype", serif',
@@ -95,7 +95,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'league',
-    label: 'League',
+    label: '联盟',
     revealTheme: 'league',
     headingFont: '"League Gothic", Impact, sans-serif',
     bodyFont: '"Lato", sans-serif',
@@ -110,7 +110,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'snow',
-    label: 'Snow',
+    label: '雪白',
     revealTheme: 'white',
     headingFont: '"Helvetica Neue", Helvetica, sans-serif',
     bodyFont: '"Helvetica Neue", Helvetica, sans-serif',
@@ -125,7 +125,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'sky',
-    label: 'Sky',
+    label: '天空',
     revealTheme: 'sky',
     headingFont: '"Open Sans", sans-serif',
     bodyFont: '"Open Sans", sans-serif',
@@ -140,7 +140,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'parchment',
-    label: 'Parchment',
+    label: '羊皮纸',
     revealTheme: 'beige',
     headingFont: '"Palatino Linotype", serif',
     bodyFont: '"Georgia", serif',
@@ -155,7 +155,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'solarized',
-    label: 'Solarized',
+    label: '日光',
     revealTheme: 'solarized',
     headingFont: '"Gill Sans", sans-serif',
     bodyFont: '"Gill Sans", sans-serif',
@@ -170,7 +170,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'serif-warm',
-    label: 'Serif Warm',
+    label: '暖色衬线',
     revealTheme: 'serif',
     headingFont: '"Cambria", "Times New Roman", serif',
     bodyFont: '"Cambria", "Times New Roman", serif',
@@ -185,7 +185,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'rose',
-    label: 'Rose Dawn',
+    label: '玫瑰晨曦',
     revealTheme: 'simple',
     headingFont: '"Playfair Display", serif',
     bodyFont: '"Source Sans Pro", sans-serif',
@@ -200,7 +200,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'forest',
-    label: 'Forest',
+    label: '森林',
     revealTheme: 'simple',
     headingFont: '"Merriweather", serif',
     bodyFont: '"Source Sans Pro", sans-serif',
@@ -215,7 +215,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'corporate',
-    label: 'Corporate',
+    label: '企业',
     revealTheme: 'simple',
     headingFont: '"Roboto", sans-serif',
     bodyFont: '"Roboto", sans-serif',
@@ -230,7 +230,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'retro',
-    label: 'Retro',
+    label: '复古',
     revealTheme: 'simple',
     headingFont: '"Space Grotesk", sans-serif',
     bodyFont: '"Space Grotesk", sans-serif',
@@ -245,7 +245,7 @@ export const PRESET_THEMES: SlideTheme[] = [
   },
   {
     id: 'minimal',
-    label: 'Minimal',
+    label: '极简',
     revealTheme: 'simple',
     headingFont: '"DM Sans", sans-serif',
     bodyFont: '"DM Sans", sans-serif',
@@ -282,7 +282,7 @@ export interface MasterLayout {
 export const MASTER_LAYOUTS: MasterLayout[] = [
   {
     id: 'title',
-    label: 'Title Master',
+    label: '标题母版',
     titleY: '38%',
     titleAlign: 'center',
     bodyY: '62%',
@@ -292,7 +292,7 @@ export const MASTER_LAYOUTS: MasterLayout[] = [
   },
   {
     id: 'content',
-    label: 'Content Master',
+    label: '内容母版',
     titleY: '8%',
     titleAlign: 'left',
     bodyY: '25%',
@@ -302,7 +302,7 @@ export const MASTER_LAYOUTS: MasterLayout[] = [
   },
   {
     id: 'section',
-    label: 'Section Master',
+    label: '章节母版',
     titleY: '45%',
     titleAlign: 'center',
     bodyY: '70%',
@@ -332,54 +332,54 @@ export interface DeckTemplate {
 export const DECK_TEMPLATES: DeckTemplate[] = [
   {
     id: 'pitch',
-    label: 'Pitch Deck',
-    description: 'Startup pitch: problem, solution, traction, ask.',
+    label: '融资路演',
+    description: '创业路演：问题、方案、进展与诉求。',
     themeId: 'obsidian',
     slides: [
-      { title: 'Company Name', content: '<p style="text-align:center">Tagline goes here</p>', notes: 'Introduce yourself and the company.', background: '', master: 'title' },
-      { title: 'The Problem', content: '<ul><li>Pain point 1</li><li>Pain point 2</li><li>Pain point 3</li></ul>', notes: 'Make the audience feel the pain.', background: '', master: 'content' },
-      { title: 'Our Solution', content: '<p>Clear, concise description of what you build.</p>', notes: 'Show a screenshot or demo.', background: '', master: 'content' },
-      { title: 'Traction', content: '<p><strong>$X ARR</strong> · <strong>N customers</strong> · MoM growth</p>', notes: 'Use real numbers.', background: '', master: 'content' },
-      { title: 'The Ask', content: '<p>Raising <strong>$XM Seed</strong> at a $YM pre-money.</p>', notes: 'Be direct.', background: '', master: 'content' },
+      { title: '公司名称', content: '<p style="text-align:center">在此填写一句话定位</p>', notes: '介绍自己和公司。', background: '', master: 'title' },
+      { title: '痛点问题', content: '<ul><li>痛点 1</li><li>痛点 2</li><li>痛点 3</li></ul>', notes: '让听众感受到这些痛点。', background: '', master: 'content' },
+      { title: '我们的方案', content: '<p>简明描述你所构建的产品。</p>', notes: '展示截图或演示。', background: '', master: 'content' },
+      { title: '业务进展', content: '<p><strong>$X 年度经常性收入（ARR）</strong> · <strong>N 位客户</strong> · 月环比增长</p>', notes: '使用真实数据。', background: '', master: 'content' },
+      { title: '融资诉求', content: '<p>计划以 <strong>$XM 种子轮</strong> 融资，投前估值 $YM。</p>', notes: '直截了当。', background: '', master: 'content' },
     ],
   },
   {
     id: 'project-plan',
-    label: 'Project Plan',
-    description: 'Roadmap, milestones, and team overview.',
+    label: '项目计划',
+    description: '路线图、里程碑与团队概览。',
     themeId: 'corporate',
     slides: [
-      { title: 'Project Name', content: '<p style="text-align:center">Q3 2026 · Owner: Your Name</p>', notes: '', background: '', master: 'title' },
-      { title: 'Objectives', content: '<ul><li>Goal 1</li><li>Goal 2</li><li>Goal 3</li></ul>', notes: 'Link to OKRs.', background: '', master: 'content' },
-      { title: 'Milestones', content: '<ul><li><strong>Month 1</strong> – Phase A complete</li><li><strong>Month 2</strong> – Phase B complete</li><li><strong>Month 3</strong> – Launch</li></ul>', notes: '', background: '', master: 'content' },
-      { title: 'Risks', content: '<ul><li>Risk 1 – mitigation</li><li>Risk 2 – mitigation</li></ul>', notes: '', background: '', master: 'content' },
+      { title: '项目名称', content: '<p style="text-align:center">2026 年第三季度 · 负责人：你的名字</p>', notes: '', background: '', master: 'title' },
+      { title: '目标', content: '<ul><li>目标 1</li><li>目标 2</li><li>目标 3</li></ul>', notes: '关联 OKR。', background: '', master: 'content' },
+      { title: '里程碑', content: '<ul><li><strong>第 1 个月</strong> – 阶段 A 完成</li><li><strong>第 2 个月</strong> – 阶段 B 完成</li><li><strong>第 3 个月</strong> – 上线</li></ul>', notes: '', background: '', master: 'content' },
+      { title: '风险', content: '<ul><li>风险 1 – 缓解措施</li><li>风险 2 – 缓解措施</li></ul>', notes: '', background: '', master: 'content' },
     ],
   },
   {
     id: 'lesson-plan',
-    label: 'Lesson Plan',
-    description: 'Classroom-ready slides for a single lesson.',
+    label: '课程教案',
+    description: '适用于单节课的课堂幻灯片。',
     themeId: 'sky',
     slides: [
-      { title: 'Lesson Title', content: '<p style="text-align:center">Subject · Grade · Date</p>', notes: '', background: '', master: 'title' },
-      { title: 'Learning Objectives', content: '<ul><li>By end of class, students will…</li><li>Objective 2</li></ul>', notes: '', background: '', master: 'content' },
-      { title: 'Introduction', content: '<p>Hook or warm-up activity</p>', notes: 'Allow 5 min.', background: '', master: 'content' },
-      { title: 'Main Content', content: '<p>Core concept explained</p>', notes: '', background: '', master: 'content' },
-      { title: 'Activity', content: '<p>Student exercise description</p>', notes: 'Monitor groups.', background: '', master: 'content' },
-      { title: 'Recap & Homework', content: '<ul><li>Key takeaways</li><li>Homework assignment</li></ul>', notes: '', background: '', master: 'content' },
+      { title: '课程标题', content: '<p style="text-align:center">学科 · 年级 · 日期</p>', notes: '', background: '', master: 'title' },
+      { title: '学习目标', content: '<ul><li>课程结束时，学生将能够……</li><li>目标 2</li></ul>', notes: '', background: '', master: 'content' },
+      { title: '导入', content: '<p>引入问题或热身活动</p>', notes: '预留 5 分钟。', background: '', master: 'content' },
+      { title: '主要内容', content: '<p>讲解核心概念</p>', notes: '', background: '', master: 'content' },
+      { title: '课堂活动', content: '<p>学生练习说明</p>', notes: '关注各小组。', background: '', master: 'content' },
+      { title: '小结与作业', content: '<ul><li>要点总结</li><li>课后作业</li></ul>', notes: '', background: '', master: 'content' },
     ],
   },
   {
     id: 'quarterly-review',
-    label: 'Quarterly Review',
-    description: 'Q-over-Q metrics, wins, blockers, next quarter plan.',
+    label: '季度复盘',
+    description: '环比指标、成果、阻碍与下季度计划。',
     themeId: 'slate',
     slides: [
-      { title: 'Q? Review', content: '<p style="text-align:center">Team Name · Date</p>', notes: '', background: '', master: 'title' },
-      { title: 'Metrics', content: '<ul><li>Metric A: X vs target Y</li><li>Metric B: X vs target Y</li></ul>', notes: 'Pull from dashboard.', background: '', master: 'content' },
-      { title: 'Wins', content: '<ul><li>Win 1</li><li>Win 2</li></ul>', notes: '', background: '', master: 'content' },
-      { title: 'Blockers', content: '<ul><li>Blocker 1 – owner</li><li>Blocker 2 – owner</li></ul>', notes: '', background: '', master: 'content' },
-      { title: 'Next Quarter', content: '<ul><li>Priority 1</li><li>Priority 2</li><li>Priority 3</li></ul>', notes: '', background: '', master: 'content' },
+      { title: '第 ? 季度复盘', content: '<p style="text-align:center">团队名称 · 日期</p>', notes: '', background: '', master: 'title' },
+      { title: '指标', content: '<ul><li>指标 A：实际 X，目标 Y</li><li>指标 B：实际 X，目标 Y</li></ul>', notes: '从数据看板获取数据。', background: '', master: 'content' },
+      { title: '成果', content: '<ul><li>成果 1</li><li>成果 2</li></ul>', notes: '', background: '', master: 'content' },
+      { title: '阻碍', content: '<ul><li>阻碍 1 – 负责人</li><li>阻碍 2 – 负责人</li></ul>', notes: '', background: '', master: 'content' },
+      { title: '下季度计划', content: '<ul><li>优先事项 1</li><li>优先事项 2</li><li>优先事项 3</li></ul>', notes: '', background: '', master: 'content' },
     ],
   },
 ]

@@ -209,40 +209,40 @@ export function exportFidelity(data: ExportSheet[] | null | undefined, format: s
       const s = nativeXlsxSupport(c.type)
       if (s.native && !s.note) report.native++
       else if (s.native) { report.native++; report.degraded.push({ type: c.type, title: c.title || '', note: s.note as string }) }
-      else report.lost.push({ type: c.type, title: c.title || '', note: s.note || 'no Excel equivalent' })
+      else report.lost.push({ type: c.type, title: c.title || '', note: s.note || '无对应的 Excel 图表类型' })
     }
     if (charts.length) {
       report.notes.push(
-        `${charts.length} chart${charts.length === 1 ? '' : 's'} will be embedded as ${charts.length === 1 ? 'a real Excel chart' : 'real Excel charts'} linked to the cells.`
+        `${charts.length} 个图表将以可链接到单元格的真实 Excel 图表形式嵌入。`
       )
-      report.notes.push(`Definitions are also written to a “${CHART_META_SHEET}” sheet, so re-importing this file into Vulos restores the charts exactly.`)
+      report.notes.push(`图表定义还会写入“${CHART_META_SHEET}”工作表，因此将此文件重新导入 Vulos 可完整恢复图表。`)
     }
   } else if (format === 'ods') {
     // No OOXML injection path for ODS — charts survive only as the definition sheet.
-    report.lost = charts.map((c) => ({ type: c.type, title: c.title || '', note: 'ODS export cannot embed charts' }))
+    report.lost = charts.map((c) => ({ type: c.type, title: c.title || '', note: 'ODS 导出无法嵌入图表' }))
     if (charts.length) {
-      report.notes.push(`${charts.length} chart${charts.length === 1 ? '' : 's'} cannot be embedded in .ods and will be exported as a “${CHART_META_SHEET}” data sheet instead.`)
-      report.notes.push('Re-importing the file into Vulos restores them; other spreadsheet apps will see the definitions as plain rows, not charts.')
+      report.notes.push(`${charts.length} 个图表无法嵌入 .ods，将改为导出到“${CHART_META_SHEET}”数据工作表中。`)
+      report.notes.push('将文件重新导入 Vulos 可恢复图表；其他电子表格应用只会看到普通行数据，而非图表。')
     }
   } else if (format === 'csv') {
-    report.lost = charts.map((c) => ({ type: c.type, title: c.title || '', note: 'CSV holds values only' }))
-    if (charts.length) report.notes.push(`CSV holds values only — ${charts.length} chart${charts.length === 1 ? '' : 's'} will NOT be included.`)
-    report.notes.push('CSV exports the FIRST sheet only.')
+    report.lost = charts.map((c) => ({ type: c.type, title: c.title || '', note: 'CSV 仅保存数值' }))
+    if (charts.length) report.notes.push(`CSV 仅保存数值——${charts.length} 个图表将不会包含在内。`)
+    report.notes.push('CSV 仅导出第一个工作表。')
   } else if (format === 'xlsx-server') {
     // The server-side exporter (Go) writes CELLS ONLY — it has no chart writer.
     // It is reachable from the same Export menu, so it gets the same honesty: a
     // chart dropped by the server path is still a chart the user lost.
-    report.lost = charts.map((c) => ({ type: c.type, title: c.title || '', note: 'the server exporter writes cells only' }))
+    report.lost = charts.map((c) => ({ type: c.type, title: c.title || '', note: '服务器导出仅写入单元格' }))
     if (charts.length) {
-      report.notes.push('Export “Excel workbook” instead to keep your charts — the server export writes cells only.')
+      report.notes.push('如需保留图表，请改用“Excel 工作簿”导出——服务器导出仅写入单元格。')
     }
-    report.notes.push('The server export uses the LAST SAVED version of this file, not unsaved edits.')
+    report.notes.push('服务器导出使用此文件的最后保存版本，不包含未保存的编辑。')
   }
 
   if (pivots.length) {
     report.notes.push(
-      `${pivots.length} live pivot table${pivots.length === 1 ? '' : 's'} ${pivots.length === 1 ? 'is' : 'are'} not exported. ` +
-      'Use “Insert as static sheet” in the pivot panel to write the result into real cells first.'
+      `${pivots.length} 个实时数据透视表不会被导出。` +
+      '请先在数据透视表面板中使用“插入为静态表格”，将结果写入实际单元格。'
     )
   }
   return report
@@ -271,7 +271,7 @@ export function exportNeedsConfirm(data: ExportSheet[] | null | undefined, forma
 export async function exportSheetsToXlsx(data: ExportSheet[], filename: string): Promise<{ embedded: string[]; skipped: SkippedChart[] }> {
   const wb = XLSX.utils.book_new()
   for (const sheet of data) {
-    XLSX.utils.book_append_sheet(wb, fortuneToWorksheet(sheet), sheet.name || 'Sheet')
+    XLSX.utils.book_append_sheet(wb, fortuneToWorksheet(sheet), sheet.name || '工作表')
   }
   // The chart-definition sheet (round-trip carrier). Hidden in Excel: it is our
   // bookkeeping, not the user's data — but it is DATA, not a chart, so it must
@@ -352,7 +352,7 @@ export function exportSheetsToCsv(data: ExportSheet[] | null | undefined, filena
 export function exportSheetsToOds(data: ExportSheet[], filename: string): void {
   const wb = XLSX.utils.book_new()
   for (const sheet of data) {
-    XLSX.utils.book_append_sheet(wb, fortuneToWorksheet(sheet), sheet.name || 'Sheet')
+    XLSX.utils.book_append_sheet(wb, fortuneToWorksheet(sheet), sheet.name || '工作表')
   }
   const meta = chartsMetaSheet(data)
   if (meta) XLSX.utils.book_append_sheet(wb, meta, CHART_META_SHEET)

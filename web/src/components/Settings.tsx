@@ -155,9 +155,9 @@ function ThemePicker() {
       value={theme}
       onChange={setTheme}
       options={[
-        { value: 'light',  Icon: Sun,     label: 'Light' },
-        { value: 'dark',   Icon: Moon,    label: 'Dark'  },
-        { value: 'system', Icon: Monitor, label: 'Auto'  },
+        { value: 'light',  Icon: Sun,     label: '浅色' },
+        { value: 'dark',   Icon: Moon,    label: '深色' },
+        { value: 'system', Icon: Monitor, label: '跟随系统' },
       ]}
     />
   )
@@ -231,7 +231,7 @@ export default function Settings() {
     localStorage.setItem('vulos_autosave_delay', String(autosaveDelay))
     localStorage.setItem('vulos_spellcheck', String(spellcheck))
     localStorage.setItem('vulos_default_view', defaultView)
-    showToast('Preferences saved')
+    showToast('偏好设置已保存')
   }
 
   // ── Identity (local display name) ───────────────────────────────────────────
@@ -244,17 +244,17 @@ export default function Settings() {
       const p = JSON.parse(localStorage.getItem('presence_identity') || '{}') as Partial<Identity>
       if (p?.displayName) return p as Identity
     } catch { /* ignore */ }
-    return { displayName: 'You', accountId: '' }
+    return { displayName: '你', accountId: '' }
   }
   const [identity, setIdentity] = useState<Identity>(readIdentity)
   const [nameDraft, setNameDraft] = useState(identity.displayName)
   const accountId = info?.account_id && info.account_id !== 'self' ? info.account_id : identity.accountId
 
   const saveName = () => {
-    const next = { ...identity, displayName: nameDraft.trim() || 'You' }
+    const next = { ...identity, displayName: nameDraft.trim() || '你' }
     setIdentity(next)
     try { localStorage.setItem('presence_identity', JSON.stringify(next)) } catch { /* ignore */ }
-    showToast('Display name updated')
+    showToast('显示名称已更新')
   }
 
   // ── Password change (per-user store) ────────────────────────────────────────
@@ -266,15 +266,15 @@ export default function Settings() {
 
   const changePassword = async () => {
     if (!newPw || newPw !== confirmPw) {
-      showToast('New passwords do not match', 'error'); return
+      showToast('两次输入的新密码不一致', 'error'); return
     }
     setSavingPw(true)
     try {
       await api.changePassword(curPw, newPw)
       setCurPw(''); setNewPw(''); setConfirmPw('')
-      showToast('Password updated')
+      showToast('密码已更新')
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Failed to update password', 'error')
+      showToast(e instanceof Error ? e.message : '密码更新失败', 'error')
     } finally {
       setSavingPw(false)
     }
@@ -284,21 +284,21 @@ export default function Settings() {
   const isAdmin = !!info?.is_admin
 
   const TABS = [
-    { value: 'account',    label: 'Account' },
-    { value: 'appearance', label: 'Appearance' },
-    { value: 'security',   label: 'Security' },
-    { value: 'storage',    label: 'Storage' },
-    ...(isAdmin ? [{ value: 'admin', label: 'Admin' }] : []),
+    { value: 'account',    label: '账号' },
+    { value: 'appearance', label: '外观' },
+    { value: 'security',   label: '安全' },
+    { value: 'storage',    label: '存储' },
+    ...(isAdmin ? [{ value: 'admin', label: '管理后台' }] : []),
   ]
 
   return (
     <div className="flex-1 overflow-auto bg-bg">
       {/* ── Topbar ── */}
       <div className="sticky top-0 z-10 flex items-center gap-3 px-5 h-11 bg-paper border-b border-line">
-        <Tooltip label="Back" side="bottom">
+        <Tooltip label="返回" side="bottom">
           <IconButton size="sm" onClick={() => void navigate(-1)}><ArrowLeft size={15} /></IconButton>
         </Tooltip>
-        <h1 className="text-sm font-semibold text-ink tracking-tightish flex-1">Settings</h1>
+        <h1 className="text-sm font-semibold text-ink tracking-tightish flex-1">设置</h1>
         <ThemePicker />
       </div>
 
@@ -314,12 +314,12 @@ export default function Settings() {
           <div className="min-w-0 flex-1">
             <p className="font-serif text-lg text-ink leading-tight truncate">{identity.displayName}</p>
             <p className="text-2xs text-ink-faint tracking-tightish mt-0.5 truncate">
-              {accountId || 'Local account'}
+              {accountId || '本地账号'}
             </p>
           </div>
           {!infoLoading && info && (
             <Pill tone="info" Icon={info.integration_mode === 'cloud' ? Cloud : Server}>
-              {info.integration_mode === 'cloud' ? 'Cloud-linked' : 'Self-hosted'}
+              {info.integration_mode === 'cloud' ? '已连接云端' : '自托管'}
             </Pill>
           )}
         </div>
@@ -331,28 +331,28 @@ export default function Settings() {
           {/* ════ ACCOUNT ════ */}
           {tab === 'account' && (
             <div>
-              <Row label="Display name" hint="Shown on presence, comments, and your cursor. Stored locally on this device.">
+              <Row label="显示名称" hint="用于在线状态、评论和你的光标旁的显示。仅保存在本设备。">
                 <div className="flex items-center gap-2">
-                  <Input value={nameDraft} onChange={e => setNameDraft(e.target.value)} size="sm" className="w-44" placeholder="Your name" />
+                  <Input value={nameDraft} onChange={e => setNameDraft(e.target.value)} size="sm" className="w-44" placeholder="请输入你的名称" />
                   <Button variant="secondary" size="sm" onClick={saveName} disabled={nameDraft.trim() === identity.displayName}>
-                    <Save size={13} /> Save
+                    <Save size={13} /> 保存
                   </Button>
                 </div>
               </Row>
               <div className="border-t border-line">
-                <Row label="Account ID" hint="Your verified login identity on this server.">
-                  <Code>{accountId || 'self (single-user)'}</Code>
+                <Row label="账号 ID" hint="你在本服务器上经过验证的登录身份。">
+                  <Code>{accountId || '本机（单用户）'}</Code>
                 </Row>
               </div>
               <div className="border-t border-line">
-                <Row label="Version" hint="The build this instance is running.">
-                  <Code>{infoLoading ? '…' : (info?.version || 'unknown')}</Code>
+                <Row label="版本" hint="此实例正在运行的构建版本。">
+                  <Code>{infoLoading ? '…' : (info?.version || '未知')}</Code>
                 </Row>
               </div>
               {status?.enabled && (
                 <div className="border-t border-line px-5 py-3 flex justify-end bg-bg-elev2">
                   <Button variant="destructive" size="sm" onClick={() => { void logout() }}>
-                    <LogOut size={13} /> Sign out
+                    <LogOut size={13} /> 退出登录
                   </Button>
                 </div>
               )}
@@ -362,40 +362,40 @@ export default function Settings() {
           {/* ════ APPEARANCE ════ */}
           {tab === 'appearance' && (
             <div>
-              <Row label="Theme" hint="Light, dark, or follow your operating system.">
+              <Row label="主题" hint="浅色、深色，或跟随操作系统设置。">
                 <ThemePicker />
               </Row>
               <div className="border-t border-line">
-                <Row label="Autosave delay" hint="How long after you stop typing before changes are saved.">
+                <Row label="自动保存延迟" hint="停止输入后多久自动保存更改。">
                   <select
                     value={autosaveDelay}
                     onChange={e => setAutosaveDelay(Number(e.target.value))}
                     className="h-8 text-sm text-ink bg-paper border border-line rounded-md px-3 transition-[border-color,box-shadow] duration-fast ease-out focus:outline-none focus:border-accent focus:shadow-focus tracking-tightish"
                   >
-                    <option value={1000}>1 second</option>
-                    <option value={2000}>2 seconds</option>
-                    <option value={3000}>3 seconds</option>
-                    <option value={5000}>5 seconds</option>
+                    <option value={1000}>1 秒</option>
+                    <option value={2000}>2 秒</option>
+                    <option value={3000}>3 秒</option>
+                    <option value={5000}>5 秒</option>
                   </select>
                 </Row>
               </div>
               <div className="border-t border-line">
-                <Row label="Spell check" hint="Enable browser spell checking in document editors.">
-                  <Toggle checked={spellcheck} onChange={setSpellcheck} label="Spell check" />
+                <Row label="拼写检查" hint="在文档编辑器中启用浏览器拼写检查。">
+                  <Toggle checked={spellcheck} onChange={setSpellcheck} label="拼写检查" />
                 </Row>
               </div>
               <div className="border-t border-line">
-                <Row label="Default file view" hint="Grid or list view on app home pages.">
+                <Row label="默认文件视图" hint="应用首页默认使用网格或列表视图。">
                   <Segmented
                     value={defaultView}
                     onChange={setDefaultView}
-                    options={[{ value: 'grid', label: 'Grid' }, { value: 'list', label: 'List' }]}
+                    options={[{ value: 'grid', label: '网格' }, { value: 'list', label: '列表' }]}
                   />
                 </Row>
               </div>
               <div className="border-t border-line px-5 py-3 flex justify-end bg-bg-elev2">
                 <Button variant="primary" size="sm" onClick={savePrefs}>
-                  <Save size={13} /> Save preferences
+                  <Save size={13} /> 保存偏好设置
                 </Button>
               </div>
             </div>
@@ -404,21 +404,21 @@ export default function Settings() {
           {/* ════ SECURITY ════ */}
           {tab === 'security' && (
             <div>
-              <Row label="Authentication" hint="How this server gates access. Configured in config.yaml.">
+              <Row label="身份验证" hint="此服务器如何控制访问。在 config.yaml 中配置。">
                 {infoLoading ? (
                   <Loader2 size={14} className="animate-spin text-ink-faint" />
                 ) : authMode === 'disabled' ? (
-                  <Pill tone="neutral" Icon={AlertCircle}>Disabled</Pill>
+                  <Pill tone="neutral" Icon={AlertCircle}>已禁用</Pill>
                 ) : authMode === 'per-user' ? (
-                  <Pill tone="ok" Icon={CheckCircle2}>Per-user accounts</Pill>
+                  <Pill tone="ok" Icon={CheckCircle2}>独立账号</Pill>
                 ) : (
-                  <Pill tone="ok" Icon={Lock}>Shared password</Pill>
+                  <Pill tone="ok" Icon={Lock}>共享密码</Pill>
                 )}
               </Row>
 
               {!infoLoading && authMode === 'per-user' && typeof info?.auth?.user_count === 'number' && (
                 <div className="border-t border-line">
-                  <Row label="Registered accounts" hint="People with their own credentials on this instance.">
+                  <Row label="已注册账号" hint="在此实例上拥有独立凭据的用户。">
                     <Code>{info.auth.user_count}</Code>
                   </Row>
                 </div>
@@ -427,15 +427,15 @@ export default function Settings() {
               {/* Per-user: working self-service password change */}
               {!infoLoading && authMode === 'per-user' && (
                 <>
-                  <SectionLabel Icon={KeyRound}>Change password</SectionLabel>
+                  <SectionLabel Icon={KeyRound}>修改密码</SectionLabel>
                   <div className="px-5 pb-4 pt-1 space-y-2.5">
                     <Input
                       type={showPw ? 'text' : 'password'} value={curPw}
-                      onChange={e => setCurPw(e.target.value)} placeholder="Current password" size="sm"
+                      onChange={e => setCurPw(e.target.value)} placeholder="当前密码" size="sm"
                     />
                     <Input
                       type={showPw ? 'text' : 'password'} value={newPw}
-                      onChange={e => setNewPw(e.target.value)} placeholder="New password (min 10 chars)" size="sm"
+                      onChange={e => setNewPw(e.target.value)} placeholder="新密码（至少 10 个字符）" size="sm"
                       trailing={
                         <button type="button" onClick={() => setShowPw(v => !v)} className="text-ink-faint hover:text-ink transition-colors">
                           {showPw ? <EyeOff size={13} /> : <Eye size={13} />}
@@ -444,13 +444,13 @@ export default function Settings() {
                     />
                     <Input
                       type={showPw ? 'text' : 'password'} value={confirmPw}
-                      onChange={e => setConfirmPw(e.target.value)} placeholder="Confirm new password" size="sm"
+                      onChange={e => setConfirmPw(e.target.value)} placeholder="确认新密码" size="sm"
                     />
                     <div className="flex justify-end pt-1">
                       <Button variant="primary" size="sm" onClick={() => void changePassword()}
                         disabled={!curPw || !newPw || savingPw}>
                         {savingPw ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-                        Update password
+                        更新密码
                       </Button>
                     </div>
                   </div>
@@ -461,18 +461,16 @@ export default function Settings() {
               {!infoLoading && authMode === 'shared' && (
                 <div className="border-t border-line px-5 py-4">
                   <p className="text-2xs text-ink-faint leading-relaxed">
-                    This instance uses a single shared password from <Code>config.yaml</Code> (<code className="font-mono">auth.password</code>).
-                    Change it there and restart the server. To enable per-user accounts and self-service password
-                    changes, register an account, then mint invites from the Admin tab.
+                    此实例使用 <Code>config.yaml</Code> 中设置的单一共享密码（<code className="font-mono">auth.password</code>）。
+                    请在该文件中修改后重启服务器。若要启用独立账号和自助修改密码，请先注册账号，然后在“管理后台”标签页中生成邀请。
                   </p>
                 </div>
               )}
               {!infoLoading && authMode === 'disabled' && (
                 <div className="border-t border-line px-5 py-4">
                   <p className="text-2xs text-ink-faint leading-relaxed">
-                    Login is turned off — anyone who can reach this server has full access. This is fine for a
-                    trusted local machine. To require a password, set <code className="font-mono">auth.enabled: true</code> in <Code>config.yaml</Code>,
-                    set a strong <code className="font-mono">LIWAN_JWT_SECRET</code>, and restart.
+                    登录功能已关闭——任何能访问此服务器的人都拥有完全权限。这对可信的本地机器来说没有问题。若要求输入密码，请在 <Code>config.yaml</Code> 中设置 <code className="font-mono">auth.enabled: true</code>，
+                    配置高强度的 <code className="font-mono">LIWAN_JWT_SECRET</code>，然后重启。
                   </p>
                 </div>
               )}
@@ -486,50 +484,50 @@ export default function Settings() {
                 <div className="px-5 py-8 flex justify-center"><Loader2 size={16} className="animate-spin text-ink-faint" /></div>
               ) : (
                 <>
-                  <Row label="File store" hint="Where documents and their version history are persisted.">
+                  <Row label="文件存储" hint="文档及其版本历史的持久化位置。">
                     <Pill tone="info" Icon={info?.storage?.backend === 'postgres' ? Database : HardDrive}>
-                      {info?.storage?.backend === 'postgres' ? 'PostgreSQL' : 'Local files'}
+                      {info?.storage?.backend === 'postgres' ? 'PostgreSQL' : '本地文件'}
                     </Pill>
                   </Row>
                   <div className="border-t border-line">
-                    <Row label="Data directory" hint="On-disk location of the local file/version store.">
+                    <Row label="数据目录" hint="本地文件与版本存储在磁盘上的位置。">
                       <Code>{info?.storage?.data_dir || './data'}</Code>
                     </Row>
                   </div>
                   <div className="border-t border-line">
-                    <Row label="Uploads directory" hint="Where embedded images and attachments are written.">
+                    <Row label="上传目录" hint="嵌入的图片和附件的写入位置。">
                       <Code>{info?.storage?.uploads_dir || './uploads'}</Code>
                     </Row>
                   </div>
 
-                  <SectionLabel Icon={Boxes}>Object storage (blobs)</SectionLabel>
+                  <SectionLabel Icon={Boxes}>对象存储（二进制数据）</SectionLabel>
                   <div className="px-5 pb-1">
                     {info?.storage?.object_store?.active ? (
                       <div className="space-y-3 pb-3">
                         <div className="flex items-center justify-between gap-4">
-                          <span className="text-sm text-ink">Backend</span>
+                          <span className="text-sm text-ink">后端</span>
                           <Pill tone="ok" Icon={CheckCircle2}>
-                            {info.storage.object_store.kind === 'minio' ? 'MinIO / S3' : 'Tigris'} · connected
+                            {info.storage.object_store.kind === 'minio' ? 'MinIO / S3' : 'Tigris'} · 已连接
                           </Pill>
                         </div>
                         {info.storage.object_store.endpoint && (
                           <div className="flex items-center justify-between gap-4">
-                            <span className="text-sm text-ink-muted">Endpoint</span>
+                            <span className="text-sm text-ink-muted">端点</span>
                             <Code>{info.storage.object_store.endpoint}</Code>
                           </div>
                         )}
                         {info.storage.object_store.bucket && (
                           <div className="flex items-center justify-between gap-4">
-                            <span className="text-sm text-ink-muted">Bucket</span>
+                            <span className="text-sm text-ink-muted">存储桶</span>
                             <Code>{info.storage.object_store.bucket}</Code>
                           </div>
                         )}
                       </div>
                     ) : (
                       <p className="text-2xs text-ink-faint leading-relaxed pb-3">
-                        No object store configured — blobs are served from the local <Code>data_dir</Code>.
-                        To use S3-compatible storage (MinIO / AWS S3 / Tigris), set <code className="font-mono">VULOS_MINIO_ENDPOINT</code>,
-                        <code className="font-mono"> VULOS_MINIO_BUCKET</code>, and credentials, then restart. See <Code>SELFHOST.md</Code>.
+                        未配置对象存储——二进制数据从本地 <Code>data_dir</Code> 提供。
+                        若要使用兼容 S3 的存储（MinIO / AWS S3 / Tigris），请设置 <code className="font-mono">VULOS_MINIO_ENDPOINT</code>、
+                        <code className="font-mono"> VULOS_MINIO_BUCKET</code> 以及凭据，然后重启。参见 <Code>SELFHOST.md</Code>。
                       </p>
                     )}
                   </div>
@@ -537,8 +535,8 @@ export default function Settings() {
                   <div className="border-t border-line px-5 py-3 bg-bg-elev2">
                     <p className="text-2xs text-ink-faint leading-relaxed flex items-start gap-2">
                       <Folder size={12} className="mt-0.5 flex-shrink-0" />
-                      Storage is configured in <code className="font-mono">config.yaml</code> and environment variables, not from this UI,
-                      so configuration stays reproducible and version-controllable.
+                      存储通过 <code className="font-mono">config.yaml</code> 和环境变量配置，而非在此界面中设置，
+                      以保证配置可复现并便于版本控制。
                     </p>
                   </div>
                 </>
@@ -552,14 +550,14 @@ export default function Settings() {
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Shield size={14} className="text-accent-press" />
-                  <p className="mono-label">Invite tokens</p>
+                  <p className="mono-label">邀请令牌</p>
                 </div>
                 <InvitesPanel onError={(m: string) => m && showToast(m, 'error')} />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <Shield size={14} className="text-accent-press" />
-                  <p className="mono-label">Audit log</p>
+                  <p className="mono-label">审计日志</p>
                 </div>
                 <AuditPanel onError={(m: string) => m && showToast(m, 'error')} />
               </div>
@@ -568,7 +566,7 @@ export default function Settings() {
         </Card>
 
         <p className="text-center text-2xs text-ink-faint tracking-eyebrow uppercase pb-4">
-          Liwan — open-source, self-hostable office suite
+          Liwan 议事厅——开源、可自托管的办公套件
           {' · '}
           <a
             href="/licenses.txt"
@@ -576,7 +574,7 @@ export default function Settings() {
             rel="noreferrer"
             className="underline hover:text-ink-muted"
           >
-            Third-party licenses
+            第三方许可证
           </a>
         </p>
       </div>

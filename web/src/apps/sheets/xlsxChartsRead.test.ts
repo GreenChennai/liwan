@@ -83,7 +83,7 @@ describe('chartTypeOf', () => {
     // combo would misplot, so it is refused rather than reshaped.
     const twoBarSers = '<barChart xmlns="x"><barDir val="col"/><ser/><ser/></barChart>'
     expect(chartTypeOf(groups(twoBarSers, '<lineChart xmlns="x"><ser/></lineChart>')).error)
-      .toMatch(/more than one column series/i)
+      .toMatch(/多个列数据系列/)
   })
 })
 
@@ -124,31 +124,31 @@ describe('rangeFromSeries — folding cell references back into one contiguous r
     expect(rangeFromSeries([
       { val: ref('S', 1, 1, 4, 1), cat, tx: null },
       { val: ref('S', 1, 3, 4, 3), cat, tx: null },
-    ], 'S').error).toMatch(/non-adjacent/i)
+    ], 'S').error).toMatch(/不相邻/)
 
     // Category labels detached from the data (cats in A, series in C).
     expect(rangeFromSeries([{ val: ref('S', 1, 2, 4, 2), cat, tx: null }], 'S').error)
-      .toMatch(/not next to the data/i)
+      .toMatch(/分类标签不在数据旁边/)
 
     // Series laid out across rows — our renderer reads columns as series.
     expect(rangeFromSeries([{ val: ref('S', 1, 1, 1, 5), cat: null, tx: null }], 'S').error)
-      .toMatch(/across rows/i)
+      .toMatch(/按行排列/)
 
     // Data on another worksheet: our charts read the first sheet's cells.
     expect(rangeFromSeries([{ val: ref('Other', 1, 1, 4, 1), cat: null, tx: null }], 'S').error)
-      .toMatch(/another sheet/i)
+      .toMatch(/另一个工作表/)
 
     // Series pulled from more than one sheet.
     expect(rangeFromSeries([
       { val: ref('S', 1, 1, 4, 1), cat: null, tx: null },
       { val: ref('T', 1, 2, 4, 2), cat: null, tx: null },
-    ], 'S').error).toMatch(/more than one sheet/i)
+    ], 'S').error).toMatch(/多个工作表/)
 
     // Series covering different row spans.
     expect(rangeFromSeries([
       { val: ref('S', 1, 1, 4, 1), cat: null, tx: null },
       { val: ref('S', 1, 2, 9, 2), cat: null, tx: null },
-    ], 'S').error).toMatch(/different rows/i)
+    ], 'S').error).toMatch(/行不一致/)
 
     expect(rangeFromSeries([], 'S').error).toBeTruthy()
     expect(rangeFromSeries([{ val: null, cat: null, tx: null }], 'S').error).toBeTruthy()
@@ -197,7 +197,7 @@ describe('importNotes — the record of what an import could not bring in', () =
     expect(notes.charts[0].title).toHaveLength(160)
     expect(notes.charts[0].reason).toHaveLength(160)
     expect(notes.charts[1].title).toBe('')                       // non-string coerced away
-    expect(notes.charts[1].reason).toBe('it could not be represented')
+    expect(notes.charts[1].reason).toBe('无法以此方式表示')
   })
 
   it('bounds the list a hostile file could grow', () => {
@@ -229,11 +229,11 @@ describe('importNotes — the record of what an import could not bring in', () =
     expect(combineImportNotes(a, null)).toEqual(a)
   })
 
-  it('says it in plain English', () => {
+  it('says it in plain language', () => {
     expect(importLossSummary(makeImportNotes({ pivots: 1 })))
-      .toMatch(/1 pivot table came in as plain cells.*not.*live pivot.*export from here will not contain them/i)
+      .toMatch(/1 个数据透视表已作为普通单元格导入，而非实时数据透视表.*从此处导出将不包含这些内容/)
     expect(importLossSummary(makeImportNotes({ charts: [{ title: 'A', reason: 'r' }] })))
-      .toMatch(/1 chart could not be imported/i)
+      .toMatch(/1 个图表无法导入/)
     expect(importLossSummary(null)).toBe('')
   })
 })

@@ -121,7 +121,7 @@ describe('RequireAuth', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy())
 
     await act(async () => {
-      await userEvent.click(screen.getByRole('button', { name: /retry/i }))
+      await userEvent.click(screen.getByRole('button', { name: /重试/ }))
     })
 
     await waitFor(() => expect(screen.getByTestId('app')).toBeTruthy())

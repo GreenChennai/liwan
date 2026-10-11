@@ -21,22 +21,22 @@ const SEC = 1000, MIN = 60 * SEC, HOUR = 60 * MIN, DAY = 24 * HOUR
 
 describe('timeAgo', () => {
   it('reads coarse buckets: just now / m / h / d', () => {
-    expect(timeAgo(ago(10 * SEC))).toBe('just now')
-    expect(timeAgo(ago(5 * MIN))).toBe('5m ago')
-    expect(timeAgo(ago(3 * HOUR))).toBe('3h ago')
-    expect(timeAgo(ago(2 * DAY))).toBe('2d ago')
+    expect(timeAgo(ago(10 * SEC))).toBe('刚刚')
+    expect(timeAgo(ago(5 * MIN))).toBe('5分钟前')
+    expect(timeAgo(ago(3 * HOUR))).toBe('3小时前')
+    expect(timeAgo(ago(2 * DAY))).toBe('2天前')
   })
 
   it('falls back to a short calendar date past a week', () => {
     const out = timeAgo(ago(10 * DAY))
-    expect(out).not.toMatch(/ago/)
-    expect(out).toMatch(/Mar/) // "Mar 5"
+    expect(out).not.toMatch(/前/)
+    expect(out).toMatch(/3月5日/) // "Mar 5"
   })
 
   it('accepts a Date, an ISO string, and epoch ms interchangeably', () => {
-    expect(timeAgo(ago(5 * MIN))).toBe('5m ago')            // Date
-    expect(timeAgo(ago(5 * MIN).toISOString())).toBe('5m ago') // string
-    expect(timeAgo(NOW - 5 * MIN)).toBe('5m ago')          // number
+    expect(timeAgo(ago(5 * MIN))).toBe('5分钟前')            // Date
+    expect(timeAgo(ago(5 * MIN).toISOString())).toBe('5分钟前') // string
+    expect(timeAgo(NOW - 5 * MIN)).toBe('5分钟前')          // number
   })
 
   it('returns empty string for null / invalid input', () => {
@@ -48,21 +48,21 @@ describe('timeAgo', () => {
 
 describe('timeAgoLong', () => {
   it('keeps counting days up to 30 before a full date', () => {
-    expect(timeAgoLong(ago(10 * DAY))).toBe('10d ago')
-    expect(timeAgoLong(ago(29 * DAY))).toBe('29d ago')
-    expect(timeAgoLong(ago(40 * DAY))).not.toMatch(/ago/)
+    expect(timeAgoLong(ago(10 * DAY))).toBe('10天前')
+    expect(timeAgoLong(ago(29 * DAY))).toBe('29天前')
+    expect(timeAgoLong(ago(40 * DAY))).not.toMatch(/前/)
   })
 
   it('shares the sub-day buckets with timeAgo', () => {
-    expect(timeAgoLong(ago(30 * SEC))).toBe('just now')
-    expect(timeAgoLong(ago(90 * MIN))).toBe('1h ago')
+    expect(timeAgoLong(ago(30 * SEC))).toBe('刚刚')
+    expect(timeAgoLong(ago(90 * MIN))).toBe('1小时前')
   })
 })
 
 describe('formatTs', () => {
   it('emits an absolute short date + time', () => {
     const out = formatTs('2026-03-04T09:30:00Z')
-    expect(out).toMatch(/Mar 4/)
+    expect(out).toMatch(/3月4日/)
     // Time portion present (locale-formatted HH:MM).
     expect(out).toMatch(/\d{1,2}:\d{2}/)
   })

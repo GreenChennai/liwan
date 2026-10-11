@@ -92,18 +92,18 @@ const PivotCard = memo(function PivotCard({ pivot, sheet, onDelete, onEdit, onCo
         <span className="flex items-center gap-1 text-[10px] text-slate-500 truncate">
           <GripVertical size={11} aria-hidden />
           <Table2 size={11} aria-hidden />
-          <span className="truncate max-w-[280px]">{pivot.title || 'Pivot table'}</span>
+          <span className="truncate max-w-[280px]">{pivot.title || '数据透视表'}</span>
         </span>
         <span className="flex items-center gap-0.5">
           <button
-            type="button" title="Edit pivot" aria-label="Edit pivot"
+            type="button" title="编辑数据透视表" aria-label="编辑数据透视表"
             className="p-1 rounded hover:bg-slate-200 text-slate-500"
             onClick={(e) => { e.stopPropagation(); onEdit(pivot.id) }}
           >
             <Pencil size={12} />
           </button>
           <button
-            type="button" title="Delete pivot" aria-label="Delete pivot"
+            type="button" title="删除数据透视表" aria-label="删除数据透视表"
             className="p-1 rounded hover:bg-red-100 text-slate-500 hover:text-red-600"
             onClick={(e) => { e.stopPropagation(); onDelete(pivot.id) }}
           >

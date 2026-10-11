@@ -94,7 +94,7 @@ describe('ContentSearchResults rendering (MSW-free)', () => {
     expect(screen.getByText('My roadmap')).toBeInTheDocument()
     expect(screen.getByText('Team notes')).toBeInTheDocument()
     // Only the shared hit carries the "shared by …" chip.
-    expect(screen.getByText(/shared by alice@vulos.test/i)).toBeInTheDocument()
+    expect(screen.getByText(/由 alice@vulos.test 分享/)).toBeInTheDocument()
   })
 
   it('opens a hit when its row is activated', () => {
@@ -124,7 +124,7 @@ describe('ContentSearchResults rendering (MSW-free)', () => {
         onOpen={() => {}}
       />,
     )
-    expect(screen.getByText(/No content matches for/i)).toHaveTextContent('ghost')
+    expect(screen.getByText(/没有与“/)).toHaveTextContent('ghost')
   })
 
   it('renders nothing while idle (no query, no request in flight)', () => {
@@ -139,7 +139,7 @@ describe('ContentSearchResults rendering (MSW-free)', () => {
       <ContentSearchResults results={null} searching query="widget" onOpen={() => {}} />,
     )
     // The section header is present even before results arrive.
-    expect(screen.getByText(/Matches in content/i)).toBeInTheDocument()
+    expect(screen.getByText(/内容中的匹配/)).toBeInTheDocument()
   })
 })
 

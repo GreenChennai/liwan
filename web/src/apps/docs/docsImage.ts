@@ -53,22 +53,22 @@ export function isEmbeddableImage(file: { type?: string; size?: number } | null 
 export function fileToDataUri(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!file || !INLINE_IMAGE_TYPES.has(file.type)) {
-      reject(new Error('Only PNG, JPEG, GIF, or WebP images can be inserted'))
+      reject(new Error('仅支持插入 PNG、JPEG、GIF 或 WebP 图片'))
       return
     }
     if (file.size > MAX_INLINE_IMAGE_BYTES) {
-      reject(new Error(`Image is larger than ${Math.round(MAX_INLINE_IMAGE_BYTES / (1024 * 1024))} MB and can't be embedded`))
+      reject(new Error(`图片大于 ${Math.round(MAX_INLINE_IMAGE_BYTES / (1024 * 1024))} MB，无法嵌入`))
       return
     }
     const reader = new FileReader()
-    reader.onerror = () => reject(new Error('Could not read image file'))
+    reader.onerror = () => reject(new Error('无法读取图片文件'))
     reader.onload = (ev) => {
       const uri = ev.target?.result
       // Defence-in-depth: the FileReader result must be a raster data: URI.
       if (typeof uri === 'string' && /^data:image\/(?:png|jpe?g|gif|webp);/i.test(uri)) {
         resolve(uri)
       } else {
-        reject(new Error('Image could not be embedded'))
+        reject(new Error('无法嵌入该图片'))
       }
     }
     reader.readAsDataURL(file)

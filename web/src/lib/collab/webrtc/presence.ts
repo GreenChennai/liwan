@@ -117,13 +117,13 @@ function colorFromString(str: string): string {
   return `hsl(${hue}, 65%, 50%)`
 }
 
-const GUEST_ADJECTIVES = ['Swift', 'Bright', 'Calm', 'Bold', 'Kind']
-const GUEST_ANIMALS = ['Lemur', 'Falcon', 'Otter', 'Fox', 'Lynx']
+const GUEST_ADJECTIVES = ['敏捷的', '明亮的', '沉静的', '勇敢的', '友善的']
+const GUEST_ANIMALS = ['狐猴', '猎鹰', '水獭', '狐狸', '山猫']
 
 function randomGuestName(): string {
   const adj = GUEST_ADJECTIVES[Math.floor(Math.random() * GUEST_ADJECTIVES.length)]
   const ani = GUEST_ANIMALS[Math.floor(Math.random() * GUEST_ANIMALS.length)]
-  return `${adj} ${ani}`
+  return `${adj}${ani}`
 }
 
 function loadOrCreateLocalIdentity(): StoredIdentity {

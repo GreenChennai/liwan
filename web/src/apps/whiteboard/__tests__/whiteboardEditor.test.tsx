@@ -74,7 +74,7 @@ describe('WhiteboardEditor', () => {
   it('shows the title from the file and credits the MIT Excalidraw editor', async () => {
     mount()
     await waitFor(() => expect(screen.getByTestId('whiteboard-editor')).toBeTruthy())
-    await waitFor(() => expect(screen.getByLabelText('Whiteboard title')).toHaveValue('System Diagram'))
+    await waitFor(() => expect(screen.getByLabelText('白板标题')).toHaveValue('System Diagram'))
     expect(document.body.textContent).toMatch(/excalidraw/i)
   })
 })

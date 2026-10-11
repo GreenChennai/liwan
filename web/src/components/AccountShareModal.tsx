@@ -64,11 +64,11 @@ interface CreatedShareLink {
 
 // Expiry presets offered when minting a link (seconds). 0 = never.
 const EXPIRY_OPTIONS = [
-  { label: 'Never',    seconds: 0 },
-  { label: '1 hour',   seconds: 60 * 60 },
-  { label: '1 day',    seconds: 24 * 60 * 60 },
-  { label: '7 days',   seconds: 7 * 24 * 60 * 60 },
-  { label: '30 days',  seconds: 30 * 24 * 60 * 60 },
+  { label: '永不过期',  seconds: 0 },
+  { label: '1 小时',   seconds: 60 * 60 },
+  { label: '1 天',     seconds: 24 * 60 * 60 },
+  { label: '7 天',     seconds: 7 * 24 * 60 * 60 },
+  { label: '30 天',    seconds: 30 * 24 * 60 * 60 },
 ]
 
 // Build the absolute anonymous view URL for a link token. Prefers Office's
@@ -84,9 +84,9 @@ function shareLinkUrl(token: string) {
 // The three grantable roles, in ascending privilege. Owner is intentionally not
 // grantable through this dialog.
 const ROLES: { value: string; label: string; hint: string; icon: LucideIcon }[] = [
-  { value: 'viewer',    label: 'Viewer',    hint: 'Can view',            icon: Eye },
-  { value: 'commenter', label: 'Commenter', hint: 'Can view & comment',  icon: MessageSquare },
-  { value: 'editor',    label: 'Editor',    hint: 'Can edit',            icon: Pencil },
+  { value: 'viewer',    label: '查看者',    hint: '可查看',              icon: Eye },
+  { value: 'commenter', label: '评论者',    hint: '可查看并评论',        icon: MessageSquare },
+  { value: 'editor',    label: '编辑者',    hint: '可编辑',              icon: Pencil },
 ]
 
 function roleMeta(role: string) {
@@ -146,7 +146,7 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
       // Show non-owner collaborators in the editable roster.
       setCollaborators(list.filter((c) => c.role !== 'owner'))
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not load collaborators')
+      setError(e instanceof Error ? e.message : '无法加载协作者')
     } finally {
       setLoading(false)
     }
@@ -169,7 +169,7 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
     const acct = email.trim()
     if (!acct) return
     if (acct.toLowerCase() === (me || '').toLowerCase() || acct === owner) {
-      setError('You already own or can access this document.')
+      setError('你已经是此文档的所有者或可以访问此文档。')
       return
     }
     setBusy(true)
@@ -178,9 +178,9 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
       await api.shareFile(fileId, acct, role)
       setEmail('')
       await refresh()
-      showToast(`Shared with ${acct}`, 'success')
+      showToast(`已分享给 ${acct}`, 'success')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not share')
+      setError(err instanceof Error ? err.message : '无法分享')
     } finally {
       setBusy(false)
     }
@@ -193,7 +193,7 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
       await api.shareFile(fileId, accountId, nextRole)
       await refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not change role')
+      setError(err instanceof Error ? err.message : '无法更改角色')
     } finally {
       setBusy(false)
     }
@@ -205,9 +205,9 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
     try {
       await api.revokeShare(fileId, accountId)
       await refresh()
-      showToast(`Removed ${accountId}`, 'success')
+      showToast(`已移除 ${accountId}`, 'success')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not remove access')
+      setError(err instanceof Error ? err.message : '无法移除访问权限')
     } finally {
       setBusy(false)
     }
@@ -221,20 +221,20 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
     try {
       await api.transferOwnership(fileId, newOwner)
       await refresh()
-      showToast(`Ownership transferred to ${newOwner}`, 'success')
+      showToast(`所有权已转移给 ${newOwner}`, 'success')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not transfer ownership')
+      setError(err instanceof Error ? err.message : '无法转移所有权')
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={`Share “${file?.name || 'document'}”`} size="lg">
+    <Modal open={open} onClose={onClose} title={`分享“${file?.name || '文档'}”`} size="lg">
       <Modal.Body className="space-y-4">
         <p className="text-xs text-ink-muted leading-relaxed">
-          Share this document with people by their Vulos account or email. They
-          sign in with their own account and get exactly the access you grant.
+          通过对方的 Vulos 账号或邮箱与其分享此文档。对方使用自己的账号登录，
+          并仅获得您授予的访问权限。
         </p>
 
         {/* Honesty: co-editing is off — say what sharing will and will not do. */}
@@ -255,13 +255,13 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
               <Input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com or account id"
-                aria-label="Account or email to share with"
+                placeholder="name@example.com 或账号 ID"
+                aria-label="要分享给的账号或邮箱"
                 leading={<UserPlus size={14} />}
                 autoFocus
               />
             </div>
-            <label className="sr-only" htmlFor="share-role">Role</label>
+            <label className="sr-only" htmlFor="share-role">角色</label>
             <select
               id="share-role"
               value={role}
@@ -274,7 +274,7 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
             </select>
             <Button type="submit" variant="primary" size="sm" disabled={busy || !email.trim()}>
               {busy ? <Loader2 size={13} className="animate-spin" /> : <UserPlus size={13} />}
-              Share
+              分享
             </Button>
           </form>
         )}
@@ -288,7 +288,7 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
         {/* People with access */}
         <div className="space-y-1">
           <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase flex items-center gap-1.5">
-            <Users size={11} /> People with access
+            <Users size={11} /> 有访问权限的人员
           </p>
           <div className="rounded-md border border-line divide-y divide-line overflow-hidden">
             {/* Owner row (always shown, never editable) */}
@@ -302,11 +302,11 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
             )}
             {loading ? (
               <div className="flex items-center gap-2 text-2xs text-ink-faint px-3 py-3 justify-center">
-                <Loader2 size={13} className="animate-spin" /> Loading…
+                <Loader2 size={13} className="animate-spin" /> 加载中…
               </div>
             ) : collaborators.length === 0 ? (
               <p className="text-2xs text-ink-faint px-3 py-3 text-center">
-                {owner ? 'No one else has access yet.' : 'Only you can access this document.'}
+                {owner ? '暂无其他人有访问权限。' : '只有你可以访问此文档。'}
               </p>
             ) : (
               collaborators.map((c) => (
@@ -344,10 +344,10 @@ export default function AccountShareModal({ open, onClose, file, me = '', onSwit
             onClick={() => { onClose?.(); onSwitchToLink() }}
             className="mr-auto"
           >
-            <Link2 size={13} /> Share via link (P2P)
+            <Link2 size={13} /> 通过链接分享（P2P）
           </Button>
         )}
-        <Button variant="secondary" size="sm" onClick={onClose}>Done</Button>
+        <Button variant="secondary" size="sm" onClick={onClose}>完成</Button>
       </Modal.Footer>
       {toast}
     </Modal>
@@ -372,19 +372,19 @@ function PersonRow({ accountId, role, isMe, editable, onChangeRole, onRevoke }: 
       <Avatar name={accountId} size={26} color={hueFor(accountId)} />
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-ink truncate tracking-tightish">
-          {accountId}{isMe && <span className="text-ink-faint font-normal"> (you)</span>}
+          {accountId}{isMe && <span className="text-ink-faint font-normal">（你）</span>}
         </p>
         <p className="text-2xs text-ink-faint flex items-center gap-1">
-          <RoleIcon size={10} /> {role === 'owner' ? 'Owner' : meta.hint}
+          <RoleIcon size={10} /> {role === 'owner' ? '所有者' : meta.hint}
         </p>
       </div>
       {role === 'owner' ? (
         <span className="text-2xs text-ink-faint px-2 py-1 flex items-center gap-1">
-          <Crown size={11} className="text-warning" /> Owner
+          <Crown size={11} className="text-warning" /> 所有者
         </span>
       ) : editable ? (
         <div className="flex items-center gap-1.5">
-          <label className="sr-only" htmlFor={`role-${accountId}`}>Role for {accountId}</label>
+          <label className="sr-only" htmlFor={`role-${accountId}`}>{accountId} 的角色</label>
           <select
             id={`role-${accountId}`}
             value={role}
@@ -397,7 +397,7 @@ function PersonRow({ accountId, role, isMe, editable, onChangeRole, onRevoke }: 
           </select>
           <button
             onClick={onRevoke}
-            aria-label={`Remove ${accountId}`}
+            aria-label={`移除 ${accountId}`}
             className="p-1 rounded-sm text-ink-faint hover:text-danger hover:bg-danger-bg transition-colors focus:outline-none focus-visible:shadow-focus"
           >
             <Trash2 size={13} />
@@ -452,7 +452,7 @@ function ShareLinksSection({ fileId, onError, showToast }: ShareLinksSectionProp
       const res = await api.listShareLinks(fileId) as ShareLinksResponse
       setLinks(res?.links || [])
     } catch (e) {
-      onError?.(e instanceof Error ? e.message : 'Could not load links')
+      onError?.(e instanceof Error ? e.message : '无法加载链接')
     } finally {
       setLoading(false)
     }
@@ -476,9 +476,9 @@ function ShareLinksSection({ fileId, onError, showToast }: ShareLinksSectionProp
       setPassword('')
       setExpiry(0)
       await refresh()
-      showToast?.('Link created — copy it now, the URL is shown only once', 'success')
+      showToast?.('链接已创建——请立即复制，该 URL 仅显示一次', 'success')
     } catch (e) {
-      onError?.(e instanceof Error ? e.message : 'Could not create link')
+      onError?.(e instanceof Error ? e.message : '无法创建链接')
     } finally {
       setMinting(false)
     }
@@ -489,9 +489,9 @@ function ShareLinksSection({ fileId, onError, showToast }: ShareLinksSectionProp
     try {
       await api.revokeShareLink(fileId, linkId)
       await refresh()
-      showToast?.('Link revoked', 'success')
+      showToast?.('链接已撤销', 'success')
     } catch (e) {
-      onError?.(e instanceof Error ? e.message : 'Could not revoke link')
+      onError?.(e instanceof Error ? e.message : '无法撤销链接')
     }
   }
 
@@ -513,7 +513,7 @@ function ShareLinksSection({ fileId, onError, showToast }: ShareLinksSectionProp
   return (
     <div className="space-y-2 pt-2 border-t border-line">
       <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase flex items-center gap-1.5">
-        <Link2 size={11} /> Anyone-with-the-link (read only)
+        <Link2 size={11} /> 知道链接的人（仅只读）
       </p>
 
       {/* Mint controls */}
@@ -523,12 +523,12 @@ function ShareLinksSection({ fileId, onError, showToast }: ShareLinksSectionProp
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password (optional)"
-            aria-label="Optional link password"
+            placeholder="密码（可选）"
+            aria-label="链接密码（可选）"
             leading={<KeyRound size={13} />}
           />
         </div>
-        <label className="sr-only" htmlFor="link-expiry">Link expiry</label>
+        <label className="sr-only" htmlFor="link-expiry">链接有效期</label>
         <select
           id="link-expiry"
           value={expiry}
@@ -541,17 +541,17 @@ function ShareLinksSection({ fileId, onError, showToast }: ShareLinksSectionProp
         </select>
         <Button variant="secondary" size="sm" onClick={() => void mint()} disabled={minting}>
           {minting ? <Loader2 size={13} className="animate-spin" /> : <Link2 size={13} />}
-          Create link
+          创建链接
         </Button>
       </div>
 
       {/* Existing links */}
       {loading ? (
         <div className="flex items-center gap-2 text-2xs text-ink-faint px-1 py-1">
-          <Loader2 size={12} className="animate-spin" /> Loading links…
+          <Loader2 size={12} className="animate-spin" /> 正在加载链接…
         </div>
       ) : active.length === 0 ? (
-        <p className="text-2xs text-ink-faint px-1">No active links.</p>
+        <p className="text-2xs text-ink-faint px-1">没有有效的链接。</p>
       ) : (
         <ul className="rounded-md border border-line divide-y divide-line overflow-hidden">
           {active.map((l) => (
@@ -564,21 +564,21 @@ function ShareLinksSection({ fileId, onError, showToast }: ShareLinksSectionProp
                   // Say what happened. An empty line, or a URL built from an
                   // absent token, would read as a bug or — worse — get pasted.
                   <p className="text-2xs text-ink-faint italic">
-                    URL shown only when created — this link still works, but cannot be re-read
+                    仅在创建时显示 URL——此链接仍然有效，但无法再次读取
                   </p>
                 )}
                 <p className="text-2xs text-ink-faint flex items-center gap-2 mt-px">
-                  {l.has_password && <span className="flex items-center gap-0.5"><Lock size={9} /> password</span>}
+                  {l.has_password && <span className="flex items-center gap-0.5"><Lock size={9} /> 需要密码</span>}
                   {l.expires_at
-                    ? <span className="flex items-center gap-0.5"><Clock size={9} /> expires {new Date(l.expires_at).toLocaleDateString()}</span>
-                    : <span className="flex items-center gap-0.5"><Clock size={9} /> never expires</span>}
+                    ? <span className="flex items-center gap-0.5"><Clock size={9} /> 有效期至 {new Date(l.expires_at).toLocaleDateString()}</span>
+                    : <span className="flex items-center gap-0.5"><Clock size={9} /> 永不过期</span>}
                 </p>
               </div>
               {mintedUrls[l.id] && (
                 <button
                   onClick={() => void copy(l)}
-                  aria-label="Copy link URL"
-                  title="Copy link"
+                  aria-label="复制链接 URL"
+                  title="复制链接"
                   className="p-1 rounded-sm text-ink-faint hover:text-accent hover:bg-accent-tint focus:outline-none focus-visible:shadow-focus"
                 >
                   {copiedId === l.id ? <Check size={13} className="text-success" /> : <Copy size={13} />}
@@ -586,8 +586,8 @@ function ShareLinksSection({ fileId, onError, showToast }: ShareLinksSectionProp
               )}
               <button
                 onClick={() => void revoke(l.id)}
-                aria-label="Revoke link"
-                title="Revoke link"
+                aria-label="撤销链接"
+                title="撤销链接"
                 className="p-1 rounded-sm text-ink-faint hover:text-danger hover:bg-danger-bg focus:outline-none focus-visible:shadow-focus"
               >
                 <Trash2 size={13} />
@@ -628,7 +628,7 @@ function TransferOwnershipSection({ collaborators, onTransfer, busy }: TransferO
   return (
     <div className="space-y-2 pt-2 border-t border-line">
       <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase flex items-center gap-1.5">
-        <ArrowRightLeft size={11} /> Transfer ownership
+        <ArrowRightLeft size={11} /> 转移所有权
       </p>
       <div className="flex items-stretch gap-2">
         <div className="flex-1 min-w-0">
@@ -636,8 +636,8 @@ function TransferOwnershipSection({ collaborators, onTransfer, busy }: TransferO
             list="transfer-collab-list"
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            placeholder="New owner (account or email)"
-            aria-label="New owner account"
+            placeholder="新所有者（账号或邮箱）"
+            aria-label="新所有者账号"
             leading={<Crown size={13} />}
           />
           <datalist id="transfer-collab-list">
@@ -647,25 +647,24 @@ function TransferOwnershipSection({ collaborators, onTransfer, busy }: TransferO
           </datalist>
         </div>
         <Button variant="secondary" size="sm" onClick={submit} disabled={busy || !target.trim()}>
-          <ArrowRightLeft size={13} /> Transfer
+          <ArrowRightLeft size={13} /> 转移
         </Button>
       </div>
       <p className="text-2xs text-ink-faint">
-        You will be demoted to editor and keep access unless you remove yourself.
+        除非您主动移除自己，否则您将被降级为编辑者并保留访问权限。
       </p>
 
-      <Modal open={confirming} onClose={() => setConfirming(false)} title="Transfer ownership?" size="sm">
+      <Modal open={confirming} onClose={() => setConfirming(false)} title="确定转移所有权？" size="sm">
         <Modal.Body>
           <p className="text-sm text-ink-muted leading-relaxed">
-            <span className="text-ink font-medium">{target}</span> will become the sole
-            owner of this document. You will keep editor access. This cannot be undone
-            without the new owner transferring it back.
+            <span className="text-ink font-medium">{target}</span> 将成为此文档的唯一
+            所有者。您将保留编辑者权限。除非新所有者再将所有权转回，否则此操作无法撤销。
           </p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" size="md" onClick={() => setConfirming(false)}>Cancel</Button>
+          <Button variant="secondary" size="md" onClick={() => setConfirming(false)}>取消</Button>
           <Button variant="primary" size="md" onClick={() => void doTransfer()}>
-            <ArrowRightLeft size={13} /> Transfer ownership
+            <ArrowRightLeft size={13} /> 转移所有权
           </Button>
         </Modal.Footer>
       </Modal>

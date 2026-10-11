@@ -30,13 +30,13 @@ function open(props: OpenProps = {}) {
 describe('ThemeGallery tabs a11y', () => {
   it('exposes a labelled tablist with two tabs and one selected', () => {
     open()
-    const tablist = screen.getByRole('tablist', { name: /theme source/i })
+    const tablist = screen.getByRole('tablist', { name: /主题来源/ })
     expect(tablist).toBeInTheDocument()
     const tabs = screen.getAllByRole('tab')
     expect(tabs).toHaveLength(2)
     // Presets is selected by default; Custom is not.
-    const presets = screen.getByRole('tab', { name: 'Presets' })
-    const custom = screen.getByRole('tab', { name: 'Custom' })
+    const presets = screen.getByRole('tab', { name: '预设' })
+    const custom = screen.getByRole('tab', { name: '自定义' })
     expect(presets).toHaveAttribute('aria-selected', 'true')
     expect(custom).toHaveAttribute('aria-selected', 'false')
     // Roving tabindex: only the active tab is in the tab order.
@@ -46,7 +46,7 @@ describe('ThemeGallery tabs a11y', () => {
 
   it('each tab controls a labelled tabpanel', () => {
     open()
-    const presets = screen.getByRole('tab', { name: 'Presets' })
+    const presets = screen.getByRole('tab', { name: '预设' })
     expect(presets).toHaveAttribute('aria-controls', 'themepanel-gallery')
     const panel = screen.getByRole('tabpanel')
     expect(panel).toHaveAttribute('aria-labelledby', 'themetab-gallery')
@@ -54,32 +54,32 @@ describe('ThemeGallery tabs a11y', () => {
 
   it('ArrowRight moves selection to the next tab and activates it', () => {
     open()
-    const presets = screen.getByRole('tab', { name: 'Presets' })
+    const presets = screen.getByRole('tab', { name: '预设' })
     fireEvent.keyDown(presets, { key: 'ArrowRight' })
-    const custom = screen.getByRole('tab', { name: 'Custom' })
+    const custom = screen.getByRole('tab', { name: '自定义' })
     expect(custom).toHaveAttribute('aria-selected', 'true')
-    // The custom panel is now shown (base-preset select is a tell).
-    expect(screen.getByLabelText('Base Preset')).toBeInTheDocument()
+    // The custom panel is now shown (基础预设下拉框是标志).
+    expect(screen.getByLabelText('基础预设')).toBeInTheDocument()
   })
 
   it('ArrowLeft wraps from the first tab to the last', () => {
     open()
-    const presets = screen.getByRole('tab', { name: 'Presets' })
+    const presets = screen.getByRole('tab', { name: '预设' })
     fireEvent.keyDown(presets, { key: 'ArrowLeft' })
-    expect(screen.getByRole('tab', { name: 'Custom' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('tab', { name: '自定义' })).toHaveAttribute('aria-selected', 'true')
   })
 })
 
 describe('ThemeGallery custom form + apply', () => {
   it('custom-tab form controls are associated with their labels', () => {
     open()
-    fireEvent.click(screen.getByRole('tab', { name: 'Custom' }))
+    fireEvent.click(screen.getByRole('tab', { name: '自定义' }))
     // getByLabelText only resolves when htmlFor/id are wired correctly.
-    expect(screen.getByLabelText('Base Preset')).toBeInTheDocument()
-    expect(screen.getByLabelText('Heading Font')).toBeInTheDocument()
-    expect(screen.getByLabelText('Body Font')).toBeInTheDocument()
-    expect(screen.getByLabelText('Primary')).toBeInTheDocument()
-    expect(screen.getByLabelText('Background')).toBeInTheDocument()
+    expect(screen.getByLabelText('基础预设')).toBeInTheDocument()
+    expect(screen.getByLabelText('标题字体')).toBeInTheDocument()
+    expect(screen.getByLabelText('正文字体')).toBeInTheDocument()
+    expect(screen.getByLabelText('主色')).toBeInTheDocument()
+    expect(screen.getByLabelText('背景')).toBeInTheDocument()
   })
 
   it('Apply reports the selected theme id', () => {
@@ -88,7 +88,7 @@ describe('ThemeGallery custom form + apply', () => {
     // Pick the second preset tile, then apply.
     const tile = screen.getByRole('button', { name: new RegExp(PRESET_THEMES[1].label, 'i') })
     fireEvent.click(tile)
-    fireEvent.click(screen.getByRole('button', { name: /^Apply/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^应用到所有幻灯片/ }))
     expect(onApply).toHaveBeenCalledWith(
       expect.objectContaining({ themeId: PRESET_THEMES[1].id }),
     )

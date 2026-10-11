@@ -77,7 +77,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ status: { enabled: true, authenticated: true }, error: null })
     } catch (err) {
       const loginErr = err as LoginError
-      set({ error: loginErr.error || 'Login failed', remainingAttempts: loginErr.remaining_attempts ?? null })
+      set({ error: loginErr.error || '登录失败', remainingAttempts: loginErr.remaining_attempts ?? null })
       throw err
     }
   },

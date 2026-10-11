@@ -67,7 +67,7 @@ export default function RequireAuth({ children, apiBase = '' }: RequireAuthProps
   if (state === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
-        <LoadingState label="Checking your session…" />
+        <LoadingState label="正在检查登录状态…" />
       </div>
     )
   }
@@ -77,7 +77,7 @@ export default function RequireAuth({ children, apiBase = '' }: RequireAuthProps
       <div className="min-h-screen flex items-center justify-center bg-bg">
         <ErrorState
           size="lg"
-          message="We couldn't verify your session — the server didn't answer. Check your connection and try again."
+          message="无法验证登录状态：服务器没有响应。请检查网络连接后重试。"
           onRetry={retry}
         />
       </div>

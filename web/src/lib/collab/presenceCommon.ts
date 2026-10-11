@@ -37,7 +37,7 @@ export function getCollabIdentity(fallbackPeerId?: string): CollabIdentity {
     if (parsed && parsed.accountId) {
       return {
         accountId: parsed.accountId,
-        displayName: parsed.displayName || 'Me',
+        displayName: parsed.displayName || '我',
       }
     }
   } catch {
@@ -52,7 +52,7 @@ export function getCollabIdentity(fallbackPeerId?: string): CollabIdentity {
 
   return {
     accountId: `guest:${peerId}`,
-    displayName: 'Me',
+    displayName: '我',
     isGuest: true,
   }
 }
@@ -136,37 +136,37 @@ export function deriveStatusPill({
     // Ranked ABOVE readOnly and above every connection state: a view-only peer
     // in a mismatched room is still in a room that cannot converge, and the
     // fabric being healthy is exactly what makes this dangerous to under-report.
-    return { status: 'mismatch', label: 'Not syncing', tone: 'danger' }
+    return { status: 'mismatch', label: '未同步', tone: 'danger' }
   }
 
   if (readOnly) {
-    return { status: 'readonly', label: 'View only', tone: 'muted' }
+    return { status: 'readonly', label: '仅查看', tone: 'muted' }
   }
 
   if (!configured) {
     // No collab backend — pure local editing. We stay quiet ("Offline" here is
     // informational, not an error): the editor works fully, presence is just
     // empty. Tone is muted, never danger.
-    return { status: 'offline', label: 'Offline', tone: 'muted' }
+    return { status: 'offline', label: '离线', tone: 'muted' }
   }
 
   const live = countLivePeers(peers)
   if (live > 0) {
-    return { status: 'live', label: 'Live', tone: 'success' }
+    return { status: 'live', label: '实时', tone: 'success' }
   }
 
   const values = Object.values(peers)
   const anyPending = values.some((s) => PENDING_PEER_STATES.has(s))
 
   if (!joined) {
-    return { status: 'connecting', label: 'Connecting…', tone: 'muted' }
+    return { status: 'connecting', label: '连接中…', tone: 'muted' }
   }
 
   if (anyPending) {
     // We were live (joined) but a peer dropped to a pending state → reconnecting.
-    return { status: 'reconnecting', label: 'Reconnecting…', tone: 'warning' }
+    return { status: 'reconnecting', label: '重新连接中…', tone: 'warning' }
   }
 
   // Joined, no peers at all: solo but connected. Present as a calm "Live".
-  return { status: 'solo', label: 'Live', tone: 'success' }
+  return { status: 'solo', label: '实时', tone: 'success' }
 }

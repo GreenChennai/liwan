@@ -44,24 +44,24 @@ export default function LoginScreen() {
             <span className="inline-flex items-center gap-2.5 mb-5">
               <LiwanMark size={30} />
               <span className="flex flex-col leading-none">
-                <span className="font-display text-xl font-bold text-ink leading-none tracking-display">Liwan</span>
+                <span className="font-display text-xl font-bold text-ink leading-none tracking-display">Liwan 议事厅</span>
                 <span className="font-mono text-[8.5px] font-medium text-ink-faint tracking-eyebrow uppercase mt-1.5">
-                  Office Suite
+                  办公套件
                 </span>
               </span>
             </span>
             <h1 className="font-serif text-3xl text-ink leading-tight">
-              Welcome back.
+              欢迎回来。
             </h1>
             <p className="text-sm text-ink-muted mt-2 leading-snug">
-              Enter your password to continue.
+              请输入密码以继续。
             </p>
           </div>
 
           <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
             <div>
               <label htmlFor="login-password" className="block text-xs font-medium text-ink-muted mb-1.5 tracking-tightish">
-                Password
+                密码
               </label>
               <div className="relative">
                 <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
@@ -71,14 +71,14 @@ export default function LoginScreen() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-9 pr-9 h-10 bg-paper border border-line rounded-md text-sm outline-none focus:border-accent focus:shadow-focus transition-colors"
-                  placeholder="Enter password"
+                  placeholder="请输入密码"
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setShow(!show)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink transition-colors rounded-sm focus:outline-none focus-visible:shadow-focus focus-visible:text-ink"
-                  aria-label={show ? 'Hide password' : 'Show password'}
+                  aria-label={show ? '隐藏密码' : '显示密码'}
                 >
                   {show ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
@@ -92,7 +92,7 @@ export default function LoginScreen() {
                   <p className="leading-snug">{error}</p>
                   {remainingAttempts !== null && remainingAttempts > 0 && (
                     <p className="mt-0.5 opacity-80">
-                      {remainingAttempts} attempt{remainingAttempts !== 1 ? 's' : ''} remaining
+                      剩余 {remainingAttempts} 次尝试机会
                     </p>
                   )}
                 </div>
@@ -107,9 +107,9 @@ export default function LoginScreen() {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader2 size={15} className="animate-spin" aria-hidden />
-                  Signing in
+                  正在登录
                 </span>
-              ) : 'Sign in'}
+              ) : '登录'}
             </button>
           </form>
         </div>

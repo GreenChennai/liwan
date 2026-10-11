@@ -30,33 +30,33 @@ describe('countLivePeers', () => {
 describe('deriveStatusPill — status-pill state mapping', () => {
   it('readOnly overrides everything → View only (muted)', () => {
     const p = deriveStatusPill({ configured: true, joined: true, peers: { x: 'connected' }, readOnly: true })
-    expect(p).toEqual({ status: 'readonly', label: 'View only', tone: 'muted' })
+    expect(p).toEqual({ status: 'readonly', label: '仅查看', tone: 'muted' })
   })
 
   it('no collab backend configured → Offline (muted, never danger)', () => {
     const p = deriveStatusPill({ configured: false, joined: false, peers: {} })
     expect(p.status).toBe('offline')
-    expect(p.label).toBe('Offline')
+    expect(p.label).toBe('离线')
     expect(p.tone).toBe('muted')
   })
 
   it('configured but not yet joined, no peers → Connecting', () => {
     const p = deriveStatusPill({ configured: true, joined: false, peers: {} })
     expect(p.status).toBe('connecting')
-    expect(p.label).toBe('Connecting…')
+    expect(p.label).toBe('连接中…')
   })
 
   it('joined with no peers → solo but calm "Live" (success)', () => {
     const p = deriveStatusPill({ configured: true, joined: true, peers: {} })
     expect(p.status).toBe('solo')
-    expect(p.label).toBe('Live')
+    expect(p.label).toBe('实时')
     expect(p.tone).toBe('success')
   })
 
   it('one connected peer → Live (success)', () => {
     const p = deriveStatusPill({ configured: true, joined: true, peers: { a: 'connected' } })
     expect(p.status).toBe('live')
-    expect(p.label).toBe('Live')
+    expect(p.label).toBe('实时')
     expect(p.tone).toBe('success')
   })
 
@@ -68,7 +68,7 @@ describe('deriveStatusPill — status-pill state mapping', () => {
   it('joined, peer went pending (dropped) → Reconnecting (warning)', () => {
     const p = deriveStatusPill({ configured: true, joined: true, peers: { a: 'reconnecting' } })
     expect(p.status).toBe('reconnecting')
-    expect(p.label).toBe('Reconnecting…')
+    expect(p.label).toBe('重新连接中…')
     expect(p.tone).toBe('warning')
   })
 
@@ -86,7 +86,7 @@ describe('deriveStatusPill — status-pill state mapping', () => {
     // merged, which is exactly the silence this state exists to break.
     expect(deriveStatusPill({
       configured: true, joined: true, peers: { p1: 'connected' }, engineMismatch: true,
-    })).toEqual({ status: 'mismatch', label: 'Not syncing', tone: 'danger' })
+    })).toEqual({ status: 'mismatch', label: '未同步', tone: 'danger' })
 
     // Including over readOnly: a view-only peer in a mismatched room is still in
     // a room that will not converge.
@@ -97,7 +97,7 @@ describe('deriveStatusPill — status-pill state mapping', () => {
 
   it('engineMismatch defaults false, so every existing caller is unchanged', () => {
     expect(deriveStatusPill({ configured: true, joined: true, peers: { p1: 'connected' } }))
-      .toEqual({ status: 'live', label: 'Live', tone: 'success' })
+      .toEqual({ status: 'live', label: '实时', tone: 'success' })
   })
 
   it('empty opts defaults to offline', () => {
@@ -142,7 +142,7 @@ describe('getCollabIdentity', () => {
     const id = getCollabIdentity('replica-abc')
     expect(id.accountId).toBe('guest:replica-abc')
     expect(id.isGuest).toBe(true)
-    expect(id.displayName).toBe('Me')
+    expect(id.displayName).toBe('我')
   })
 
   it('tolerates a corrupt identity blob (falls back to guest)', () => {

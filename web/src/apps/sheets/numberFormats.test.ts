@@ -19,7 +19,7 @@ const asObj = (cell: CellEntry | undefined): CellObject => cell!.v as CellObject
 
 describe('presetById / ctForPreset', () => {
   it('resolves known preset', () => {
-    expect(presetById('currency')!.label).toBe('Currency ($)')
+    expect(presetById('currency')!.label).toBe('货币 ($)')
   })
   it('unknown → null', () => {
     expect(presetById('nope')).toBeNull()

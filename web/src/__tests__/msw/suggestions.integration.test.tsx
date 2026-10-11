@@ -97,6 +97,6 @@ describe('Suggestions (MSW integration)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Accept/i }))
     // Default tab is Pending; once accepted, the empty-state copy shows.
     await waitFor(() =>
-      expect(screen.getByText('No pending suggestions.')).toBeInTheDocument())
+      expect(screen.getByText('暂无待处理的建议。')).toBeInTheDocument())
   })
 })

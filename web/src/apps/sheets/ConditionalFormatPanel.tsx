@@ -86,11 +86,11 @@ export function parseRange(text: string): ParsedRangeRect[] {
 
 // Condition menu, grouped exactly as Sheets groups it.
 const KIND_GROUPS = [
-  { label: 'Cell value',   kinds: CS_SINGLE_KINDS.filter((k) => CS_KIND_META[k].group === 'value') },
-  { label: 'Text',         kinds: CS_SINGLE_KINDS.filter((k) => CS_KIND_META[k].group === 'text') },
-  { label: 'Date',         kinds: CS_SINGLE_KINDS.filter((k) => CS_KIND_META[k].group === 'date') },
-  { label: 'Other',        kinds: CS_SINGLE_KINDS.filter((k) => CS_KIND_META[k].group === 'other') },
-  { label: 'Scales & bars', kinds: CS_SCALE_KINDS },
+  { label: '单元格值',     kinds: CS_SINGLE_KINDS.filter((k) => CS_KIND_META[k].group === 'value') },
+  { label: '文本',         kinds: CS_SINGLE_KINDS.filter((k) => CS_KIND_META[k].group === 'text') },
+  { label: '日期',         kinds: CS_SINGLE_KINDS.filter((k) => CS_KIND_META[k].group === 'date') },
+  { label: '其他',         kinds: CS_SINGLE_KINDS.filter((k) => CS_KIND_META[k].group === 'other') },
+  { label: '色阶与数据条', kinds: CS_SCALE_KINDS },
 ]
 
 interface EditRuleState {
@@ -198,8 +198,8 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
   return (
     <div className="flex flex-col w-full sm:w-80 flex-shrink-0 h-full border-l border-line bg-paper overflow-y-auto">
       <div className="flex items-center justify-between px-3 py-2 border-b border-line">
-        <span className="text-xs font-semibold text-ink tracking-tightish">Conditional formatting</span>
-        <IconButton size="sm" title="Close" onClick={onClose}><X size={13} /></IconButton>
+        <span className="text-xs font-semibold text-ink tracking-tightish">条件格式</span>
+        <IconButton size="sm" title="关闭" onClick={onClose}><X size={13} /></IconButton>
       </div>
 
       <div className="flex-1 px-3 py-3 space-y-3 text-xs overflow-y-auto">
@@ -208,8 +208,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
           <>
             {rules.length === 0 && (
               <p className="text-ink-faint">
-                No rules yet. Highlight cells by value, text, date, emptiness or a formula —
-                or add a colour scale that updates live with your data.
+                暂无规则。可按数值、文本、日期、空值或公式高亮单元格，也可添加随数据实时更新的色阶。
               </p>
             )}
 
@@ -222,28 +221,28 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                 </span>
                 <button
                   onClick={() => startEdit(rule)}
-                  aria-label={`Edit rule: ${colorScaleSummary(rule)}`}
+                  aria-label={`编辑规则：${colorScaleSummary(rule)}`}
                   className="text-ink-faint hover:text-ink rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
                 ><Pencil size={11} /></button>
                 <button
                   onClick={() => remove(rule.id)}
-                  aria-label={`Delete rule: ${colorScaleSummary(rule)}`}
+                  aria-label={`删除规则：${colorScaleSummary(rule)}`}
                   className="text-ink-faint hover:text-danger rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
                 ><Trash2 size={11} /></button>
               </div>
             ))}
 
             <Button variant="secondary" size="sm" onClick={startNew} className="w-full">
-              <Plus size={11} className="mr-1" /> Add rule
+              <Plus size={11} className="mr-1" /> 添加规则
             </Button>
 
             {rules.length > 1 && (
-              <p className="text-ink-faint text-[10px]">Later rules win where two rules cover the same cell.</p>
+              <p className="text-ink-faint text-[10px]">当两条规则作用于同一单元格时，后添加的规则优先生效。</p>
             )}
 
             {legacy.length > 0 && (
               <div className="border-t border-line pt-3 space-y-2">
-                <p className="font-medium text-ink-muted">Imported rules</p>
+                <p className="font-medium text-ink-muted">已导入的规则</p>
                 {legacy.map((r: NativeConditionFormat, i) => (
                   <div key={i} className="flex items-center gap-1.5 border border-line rounded-md px-2 py-1.5">
                     <span
@@ -256,7 +255,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                     </span>
                     <button
                       onClick={() => removeLegacy(i)}
-                      aria-label="Delete imported rule"
+                      aria-label="删除已导入的规则"
                       className="text-ink-faint hover:text-danger rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
                     ><Trash2 size={11} /></button>
                   </div>
@@ -270,19 +269,19 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
         {edit !== null && meta && (
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="cf-range">Apply to range</label>
+              <label className="block text-ink-muted font-medium" htmlFor="cf-range">应用到区域</label>
               <input
                 id="cf-range"
                 value={edit.range}
                 onChange={(e) => patch({ range: e.target.value })}
                 className={inputCls}
-                placeholder="e.g. A1:A20"
+                placeholder="例如 A1:A20"
                 autoFocus
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="cf-kind">Format cells if…</label>
+              <label className="block text-ink-muted font-medium" htmlFor="cf-kind">当单元格满足以下条件时设置格式…</label>
               <select
                 id="cf-kind"
                 value={edit.kind}
@@ -300,7 +299,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
             {/* Operands */}
             {meta.input === 'formula' && (
               <div className="space-y-1">
-                <label className="block text-ink-muted font-medium" htmlFor="cf-formula">Custom formula</label>
+                <label className="block text-ink-muted font-medium" htmlFor="cf-formula">自定义公式</label>
                 <input
                   id="cf-formula"
                   value={edit.formula}
@@ -310,7 +309,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                   spellCheck={false}
                 />
                 <p className="text-ink-faint text-[10px]">
-                  Relative to the first cell of the range. Use $ to anchor a row or column.
+                  相对于区域的第一个单元格。使用 $ 可锁定行或列。
                 </p>
               </div>
             )}
@@ -319,7 +318,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
               <div className="flex gap-2">
                 <div className="flex-1 space-y-1">
                   <label className="block text-ink-muted font-medium" htmlFor="cf-value1">
-                    {meta.args === 2 ? 'From' : 'Value'}
+                    {meta.args === 2 ? '起始值' : '值'}
                   </label>
                   <input
                     id="cf-value1"
@@ -328,12 +327,12 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                     value={edit.value1}
                     onChange={(e) => patch({ value1: e.target.value })}
                     className={inputCls}
-                    placeholder={meta.input === 'number' ? '10' : 'Value'}
+                    placeholder={meta.input === 'number' ? '10' : '值'}
                   />
                 </div>
                 {meta.args === 2 && (
                   <div className="flex-1 space-y-1">
-                    <label className="block text-ink-muted font-medium" htmlFor="cf-value2">To</label>
+                    <label className="block text-ink-muted font-medium" htmlFor="cf-value2">结束值</label>
                     <input
                       id="cf-value2"
                       type={meta.input === 'date' ? 'date' : 'text'}
@@ -341,7 +340,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                       value={edit.value2}
                       onChange={(e) => patch({ value2: e.target.value })}
                       className={inputCls}
-                      placeholder={meta.input === 'number' ? '20' : 'Value'}
+                      placeholder={meta.input === 'number' ? '20' : '值'}
                     />
                   </div>
                 )}
@@ -350,12 +349,12 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
 
             {/* Formatting style */}
             <div className="space-y-2 border-t border-line pt-2">
-              <p className="font-medium text-ink-muted">Formatting style</p>
+              <p className="font-medium text-ink-muted">格式样式</p>
 
               {isSingleKind(edit.kind) ? (
                 <>
                   <div className="flex items-center gap-2">
-                    <label className="text-ink-muted w-20" htmlFor="cf-fill">Fill</label>
+                    <label className="text-ink-muted w-20" htmlFor="cf-fill">填充色</label>
                     <input
                       id="cf-fill" type="color" value={edit.fill}
                       onChange={(e) => patch({ fill: e.target.value })}
@@ -369,7 +368,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-ink-muted w-20" htmlFor="cf-text">Text color</label>
+                    <label className="text-ink-muted w-20" htmlFor="cf-text">文字颜色</label>
                     <input
                       id="cf-text" type="color" value={edit.textColor || '#000000'}
                       onChange={(e) => patch({ textColor: e.target.value })}
@@ -380,14 +379,14 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                         onClick={() => patch({ textColor: '' })}
                         className="text-ink-faint hover:text-ink underline rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
                       >
-                        Keep original
+                        保留原样
                       </button>
                     )}
                   </div>
                 </>
               ) : edit.kind === 'dataBar' ? (
                 <div className="flex items-center gap-2">
-                  <label className="text-ink-muted w-20" htmlFor="cf-bar">Bar color</label>
+                  <label className="text-ink-muted w-20" htmlFor="cf-bar">数据条颜色</label>
                   <input
                     id="cf-bar" type="color" value={edit.barColor}
                     onChange={(e) => patch({ barColor: e.target.value })}
@@ -397,7 +396,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
               ) : (
                 <>
                   <div className="flex items-center gap-2">
-                    <label className="text-ink-muted w-20" htmlFor="cf-min">Min color</label>
+                    <label className="text-ink-muted w-20" htmlFor="cf-min">最小值颜色</label>
                     <input
                       id="cf-min" type="color" value={edit.min}
                       onChange={(e) => patch({ min: e.target.value })}
@@ -406,7 +405,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                   </div>
                   {edit.kind === 'colorScale3' && (
                     <div className="flex items-center gap-2">
-                      <label className="text-ink-muted w-20" htmlFor="cf-mid">Mid color</label>
+                      <label className="text-ink-muted w-20" htmlFor="cf-mid">中间值颜色</label>
                       <input
                         id="cf-mid" type="color" value={edit.mid}
                         onChange={(e) => patch({ mid: e.target.value })}
@@ -415,7 +414,7 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
                     </div>
                   )}
                   <div className="flex items-center gap-2">
-                    <label className="text-ink-muted w-20" htmlFor="cf-max">Max color</label>
+                    <label className="text-ink-muted w-20" htmlFor="cf-max">最大值颜色</label>
                     <input
                       id="cf-max" type="color" value={edit.max}
                       onChange={(e) => patch({ max: e.target.value })}
@@ -433,8 +432,8 @@ export default function ConditionalFormatPanel({ data, onClose, onChange, onColo
             )}
 
             <div className="flex gap-2">
-              <Button variant="primary"   size="sm" onClick={save}              className="flex-1">Save</Button>
-              <Button variant="secondary" size="sm" onClick={() => setEdit(null)} className="flex-1">Cancel</Button>
+              <Button variant="primary"   size="sm" onClick={save}              className="flex-1">保存</Button>
+              <Button variant="secondary" size="sm" onClick={() => setEdit(null)} className="flex-1">取消</Button>
             </div>
           </div>
         )}

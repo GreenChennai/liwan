@@ -67,7 +67,7 @@ export default function WhiteboardEditor() {
 
   const { files, saveFileWithDraft, markDirty } = useFilesStore()
   const [file, setFile] = useState<LiwanFile | undefined>(files.find((f) => f.id === id))
-  const [title, setTitle] = useState(file?.name || 'Untitled whiteboard')
+  const [title, setTitle] = useState(file?.name || '未命名白板')
   const [saveStatus, setSaveStatus] = useState(getSaveState(id as string))
   const [seeded, setSeeded] = useState(false)
   const [showShare, setShowShare] = useState(false)
@@ -100,7 +100,7 @@ export default function WhiteboardEditor() {
   useEffect(() => {
     if (file || !id) return
     api.getFile(id)
-      .then((f) => { const loaded = f as LiwanFile; setFile(loaded); setTitle(loaded.name || 'Untitled whiteboard') })
+      .then((f) => { const loaded = f as LiwanFile; setFile(loaded); setTitle(loaded.name || '未命名白板') })
       .catch(() => navigate('/whiteboards'))
   }, [id, file, navigate])
 
@@ -192,9 +192,7 @@ export default function WhiteboardEditor() {
   useEffect(() => {
     if (!p2p.inviteIgnored) return
     showToast(
-      'This is a collaboration invite link, but live co-editing is turned off on ' +
-      'this deployment — it cannot connect you to the other editor. You are viewing ' +
-      'your own copy of the whiteboard.',
+      '这是一个协作邀请链接，但本部署已关闭实时协作，无法连接到其他编辑者。您当前查看的是自己的白板副本。',
       'error',
     )
   }, [p2p.inviteIgnored, showToast])
@@ -202,10 +200,9 @@ export default function WhiteboardEditor() {
   useEffect(() => {
     if (!p2p.peeringUnavailable) return
     showToast(
-      "This invite link needs P2P collaboration support this server doesn't provide " +
-      '(standalone deployment, no rendezvous URL configured). Ask the whiteboard owner to ' +
-      'share your account instead, host Office behind a Vulos OS/Relay server, or point ' +
-      'this deployment at a self-hosted relayd.',
+      '此邀请链接需要本服务器不提供的点对点协作支持（独立部署且未配置会合 URL）。' +
+      '请让白板所有者改为直接分享其账号，或将 Office 部署在 Vulos OS/Relay 服务器之后，' +
+      '或将本部署指向自建的 relayd。',
       'error',
     )
   }, [p2p.peeringUnavailable, showToast])
@@ -225,7 +222,7 @@ export default function WhiteboardEditor() {
       const message = (err as { message?: string } | null | undefined)?.message
       if (message === 'peering-unavailable') setShowShare(true) // modal explains
       else if (message !== 'collab-disabled') {
-        showToast('Could not start a collaboration room.', 'error')
+        showToast('无法启动协作房间。', 'error')
       }
     }
   }
@@ -233,13 +230,13 @@ export default function WhiteboardEditor() {
   if (!id) return null
 
   const saveStatusText =
-    saveStatus.status === 'error' ? 'Save failed — retrying' : undefined
+    saveStatus.status === 'error' ? '保存失败，正在重试' : undefined
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-bg" data-testid="whiteboard-editor">
       <Topbar
         leading={
-          <Tooltip label="Back to Whiteboards">
+          <Tooltip label="返回白板列表">
             <IconButton size="sm" onClick={() => void navigate('/whiteboards')}>
               <ArrowLeft size={15} />
             </IconButton>
@@ -249,8 +246,8 @@ export default function WhiteboardEditor() {
           <input
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Untitled whiteboard"
-            aria-label="Whiteboard title"
+            placeholder="未命名白板"
+            aria-label="白板标题"
             className={[
               'flex-1 min-w-0 text-sm font-semibold tracking-tightish',
               'bg-transparent border border-transparent rounded-sm px-2 py-1',
@@ -276,51 +273,51 @@ export default function WhiteboardEditor() {
                   data-testid="collab-off-pill"
                 >
                   <Users size={11} />
-                  Live co-editing off
+                  实时协作已关闭
                 </span>
               </Tooltip>
             )}
             {collabEnabled && p2p.active && (
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-pill bg-accent-tint text-accent-press"
-                title={`Peer-to-peer collaboration (${p2p.peerCount} peer(s), end-to-end encrypted)`}
+                title={`点对点协作（${p2p.peerCount} 位协作者，端到端加密）`}
               >
                 <Users size={11} />
                 {p2p.peerCount} · P2P
               </span>
             )}
             {collabEnabled && p2p.peeringUnavailable && !p2p.active && (
-              <Tooltip label="This deployment has no reachable peer-to-peer transport (no peering fabric, no rendezvous URL configured), so live co-editing is unavailable. Your changes still save.">
+              <Tooltip label="本部署没有可用的点对点传输（未配置对等网络或会合 URL），因此无法实时协作。您的更改仍会保存。">
                 <span
                   className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-pill bg-bg-elev2 text-ink-muted border border-line"
                   data-testid="whiteboard-offline-pill"
                 >
                   <WifiOff size={11} />
-                  Offline
+                  离线
                 </span>
               </Tooltip>
             )}
             {p2p.readOnly && (
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-pill bg-bg-elev2 text-ink-muted border border-line"
-                title="You joined with a view-only link — you can watch live edits but not change the whiteboard."
+                title="您通过只读链接加入——可以观看实时编辑，但不能修改白板。"
               >
                 <Eye size={11} />
-                View only
+                仅查看
               </span>
             )}
           </>
         }
         actions={
           <>
-            <Tooltip label="Built on Excalidraw (MIT)">
+            <Tooltip label="基于 Excalidraw（MIT）构建">
               <span className="hidden md:inline-flex items-center gap-1 px-1.5 py-0.5 text-2xs text-ink-faint">
                 <Info size={11} />
                 Excalidraw · MIT
               </span>
             </Tooltip>
             {collabEnabled && !p2p.readOnly && (
-              <Tooltip label="Collaborate via end-to-end-encrypted link">
+              <Tooltip label="通过端到端加密链接协作">
                 <IconButton size="sm" active={showShare} onClick={() => void startShare()}>
                   <Share2 size={14} />
                 </IconButton>
@@ -332,8 +329,8 @@ export default function WhiteboardEditor() {
 
       <div className="flex-1 relative min-h-0" style={{ position: 'relative' }}>
         {!seeded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-bg z-10" role="status" aria-label="Opening whiteboard…">
-            <LoadingState label="Opening whiteboard…" />
+          <div className="absolute inset-0 flex items-center justify-center bg-bg z-10" role="status" aria-label="正在打开白板…">
+            <LoadingState label="正在打开白板…" />
           </div>
         )}
         <Excalidraw
@@ -365,8 +362,8 @@ export default function WhiteboardEditor() {
 
       {/* MIT attribution — the whiteboard is built on the Excalidraw editor. */}
       <span className="sr-only">
-        Whiteboards are built on Excalidraw, MIT-licensed
-        (https://github.com/excalidraw/excalidraw).
+        白板基于 Excalidraw 构建，采用 MIT 许可证
+        (https://github.com/excalidraw/excalidraw)。
       </span>
     </div>
   )

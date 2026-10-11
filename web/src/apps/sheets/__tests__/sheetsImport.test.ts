@@ -170,7 +170,7 @@ describe('sheets import — zip-bomb rejected BEFORE SheetJS parses', () => {
     const file = new File([cast<BlobPart>(bomb)], 'bomb.xlsx')
     const err = await convertToSheetContent(file).then(() => null, (e: unknown) => e)
     expect(err).toBeInstanceOf(ImportError)
-    expect((err as ImportError).message).toMatch(/decompress|too large|zip-bomb/i)  // from the pre-check, not SheetJS
+    expect((err as ImportError).message).toMatch(/解压后过大/)  // from the pre-check, not SheetJS
   })
 
   it('rejects a lying-central-directory oversize .ods before the heavy parse', async () => {
@@ -178,6 +178,6 @@ describe('sheets import — zip-bomb rejected BEFORE SheetJS parses', () => {
     const file = new File([cast<BlobPart>(bomb)], 'bomb.ods')
     const err = await convertToSheetContent(file).then(() => null, (e: unknown) => e)
     expect(err).toBeInstanceOf(ImportError)
-    expect((err as ImportError).message).toMatch(/decompress|too large|zip-bomb/i)
+    expect((err as ImportError).message).toMatch(/解压后过大/)
   })
 })

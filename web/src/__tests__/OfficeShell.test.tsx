@@ -45,9 +45,9 @@ describe('OfficeShell', () => {
       )
     })
     // Canonical Layout/Sidebar nav — not the old divergent top-nav.
-    expect(screen.getByText('Docs')).toBeTruthy()
-    expect(screen.getByText('Sheets')).toBeTruthy()
-    expect(screen.getByText('Slides')).toBeTruthy()
+    expect(screen.getByText('文档')).toBeTruthy()
+    expect(screen.getByText('表格')).toBeTruthy()
+    expect(screen.getByText('幻灯片')).toBeTruthy()
     expect(screen.getByText('PDF')).toBeTruthy()
   })
 

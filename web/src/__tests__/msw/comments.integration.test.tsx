@@ -29,11 +29,11 @@ describe('Comments (MSW integration)', () => {
 
   it('starts empty, then adds a comment that persists to the server', async () => {
     render(<CommentsPanel fileId="doc1" anchorCtx={anchorCtx} authorId="alice" onClose={() => {}} />)
-    await waitFor(() => expect(screen.getByText('No comments yet.')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('暂无评论。')).toBeInTheDocument())
 
-    const box = screen.getByPlaceholderText('Add a comment…')
+    const box = screen.getByPlaceholderText('添加评论…')
     await userEvent.type(box, 'Needs a citation')
-    fireEvent.click(screen.getByRole('button', { name: /^Comment$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^评论$/ }))
 
     await waitFor(() => expect(screen.getByText('Needs a citation')).toBeInTheDocument())
     // Server received the create.
@@ -54,13 +54,13 @@ describe('Comments (MSW integration)', () => {
     await waitFor(() => expect(screen.getByText('Fix wording')).toBeInTheDocument())
 
     // Resolve.
-    fireEvent.click(screen.getByRole('button', { name: /Resolve/i }))
-    await waitFor(() => expect(screen.getByText('Resolved')).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: /标记为已解决/ }))
+    await waitFor(() => expect(screen.getByText('已解决')).toBeInTheDocument())
     expect(mockState.calls).toContain('PUT /files/doc1/comments/c1')
     expect(mockState.comments.doc1[0].state).toBe('resolved')
 
     // Reopen.
-    fireEvent.click(screen.getByRole('button', { name: /Reopen/i }))
+    fireEvent.click(screen.getByRole('button', { name: /重新打开/ }))
     await waitFor(() => expect(mockState.comments.doc1[0].state).toBe('open'))
   })
 
@@ -73,9 +73,9 @@ describe('Comments (MSW integration)', () => {
     render(<CommentsPanel fileId="doc1" anchorCtx={anchorCtx} authorId="bob" onClose={() => {}} />)
     await waitFor(() => expect(screen.getByText('Top comment')).toBeInTheDocument())
 
-    const replyBox = screen.getByPlaceholderText('Reply…')
+    const replyBox = screen.getByPlaceholderText('回复…')
     await userEvent.type(replyBox, 'Agreed')
-    fireEvent.click(screen.getByRole('button', { name: /Post reply/i }))
+    fireEvent.click(screen.getByRole('button', { name: /发送回复/ }))
 
     await waitFor(() => expect(screen.getByText('Agreed')).toBeInTheDocument())
     expect(mockState.calls).toContain('POST /files/doc1/comments/c1/replies')
@@ -95,16 +95,16 @@ describe('Comments (MSW integration)', () => {
     await waitFor(() => expect(screen.getByText('Do this')).toBeInTheDocument())
 
     // Open the assign menu and pick bob.
-    fireEvent.click(screen.getByRole('button', { name: /^Assign$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^指派$/ }))
     fireEvent.click(await screen.findByRole('button', { name: /bob/i }))
 
     await waitFor(() => expect(mockState.comments.doc1[0].assignee).toBe('bob'))
     expect(mockState.calls).toContain('PUT /files/doc1/comments/c1')
     // The assignee badge shows.
-    await waitFor(() => expect(screen.getByTitle('Assigned to bob')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByTitle('已指派给 bob')).toBeInTheDocument())
 
     // Resolving the thread clears the assignment (server-side + reflected here).
-    fireEvent.click(screen.getByRole('button', { name: /Resolve/i }))
+    fireEvent.click(screen.getByRole('button', { name: /标记为已解决/ }))
     await waitFor(() => expect(mockState.comments.doc1[0].state).toBe('resolved'))
     expect(mockState.comments.doc1[0].assignee).toBe('')
   })
@@ -118,7 +118,7 @@ describe('Comments (MSW integration)', () => {
     await waitFor(() => expect(screen.getByText('Open one')).toBeInTheDocument())
 
     // Switch to Resolved tab → only the resolved comment shows.
-    fireEvent.click(screen.getByRole('tab', { name: /Resolved/i }))
+    fireEvent.click(screen.getByRole('tab', { name: /已解决/ }))
     await waitFor(() => expect(screen.queryByText('Open one')).not.toBeInTheDocument())
     expect(screen.getByText('Done one')).toBeInTheDocument()
   })

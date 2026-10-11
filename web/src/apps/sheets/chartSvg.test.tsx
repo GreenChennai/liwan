@@ -244,7 +244,7 @@ describe('WAVE-64 chart types render', () => {
     const { container } = render(<ChartSvg chart={chart} sheet={sheet} width={420} height={280} />)
     expect(container.querySelector('[data-testid="histogram"]')).toBeTruthy()
     expect(container.querySelectorAll('[data-testid="histogram"] rect')).toHaveLength(3)  // one bar per bin
-    expect(container.textContent).toContain('Frequency')                // default y label
+    expect(container.textContent).toContain('频次')                     // default y label
     // Bars are adjacent (bin i+1 starts where bin i ends, within the 1px gutter).
     const rects = [...container.querySelectorAll('[data-testid="histogram"] rect')]
     const x0 = Number(rects[0].getAttribute('x')), w0 = Number(rects[0].getAttribute('width'))

@@ -40,15 +40,15 @@ export interface ChartWizardProps {
 // a non-obvious way (scatter/bubble/histogram) MUST say so, or the user just
 // sees a wrong-looking chart and no explanation.
 const TYPE_HINT: Record<string, string> = {
-  scatter:   'Scatter plots the 1st column as X and the 2nd as Y. Turn off “First column = labels”.',
-  bubble:    'Bubble plots three numeric columns as X, Y and bubble size. Turn off “First column = labels”.',
-  histogram: 'Histogram bins the FIRST numeric column into buckets and plots how often values fall in each.',
-  combo:     'Combo draws the 1st series as columns and every other series as a line.',
-  'column-stacked': 'Series stack on top of each other; the axis shows the category total.',
-  'bar-stacked':    'Series stack end to end; the axis shows the category total.',
-  'column-100':     'Each category is normalised to 100% — compares composition, not magnitude.',
-  'bar-100':        'Each category is normalised to 100% — compares composition, not magnitude.',
-  donut:     'Donut plots the first series as a share of the total, with the total in the middle.',
+  scatter:   '散点图将第 1 列作为 X、第 2 列作为 Y 绘制。请取消勾选“第一列 = 标签”。',
+  bubble:    '气泡图将三列数值分别作为 X、Y 和气泡大小绘制。请取消勾选“第一列 = 标签”。',
+  histogram: '直方图将第一个数值列分入若干分箱，并绘制每个分箱中数值出现的频次。',
+  combo:     '组合图将第 1 个系列绘制为柱形，其余每个系列绘制为折线。',
+  'column-stacked': '各系列依次堆叠在彼此之上；坐标轴显示各类别的合计。',
+  'bar-stacked':    '各系列首尾相接堆叠；坐标轴显示各类别的合计。',
+  'column-100':     '每个类别归一化为 100%——比较的是构成比例，而非绝对数值。',
+  'bar-100':        '每个类别归一化为 100%——比较的是构成比例，而非绝对数值。',
+  donut:     '环形图将第一个系列绘制为占总数的份额，并在中间显示总数。',
 }
 
 /**
@@ -137,20 +137,20 @@ export default function ChartWizard({ data, chart, selectionRect, onClose, onCha
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={editing ? 'Edit chart' : 'Insert chart'}
+        aria-label={editing ? '编辑图表' : '插入图表'}
         className="bg-paper rounded-xl border border-line shadow-e3 w-[480px] max-h-[85vh] flex flex-col overflow-hidden animate-scale-in"
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-line">
           <span className="text-sm font-semibold text-ink flex items-center gap-2">
-            <BarChart2 size={14} className="text-accent" aria-hidden /> {editing ? 'Edit chart' : 'Insert chart'}
+            <BarChart2 size={14} className="text-accent" aria-hidden /> {editing ? '编辑图表' : '插入图表'}
           </span>
-          <IconButton size="sm" title="Close" onClick={onClose}><X size={13} /></IconButton>
+          <IconButton size="sm" title="关闭" onClick={onClose}><X size={13} /></IconButton>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 text-xs">
           <div className="space-y-2">
-            <p className="text-ink-muted font-medium">Chart type</p>
-            <div role="radiogroup" aria-label="Chart type" className="space-y-2">
+            <p className="text-ink-muted font-medium">图表类型</p>
+            <div role="radiogroup" aria-label="图表类型" className="space-y-2">
               {CHART_TYPE_GROUPS.map((g) => (
                 <div key={g.group} className="space-y-1">
                   <p className="text-2xs uppercase tracking-eyebrow text-ink-faint">{g.group}</p>
@@ -185,45 +185,45 @@ export default function ChartWizard({ data, chart, selectionRect, onClose, onCha
           </div>
 
           <div className="space-y-1">
-            <label className="block text-ink-muted font-medium" htmlFor="chart-range">Data range</label>
+            <label className="block text-ink-muted font-medium" htmlFor="chart-range">数据范围</label>
             <div className="flex gap-1.5">
               <input
                 id="chart-range"
                 value={range}
                 onChange={(e) => setRange(e.target.value)}
                 className={inputCls}
-                placeholder="e.g. A1:D10"
+                placeholder="例如 A1:D10"
               />
-              <Button variant="secondary" size="sm" onClick={useSelection} title="Use current selection">Use selection</Button>
+              <Button variant="secondary" size="sm" onClick={useSelection} title="使用当前选区">使用选区</Button>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex items-center gap-2 text-ink-muted">
               <input type="checkbox" checked={headerRow} onChange={(e) => setHeaderRow(e.target.checked)} />
-              First row = series names
+              第一行 = 系列名称
             </label>
             <label className="flex items-center gap-2 text-ink-muted">
               <input type="checkbox" checked={headerCol} onChange={(e) => setHeaderCol(e.target.checked)} />
-              First column = labels
+              第一列 = 标签
             </label>
           </div>
 
           <div className="space-y-1">
-            <label className="block text-ink-muted font-medium" htmlFor="chart-title">Chart title</label>
-            <input id="chart-title" value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls} placeholder="Optional title" />
+            <label className="block text-ink-muted font-medium" htmlFor="chart-title">图表标题</label>
+            <input id="chart-title" value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls} placeholder="可选标题" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="chart-x">X-axis label</label>
+              <label className="block text-ink-muted font-medium" htmlFor="chart-x">X 轴标签</label>
               <input id="chart-x" value={xLabel} onChange={(e) => setXLabel(e.target.value)} className={inputCls}
-                     placeholder={isHistogram ? 'Value' : 'X axis'} />
+                     placeholder={isHistogram ? '数值' : 'X 轴'} />
             </div>
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="chart-y">Y-axis label</label>
+              <label className="block text-ink-muted font-medium" htmlFor="chart-y">Y 轴标签</label>
               <input id="chart-y" value={yLabel} onChange={(e) => setYLabel(e.target.value)} className={inputCls}
-                     placeholder={isHistogram ? 'Frequency' : 'Y axis'} />
+                     placeholder={isHistogram ? '频次' : 'Y 轴'} />
             </div>
           </div>
 
@@ -231,7 +231,7 @@ export default function ChartWizard({ data, chart, selectionRect, onClose, onCha
           {isHistogram && (
             <div className="space-y-1">
               <label className="block text-ink-muted font-medium" htmlFor="chart-bins">
-                Buckets <span className="text-ink-faint font-normal">({HISTOGRAM_BINS_MIN}–{HISTOGRAM_BINS_MAX})</span>
+                分箱数 <span className="text-ink-faint font-normal">({HISTOGRAM_BINS_MIN}–{HISTOGRAM_BINS_MAX})</span>
               </label>
               <input
                 id="chart-bins" type="number" inputMode="numeric"
@@ -248,12 +248,12 @@ export default function ChartWizard({ data, chart, selectionRect, onClose, onCha
             <div className="space-y-2 rounded-lg border border-line p-2.5">
               <label className="flex items-center gap-2 text-ink-muted">
                 <input type="checkbox" checked={secondary} onChange={(e) => setSecondary(e.target.checked)} />
-                Plot line series on a secondary (right) axis
+                折线系列绘制在次坐标轴（右侧）
               </label>
               {secondary && (
                 <div className="space-y-1">
-                  <label className="block text-ink-muted font-medium" htmlFor="chart-y2">Secondary axis label</label>
-                  <input id="chart-y2" value={y2Label} onChange={(e) => setY2Label(e.target.value)} className={inputCls} placeholder="e.g. Margin %" />
+                  <label className="block text-ink-muted font-medium" htmlFor="chart-y2">次坐标轴标签</label>
+                  <input id="chart-y2" value={y2Label} onChange={(e) => setY2Label(e.target.value)} className={inputCls} placeholder="例如 利润率 %" />
                 </div>
               )}
             </div>
@@ -261,19 +261,19 @@ export default function ChartWizard({ data, chart, selectionRect, onClose, onCha
 
           {isStacked && (
             <p className="text-2xs text-ink-faint" role="note">
-              Negative values stack below the zero line — they are never dropped.
+              负值会堆叠在零线下方——不会被丢弃。
             </p>
           )}
 
           <label className="flex items-center gap-2 text-ink-muted">
             <input type="checkbox" checked={legend} onChange={(e) => setLegend(e.target.checked)} />
-            Show legend
+            显示图例
           </label>
         </div>
 
         <div className="flex items-center justify-between px-4 py-3 border-t border-line gap-2">
-          <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" size="sm" onClick={handleSubmit}>{editing ? 'Save chart' : 'Insert chart'}</Button>
+          <Button variant="secondary" size="sm" onClick={onClose}>取消</Button>
+          <Button variant="primary" size="sm" onClick={handleSubmit}>{editing ? '保存图表' : '插入图表'}</Button>
         </div>
       </div>
     </div>

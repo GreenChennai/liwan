@@ -129,17 +129,17 @@ const PIVOT_AGG_SET: Set<string> = new Set(PIVOT_AGGS)
 export const PIVOT_DISPLAYS: PivotDisplay[] = ['raw', 'pct_total', 'pct_row', 'pct_col']
 const PIVOT_DISPLAY_SET: Set<string> = new Set(PIVOT_DISPLAYS)
 export const PIVOT_DISPLAY_LABEL: Record<PivotDisplay, string> = {
-  raw:       'Value',
-  pct_total: '% of total',
-  pct_row:   '% of row',
-  pct_col:   '% of column',
+  raw:       '值',
+  pct_total: '占总计 %',
+  pct_row:   '占行 %',
+  pct_col:   '占列 %',
 }
 
 /** Date-grouping buckets (WAVE-64) for a row/column field holding dates. */
 export const PIVOT_GROUPINGS: PivotGrouping[] = ['none', 'day', 'month', 'quarter', 'year']
 const PIVOT_GROUPING_SET: Set<string> = new Set(PIVOT_GROUPINGS)
 export const PIVOT_GROUPING_LABEL: Record<PivotGrouping, string> = {
-  none: 'No grouping', day: 'By day', month: 'By month', quarter: 'By quarter', year: 'By year',
+  none: '不分组', day: '按日', month: '按月', quarter: '按季度', year: '按年',
 }
 
 // Only-numeric view of a group's values (blank/text rows are ignored, matching
@@ -611,7 +611,7 @@ export function computePivotModel(pivot: Pivot, sheet: PivotSheet | null | undef
     }
   }
   for (const spec of specs) {
-    header.push(multi ? `Total · ${valueLabel(spec, true)}` : 'Total')
+    header.push(multi ? `总计 · ${valueLabel(spec, true)}` : '总计')
     displays.push(spec.display)
   }
 
@@ -638,7 +638,7 @@ export function computePivotModel(pivot: Pivot, sheet: PivotSheet | null | undef
   }
 
   // ── Grand-total row ───────────────────────────────────────────────────────
-  const totRow: (string | number)[] = ['Total']
+  const totRow: (string | number)[] = ['总计']
   for (const cv of allCvs) {
     specs.forEach((spec, si) => {
       const raw = aggOf(rowsFor(rowArr, [cv]), spec)
@@ -715,7 +715,7 @@ export function pivotToSheet(pivot: Pivot, sheet: PivotSheet | null | undefined,
       })
     }
   }
-  const base = (name || `Pivot_${pivot.rowField}_${pivot.valueField}` || 'Pivot').slice(0, 31)
+  const base = (name || `数据透视表_${pivot.rowField}_${pivot.valueField}` || '数据透视表').slice(0, 31)
   return { name: base, celldata, config: {} }
 }
 

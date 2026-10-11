@@ -18,6 +18,7 @@ import { MASTER_LAYOUTS, type MasterLayout } from './themes'
 import { useDialogA11y } from '../../components/ui'
 
 const ALIGN_OPTIONS = ['left', 'center', 'right']
+const ALIGN_LABELS: Record<string, string> = { left: '左对齐', center: '居中', right: '右对齐' }
 
 interface MasterCardProps {
   master: MasterLayout
@@ -40,7 +41,7 @@ function MasterCard({ master, active, onClick }: MasterCardProps) {
     >
       <div className="text-xs font-semibold">{master.label}</div>
       <div className="text-2xs text-ink-faint mt-0.5">
-        Title @ {master.titleY} · Body @ {master.bodyY}
+        标题 @ {master.titleY} · 正文 @ {master.bodyY}
       </div>
     </button>
   )
@@ -85,7 +86,7 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-fade-in p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Master slide editor"
+      aria-label="幻灯片母版编辑器"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="bg-paper border border-line rounded-xl shadow-e3 w-[720px] max-w-full max-h-[90vh] flex flex-col overflow-hidden">
@@ -93,13 +94,13 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
         <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <div className="flex items-center gap-2">
             <Layout size={15} className="text-accent" />
-            <span className="font-semibold text-ink text-sm">Master Slide Editor</span>
+            <span className="font-semibold text-ink text-sm">幻灯片母版编辑器</span>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="text-ink-faint hover:text-ink p-1 rounded-md transition-colors"
-            aria-label="Close"
+            aria-label="关闭"
           >
             <X size={15} />
           </button>
@@ -109,7 +110,7 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
           {/* Master selector */}
           <aside className="w-52 border-r border-line p-3 space-y-2 flex-shrink-0">
             <p className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow mb-2">
-              Masters
+              母版
             </p>
             {localMasters.map((m) => (
               <MasterCard
@@ -120,8 +121,7 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
               />
             ))}
             <p className="text-2xs text-ink-faint mt-3 leading-relaxed">
-              Each slide is assigned one of these masters. Changes here propagate
-              to all slides using that master.
+              每张幻灯片都会应用其中一个母版。此处的更改会同步到所有使用该母版的幻灯片。
             </p>
           </aside>
 
@@ -133,20 +133,20 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                   {/* Title placeholder */}
                   <div className="space-y-2">
                     <h3 className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow">
-                      Title Placeholder
+                      标题占位符
                     </h3>
                     <div>
-                      <label className="block text-2xs text-ink-muted mb-1">Vertical position</label>
+                      <label className="block text-2xs text-ink-muted mb-1">垂直位置</label>
                       <input
                         type="text"
                         value={active.titleY}
                         onChange={(e) => updateActive('titleY', e.target.value)}
                         className="w-full bg-bg text-ink text-xs rounded-sm px-2 h-7 border border-line focus:border-accent outline-none"
-                        placeholder="e.g. 38%"
+                        placeholder="例如 38%"
                       />
                     </div>
                     <div>
-                      <label className="block text-2xs text-ink-muted mb-1">Text alignment</label>
+                      <label className="block text-2xs text-ink-muted mb-1">文本对齐</label>
                       <div className="flex gap-1">
                         {ALIGN_OPTIONS.map((a) => (
                           <button
@@ -161,7 +161,7 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                                 : 'border-line text-ink-muted hover:border-line-strong',
                             ].join(' ')}
                           >
-                            {a}
+                            {ALIGN_LABELS[a]}
                           </button>
                         ))}
                       </div>
@@ -171,20 +171,20 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                   {/* Body placeholder */}
                   <div className="space-y-2">
                     <h3 className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow">
-                      Body Placeholder
+                      正文占位符
                     </h3>
                     <div>
-                      <label className="block text-2xs text-ink-muted mb-1">Vertical position</label>
+                      <label className="block text-2xs text-ink-muted mb-1">垂直位置</label>
                       <input
                         type="text"
                         value={active.bodyY}
                         onChange={(e) => updateActive('bodyY', e.target.value)}
                         className="w-full bg-bg text-ink text-xs rounded-sm px-2 h-7 border border-line focus:border-accent outline-none"
-                        placeholder="e.g. 62%"
+                        placeholder="例如 62%"
                       />
                     </div>
                     <div>
-                      <label className="block text-2xs text-ink-muted mb-1">Text alignment</label>
+                      <label className="block text-2xs text-ink-muted mb-1">文本对齐</label>
                       <div className="flex gap-1">
                         {ALIGN_OPTIONS.map((a) => (
                           <button
@@ -199,7 +199,7 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                                 : 'border-line text-ink-muted hover:border-line-strong',
                             ].join(' ')}
                           >
-                            {a}
+                            {ALIGN_LABELS[a]}
                           </button>
                         ))}
                       </div>
@@ -211,14 +211,14 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow mb-1">
-                      Footer Text
+                      页脚文字
                     </label>
                     <input
                       type="text"
                       value={active.footerText}
                       onChange={(e) => updateActive('footerText', e.target.value)}
                       className="w-full bg-bg text-ink text-xs rounded-sm px-2 h-7 border border-line focus:border-accent outline-none"
-                      placeholder="Company name, date, etc."
+                      placeholder="公司名称、日期等"
                     />
                   </div>
                   <div className="flex items-end">
@@ -229,7 +229,7 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                         onChange={(e) => updateActive('showLogo', e.target.checked)}
                         className="rounded"
                       />
-                      <span className="text-xs text-ink">Show logo placeholder</span>
+                      <span className="text-xs text-ink">显示徽标占位符</span>
                     </label>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                 {/* Mini preview */}
                 <div>
                   <p className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow mb-2">
-                    Layout Preview
+                    版式预览
                   </p>
                   <div
                     className="relative rounded-lg border border-line bg-zinc-900 overflow-hidden"
@@ -248,14 +248,14 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                       className="absolute left-4 right-4 text-sm font-bold text-white"
                       style={{ top: active.titleY, textAlign: active.titleAlign }}
                     >
-                      Slide Title
+                      幻灯片标题
                     </div>
                     {/* body */}
                     <div
                       className="absolute left-4 right-4 text-xs text-white/60"
                       style={{ top: active.bodyY, textAlign: active.bodyAlign }}
                     >
-                      Body content placeholder
+                      正文内容占位符
                     </div>
                     {/* footer */}
                     {active.footerText && (
@@ -266,7 +266,7 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
                     {/* logo */}
                     {active.showLogo && (
                       <div className="absolute top-2 right-3 w-8 h-4 rounded-sm bg-white/20 flex items-center justify-center">
-                        <span className="text-[8px] text-white/50 font-bold">LOGO</span>
+                        <span className="text-[8px] text-white/50 font-bold">徽标</span>
                       </div>
                     )}
                     {/* safe-area lines */}
@@ -285,14 +285,14 @@ export default function MasterSlideEditor({ masters, onSave, onClose }: MasterSl
             onClick={onClose}
             className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-md border border-line hover:border-line-strong transition-colors"
           >
-            Cancel
+            取消
           </button>
           <button
             type="button"
             onClick={handleSave}
             className="text-xs bg-accent text-white px-4 py-1.5 rounded-md hover:bg-accent-hover transition-colors font-semibold focus-visible:outline-none focus-visible:shadow-focus"
           >
-            Save masters
+            保存母版
           </button>
         </div>
       </div>

@@ -275,16 +275,16 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
 
   const countLabel = term
     ? regexError
-      ? 'Invalid regex'
+      ? '正则表达式无效'
       : matches.length === 0
-        ? 'No results'
+        ? '无结果'
         : `${current + 1} / ${matches.length}`
     : ''
 
   return (
     <div
       role="dialog"
-      aria-label="Find and replace"
+      aria-label="查找和替换"
       className={[
         'absolute top-2 right-4 z-50 bg-paper border border-line rounded-lg shadow-e3',
         'flex flex-col gap-0 overflow-hidden animate-scale-in',
@@ -299,8 +299,8 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Find…"
-          aria-label="Search term"
+          placeholder="查找…"
+          aria-label="搜索内容"
           className={[
             'flex-1 min-w-0 text-sm bg-transparent outline-none placeholder:text-ink-faint',
             regexError ? 'text-danger' : 'text-ink',
@@ -314,7 +314,7 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
         )}
         {/* Case sensitive */}
         <button
-          title="Match case"
+          title="区分大小写"
           onClick={() => setCaseSensitive((v) => !v)}
           className={`flex-shrink-0 w-6 h-6 rounded-sm flex items-center justify-center text-2xs font-bold transition-colors ${caseSensitive ? 'bg-accent text-white' : 'text-ink-faint hover:bg-bg-elev2'}`}
           aria-pressed={caseSensitive}
@@ -323,7 +323,7 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
         </button>
         {/* Regex mode */}
         <button
-          title="Use regular expression"
+          title="使用正则表达式"
           onClick={() => setUseRegex((v) => !v)}
           className={`flex-shrink-0 w-6 h-6 rounded-sm flex items-center justify-center text-2xs font-mono font-bold transition-colors ${useRegex ? 'bg-accent text-white' : 'text-ink-faint hover:bg-bg-elev2'} ${regexError ? 'outline outline-1 outline-danger' : ''}`}
           aria-pressed={useRegex}
@@ -334,8 +334,8 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
         <button
           onClick={goPrev}
           disabled={matches.length === 0}
-          title="Previous match (Shift+Enter)"
-          aria-label="Previous match"
+          title="上一个匹配 (Shift+Enter)"
+          aria-label="上一个匹配"
           className="flex-shrink-0 w-6 h-6 rounded-sm flex items-center justify-center text-ink-faint hover:bg-bg-elev2 disabled:opacity-30 transition-colors"
         >
           <ChevronUp size={13} />
@@ -343,8 +343,8 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
         <button
           onClick={goNext}
           disabled={matches.length === 0}
-          title="Next match (Enter)"
-          aria-label="Next match"
+          title="下一个匹配 (Enter)"
+          aria-label="下一个匹配"
           className="flex-shrink-0 w-6 h-6 rounded-sm flex items-center justify-center text-ink-faint hover:bg-bg-elev2 disabled:opacity-30 transition-colors"
         >
           <ChevronDown size={13} />
@@ -352,8 +352,8 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
         {/* Toggle replace */}
         <button
           onClick={() => setMode((m) => (m === 'find' ? 'replace' : 'find'))}
-          title={mode === 'find' ? 'Show replace' : 'Hide replace'}
-          aria-label="Toggle replace"
+          title={mode === 'find' ? '显示替换' : '隐藏替换'}
+          aria-label="切换替换栏"
           className="flex-shrink-0 w-6 h-6 rounded-sm flex items-center justify-center text-ink-faint hover:bg-bg-elev2 transition-colors"
         >
           <Replace size={13} />
@@ -361,8 +361,8 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
         {/* Close */}
         <button
           onClick={onClose}
-          title="Close (Esc)"
-          aria-label="Close find bar"
+          title="关闭 (Esc)"
+          aria-label="关闭查找栏"
           className="flex-shrink-0 w-6 h-6 rounded-sm flex items-center justify-center text-ink-faint hover:bg-bg-elev2 transition-colors"
         >
           <X size={13} />
@@ -376,27 +376,27 @@ export default function FindReplace({ editor, mode: initialMode, onClose }: Find
             value={replace}
             onChange={(e) => setReplace(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}
-            placeholder="Replace with…"
-            aria-label="Replace with"
+            placeholder="替换为…"
+            aria-label="替换为"
             className="flex-1 min-w-0 text-sm bg-transparent outline-none text-ink placeholder:text-ink-faint"
           />
           <button
             onClick={doReplace}
             disabled={matches.length === 0}
-            title="Replace current"
-            aria-label="Replace"
+            title="替换当前"
+            aria-label="替换"
             className="flex-shrink-0 h-6 px-2 text-2xs font-medium rounded-sm border border-line text-ink-muted hover:bg-accent-tint disabled:opacity-30 transition-colors"
           >
-            Replace
+            替换
           </button>
           <button
             onClick={doReplaceAll}
             disabled={!term}
-            title="Replace all"
-            aria-label="Replace all"
+            title="全部替换"
+            aria-label="全部替换"
             className="flex-shrink-0 h-6 px-2 text-2xs font-medium rounded-sm border border-line text-ink-muted hover:bg-accent-tint disabled:opacity-30 transition-colors flex items-center gap-1"
           >
-            <ReplaceAll size={11} /> All
+            <ReplaceAll size={11} /> 全部
           </button>
         </div>
       )}

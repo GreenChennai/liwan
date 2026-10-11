@@ -43,7 +43,7 @@ describe('theme gallery', () => {
   it('getTheme returns correct theme by id', () => {
     const t = getTheme('slate')
     expect(t.id).toBe('slate')
-    expect(t.label).toBe('Slate Night')
+    expect(t.label).toBe('石板夜色')
     expect(t.dark).toBe(true)
   })
 
@@ -150,7 +150,7 @@ describe('transitions', () => {
 
     render(<TransitionPanel slide={slide} onChange={onChange} />)
 
-    const fadeBtn = screen.getByRole('button', { name: /fade/i })
+    const fadeBtn = screen.getByRole('button', { name: /淡入淡出/ })
     fireEvent.click(fadeBtn)
 
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ transition: 'fade' }))
@@ -167,9 +167,9 @@ describe('image insert', () => {
 
     render(<InsertPanel editor={mockEditor} onInsert={vi.fn()} api={mockApi} />)
 
-    expect(screen.getByTitle('Insert image')).toBeTruthy()
-    expect(screen.getByTitle('Insert video')).toBeTruthy()
-    expect(screen.getByTitle('Insert shape')).toBeTruthy()
+    expect(screen.getByTitle('插入图片')).toBeTruthy()
+    expect(screen.getByTitle('插入视频')).toBeTruthy()
+    expect(screen.getByTitle('插入形状')).toBeTruthy()
   })
 
   it('video URL parser detects YouTube embed', async () => {
@@ -187,10 +187,10 @@ describe('image insert', () => {
     )
 
     // Open video panel
-    fireEvent.click(screen.getByTitle('Insert video'))
+    fireEvent.click(screen.getByTitle('插入视频'))
     const input = screen.getByPlaceholderText(/youtube/i)
     fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' } })
-    fireEvent.click(screen.getByRole('button', { name: /^insert$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^插入$/ }))
 
     expect(insertedHtml.length).toBe(1)
     expect(insertedHtml[0]).toContain('youtube.com/embed/dQw4w9WgXcQ')

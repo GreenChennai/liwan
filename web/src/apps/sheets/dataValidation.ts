@@ -62,44 +62,44 @@ export interface ConditionMeta { value: string; label: string; needs: number }
 // Human-facing rule kinds → the native `type` / `type2` pair Fortune Sheet uses
 // in validateCellData(). We keep the surface small and Sheets-like.
 export const VALIDATION_KINDS = [
-  { value: 'dropdown',      label: 'Dropdown (list of items)' },
-  { value: 'dropdownRange', label: 'Dropdown (list from a range)' },
-  { value: 'checkbox',      label: 'Checkbox' },
-  { value: 'number',        label: 'Number' },
-  { value: 'date',          label: 'Date' },
-  { value: 'text',          label: 'Text' },
-  { value: 'textLength',    label: 'Text length' },
+  { value: 'dropdown',      label: '下拉列表（选项）' },
+  { value: 'dropdownRange', label: '下拉列表（来自区域）' },
+  { value: 'checkbox',      label: '复选框' },
+  { value: 'number',        label: '数字' },
+  { value: 'date',          label: '日期' },
+  { value: 'text',          label: '文本' },
+  { value: 'textLength',    label: '文本长度' },
 ]
 
 // number sub-conditions → native type2 tokens.
 export const NUMBER_CONDITIONS: ConditionMeta[] = [
-  { value: 'between',            label: 'between',                 needs: 2 },
-  { value: 'notBetween',         label: 'not between',             needs: 2 },
-  { value: 'equal',              label: 'is equal to',             needs: 1 },
-  { value: 'notEqualTo',         label: 'is not equal to',         needs: 1 },
-  { value: 'moreThanThe',        label: 'greater than',            needs: 1 },
-  { value: 'lessThan',           label: 'less than',               needs: 1 },
-  { value: 'greaterOrEqualTo',   label: 'greater than or equal',   needs: 1 },
-  { value: 'lessThanOrEqualTo',  label: 'less than or equal',      needs: 1 },
+  { value: 'between',            label: '介于',         needs: 2 },
+  { value: 'notBetween',         label: '不介于',       needs: 2 },
+  { value: 'equal',              label: '等于',         needs: 1 },
+  { value: 'notEqualTo',         label: '不等于',       needs: 1 },
+  { value: 'moreThanThe',        label: '大于',         needs: 1 },
+  { value: 'lessThan',           label: '小于',         needs: 1 },
+  { value: 'greaterOrEqualTo',   label: '大于或等于',   needs: 1 },
+  { value: 'lessThanOrEqualTo',  label: '小于或等于',   needs: 1 },
 ]
 
 // date sub-conditions → native type2 tokens (Fortune-Sheet compares with dayjs).
 export const DATE_CONDITIONS: ConditionMeta[] = [
-  { value: 'between',        label: 'between',        needs: 2 },
-  { value: 'notBetween',     label: 'not between',    needs: 2 },
-  { value: 'equal',          label: 'is',             needs: 1 },
-  { value: 'notEqualTo',     label: 'is not',         needs: 1 },
-  { value: 'earlierThan',    label: 'is before',      needs: 1 },
-  { value: 'noEarlierThan',  label: 'is on or after', needs: 1 },
-  { value: 'laterThan',      label: 'is after',       needs: 1 },
-  { value: 'noLaterThan',    label: 'is on or before', needs: 1 },
+  { value: 'between',        label: '介于',         needs: 2 },
+  { value: 'notBetween',     label: '不介于',       needs: 2 },
+  { value: 'equal',          label: '是',           needs: 1 },
+  { value: 'notEqualTo',     label: '不是',         needs: 1 },
+  { value: 'earlierThan',    label: '早于',         needs: 1 },
+  { value: 'noEarlierThan',  label: '不早于（晚于或等于）', needs: 1 },
+  { value: 'laterThan',      label: '晚于',         needs: 1 },
+  { value: 'noLaterThan',    label: '不晚于（早于或等于）', needs: 1 },
 ]
 
 // text-content sub-conditions → native type2 tokens (native type 'text_content').
 export const TEXT_CONDITIONS: ConditionMeta[] = [
-  { value: 'include', label: 'contains',        needs: 1 },
-  { value: 'exclude', label: 'does not contain', needs: 1 },
-  { value: 'equal',   label: 'is exactly',      needs: 1 },
+  { value: 'include', label: '包含',         needs: 1 },
+  { value: 'exclude', label: '不包含',       needs: 1 },
+  { value: 'equal',   label: '完全等于',     needs: 1 },
 ]
 
 const NUMBER_SET = new Set(NUMBER_CONDITIONS.map((c) => c.value))
@@ -420,43 +420,43 @@ export function validationSummary(reg: Regulation | null | undefined): string {
   if (reg.type === 'dropdown') {
     if (reg.checkbox) {
       const [on, off] = dropdownItems(reg.value1)
-      return `Checkbox · ${on || 'TRUE'} / ${off || 'FALSE'}`
+      return `复选框 · ${on || 'TRUE'} / ${off || 'FALSE'}`
     }
     if (validationRange(reg.value1)) {
-      return `Dropdown · from ${reg.value1}${reg.type2 === 'true' ? ' · multi' : ''}`
+      return `下拉列表 · 来自 ${reg.value1}${reg.type2 === 'true' ? ' · 多选' : ''}`
     }
     const n = dropdownItems(reg.value1).length
-    return `Dropdown · ${n} item${n === 1 ? '' : 's'}${reg.type2 === 'true' ? ' · multi' : ''}`
+    return `下拉列表 · ${n} 个选项${reg.type2 === 'true' ? ' · 多选' : ''}`
   }
   if (reg.type === 'number' || reg.type === 'number_integer' || reg.type === 'number_decimal') {
     const cond = NUMBER_CONDITIONS.find((c) => c.value === reg.type2)
     const label = cond ? cond.label : reg.type2
     const tail2 = numberConditionArity(reg.type2) === 2
-      ? `${reg.value1} and ${reg.value2}`
+      ? `${reg.value1} 与 ${reg.value2}`
       : reg.value1
-    return `Number ${label} ${tail2}`
+    return `数字 ${label} ${tail2}`
   }
   if (reg.type === 'date') {
     const cond = DATE_CONDITIONS.find((c) => c.value === reg.type2)
     const label = cond ? cond.label : reg.type2
     const tail2 = dateConditionArity(reg.type2) === 2
-      ? `${reg.value1} and ${reg.value2}`
+      ? `${reg.value1} 与 ${reg.value2}`
       : reg.value1
-    return `Date ${label} ${tail2}`
+    return `日期 ${label} ${tail2}`
   }
   if (reg.type === 'text_content') {
     const cond = TEXT_CONDITIONS.find((c) => c.value === reg.type2)
-    return `Text ${cond ? cond.label : reg.type2} “${reg.value1}”`
+    return `文本 ${cond ? cond.label : reg.type2} “${reg.value1}”`
   }
   if (reg.type === 'text_length') {
     const cond = NUMBER_CONDITIONS.find((c) => c.value === reg.type2)
     const label = cond ? cond.label : reg.type2
     const tail2 = numberConditionArity(reg.type2) === 2
-      ? `${reg.value1} and ${reg.value2}`
+      ? `${reg.value1} 与 ${reg.value2}`
       : reg.value1
-    return `Text length ${label} ${tail2}`
+    return `文本长度 ${label} ${tail2}`
   }
-  return reg.type || 'Rule'
+  return reg.type || '规则'
 }
 
 /**

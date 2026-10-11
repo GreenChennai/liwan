@@ -205,9 +205,9 @@ describe('charts our model cannot express — reported, never faked', () => {
     expect(notes!.charts).toHaveLength(3)
     expect(notes!.charts.map((c) => c.title).sort()).toEqual(['Detached labels', 'Non-adjacent', 'Radar'])
     const reasonFor = (t: string) => notes!.charts.find((c) => c.title === t)!.reason
-    expect(reasonFor('Radar')).toMatch(/radar.*aren’t supported/i)
-    expect(reasonFor('Non-adjacent')).toMatch(/non-adjacent columns/i)
-    expect(reasonFor('Detached labels')).toMatch(/category labels are not next to the data/i)
+    expect(reasonFor('Radar')).toMatch(/不支持 radar 图表/)
+    expect(reasonFor('Non-adjacent')).toMatch(/不相邻/)
+    expect(reasonFor('Detached labels')).toMatch(/分类标签不在数据旁边/)
   })
 
   it('and the EXPORT says so, before the download, even after the user edits', async () => {

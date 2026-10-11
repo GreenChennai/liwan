@@ -50,10 +50,9 @@ export function typeToRoute(type: string): string | null {
 export function unsupportedMessage(filename: string): string {
   const ext = (filename.split('.').pop() || '').toLowerCase()
   if (['doc', 'xls', 'ppt'].includes(ext)) {
-    return `Legacy binary .${ext} files aren't supported yet — please re-save as ` +
-      `.${ext}x (or ODF) and try again.`
+    return `暂不支持旧版二进制 .${ext} 文件，请另存为 .${ext}x（或 ODF）格式后重试。`
   }
-  return `Cannot open .${ext} files.`
+  return `无法打开 .${ext} 文件。`
 }
 
 // ── Low-level readers ─────────────────────────────────────────────────────────
@@ -106,7 +105,7 @@ async function convertDocFromBuffer(ext: string, buf: ArrayBuffer | null, text?:
   if (ext === 'html' || ext === 'htm') return { type: 'doc', _html: text, content: [{ type: 'paragraph' }] }
   if (ext === 'txt') return docFromText(text || '')
   if (ext === 'docx') {
-    if (!buf) throw new ImportError('document is missing its bytes')
+    if (!buf) throw new ImportError('文档缺少文件内容')
     assertFileSize(buf.byteLength, 'document')
     // Zip-bomb guard BEFORE mammoth's own unbounded inflate: reject a lying-CD /
     // oversize .docx while it is still a validated, bounded archive (see
@@ -116,7 +115,7 @@ async function convertDocFromBuffer(ext: string, buf: ArrayBuffer | null, text?:
     return { type: 'doc', _html: result.value || '<p></p>', content: [{ type: 'paragraph' }] }
   }
   if (ext === 'odt') {
-    if (!buf) throw new ImportError('document is missing its bytes')
+    if (!buf) throw new ImportError('文档缺少文件内容')
     const html = await odtToHtml(buf, 'document.odt')
     return { type: 'doc', _html: html, content: [{ type: 'paragraph' }] }
   }
@@ -141,7 +140,7 @@ export async function convertToSheetContent(file: File) {
   if (ext === 'csv' || ext === 'tsv') {
     const text = await fileToText(file)
     const base = file.name.replace(/\.[^.]+$/, '')
-    return [csvToSheet(text, base || 'Sheet1', ext === 'tsv' ? '\t' : ',')]
+    return [csvToSheet(text, base || '工作表1', ext === 'tsv' ? '\t' : ',')]
   }
   // xlsx / xls / ods
   const buf = await fileToArrayBuffer(file)
@@ -230,7 +229,7 @@ export async function importFromUrl(
   }
 
   const res = await fetch(url, { credentials: 'include' })
-  if (!res.ok) throw new Error('Failed to fetch file')
+  if (!res.ok) throw new Error('获取文件失败')
   const buf = await res.arrayBuffer()
   const pseudoFile = new File([buf], name)
 

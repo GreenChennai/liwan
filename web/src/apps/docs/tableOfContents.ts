@@ -34,7 +34,7 @@ export interface TocHeadingEntry {
 }
 
 function slugify(text: string): string {
-  return String(text || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  return String(text || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '-').replace(/^-|-$/g, '')
 }
 
 /** Read the current heading outline from a ProseMirror doc. */
@@ -61,7 +61,7 @@ function paintToc(listEl: HTMLElement, headings: TocHeadingEntry[]): void {
   if (headings.length === 0) {
     const empty = document.createElement('p')
     empty.className = 'toc-empty'
-    empty.textContent = 'Add headings to build a table of contents.'
+    empty.textContent = '添加标题后即可生成目录。'
     listEl.appendChild(empty)
     return
   }
@@ -71,7 +71,7 @@ function paintToc(listEl: HTMLElement, headings: TocHeadingEntry[]): void {
     row.setAttribute('href', `#${h.slug}`)
     row.setAttribute('data-level', String(h.level))
     row.style.marginLeft = `${(h.level - 1) * 16}px`
-    row.textContent = h.text || '(untitled heading)'
+    row.textContent = h.text || '（未命名标题）'
     listEl.appendChild(row)
   }
 }
@@ -104,7 +104,7 @@ export const TableOfContentsNode = Node.create({
       dom.setAttribute('contenteditable', 'false')
       const title = document.createElement('p')
       title.className = 'toc-title'
-      title.textContent = 'Table of Contents'
+      title.textContent = '目录'
       const list = document.createElement('div')
       list.className = 'toc-entries'
       dom.appendChild(title)

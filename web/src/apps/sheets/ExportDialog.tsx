@@ -32,10 +32,10 @@ export interface ExportDialogProps {
 }
 
 const FORMAT_LABEL: Record<string, string> = {
-  xlsx: 'Excel workbook (.xlsx)',
-  ods: 'OpenDocument sheet (.ods)',
+  xlsx: 'Excel 工作簿 (.xlsx)',
+  ods: 'OpenDocument 表格 (.ods)',
   csv: 'CSV (.csv)',
-  'xlsx-server': 'Server Excel workbook (.xlsx)',
+  'xlsx-server': '服务器 Excel 工作簿 (.xlsx)',
 }
 
 export default function ExportDialog({ data, format, onCancel, onConfirm }: ExportDialogProps) {
@@ -67,9 +67,9 @@ export default function ExportDialog({ data, format, onCancel, onConfirm }: Expo
         <div className="flex items-center justify-between px-4 py-3 border-b border-line">
           <span id={titleId} className="text-sm font-semibold text-ink flex items-center gap-2">
             <Download size={14} className="text-accent" aria-hidden />
-            Export as {FORMAT_LABEL[format] || format}
+            导出为 {FORMAT_LABEL[format] || format}
           </span>
-          <IconButton size="sm" title="Close" onClick={onCancel}><X size={13} /></IconButton>
+          <IconButton size="sm" title="关闭" onClick={onCancel}><X size={13} /></IconButton>
         </div>
 
         <div id={descId} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-xs">
@@ -80,12 +80,12 @@ export default function ExportDialog({ data, format, onCancel, onConfirm }: Expo
             <div className="rounded-lg border border-line bg-warning-bg p-3 space-y-1.5" role="alert">
               <p className="flex items-center gap-1.5 font-semibold text-ink">
                 <AlertTriangle size={13} className="text-warning" aria-hidden />
-                Not in this workbook — and not in the export
+                既不在此工作簿中，也不会出现在导出文件中
               </p>
               <p className="text-ink-muted">
-                {missing.filename ? <>“{missing.filename}” had content Vulos could not import.</>
-                  : <>The file this workbook came from had content Vulos could not import.</>}
-                {' '}Exporting will not put it back.
+                {missing.filename ? <>“{missing.filename}” 包含 Vulos 无法导入的内容。</>
+                  : <>此工作簿的源文件包含 Vulos 无法导入的内容。</>}
+                {' '}导出不会将其恢复。
               </p>
               <ul className="space-y-0.5 text-ink-muted">
                 {missing.pivots > 0 && (
@@ -93,9 +93,9 @@ export default function ExportDialog({ data, format, onCancel, onConfirm }: Expo
                     <span aria-hidden>•</span>
                     <span>
                       <span className="font-medium text-ink">
-                        {missing.pivots} pivot table{missing.pivots === 1 ? '' : 's'}
+                        {missing.pivots} 个数据透视表
                       </span>
-                      {' — '}imported as ordinary cells (the values are here; the live pivot is not)
+                      {' — '}已作为普通单元格导入（数值保留，但实时数据透视表未保留）
                     </span>
                   </li>
                 )}
@@ -103,13 +103,13 @@ export default function ExportDialog({ data, format, onCancel, onConfirm }: Expo
                   <li key={i} className="flex gap-1.5">
                     <span aria-hidden>•</span>
                     <span>
-                      <span className="font-medium text-ink">{c.title || 'Untitled chart'}</span>
+                      <span className="font-medium text-ink">{c.title || '未命名图表'}</span>
                       {' — '}{c.reason}
                     </span>
                   </li>
                 ))}
                 {missing.charts.length > 5 && (
-                  <li className="text-ink-faint">…and {missing.charts.length - 5} more</li>
+                  <li className="text-ink-faint">……还有 {missing.charts.length - 5} 个</li>
                 )}
               </ul>
             </div>
@@ -120,20 +120,20 @@ export default function ExportDialog({ data, format, onCancel, onConfirm }: Expo
             <div className="rounded-lg border border-line bg-warning-bg p-3 space-y-1.5" role="alert">
               <p className="flex items-center gap-1.5 font-semibold text-ink">
                 <AlertTriangle size={13} className="text-warning" aria-hidden />
-                {report.lost.length} chart{report.lost.length === 1 ? '' : 's'} can’t be embedded in this format
+                {report.lost.length} 个图表无法嵌入此格式
               </p>
               <ul className="space-y-0.5 text-ink-muted">
                 {report.lost.slice(0, 6).map((l, i) => (
                   <li key={i} className="flex gap-1.5">
                     <span aria-hidden>•</span>
                     <span>
-                      <span className="font-medium text-ink">{l.title || `Untitled ${l.type}`}</span>
+                      <span className="font-medium text-ink">{l.title || `未命名${l.type}`}</span>
                       {' — '}{l.note}
                     </span>
                   </li>
                 ))}
                 {report.lost.length > 6 && (
-                  <li className="text-ink-faint">…and {report.lost.length - 6} more</li>
+                  <li className="text-ink-faint">……还有 {report.lost.length - 6} 个</li>
                 )}
               </ul>
             </div>
@@ -144,14 +144,14 @@ export default function ExportDialog({ data, format, onCancel, onConfirm }: Expo
             <div className="rounded-lg border border-line bg-bg p-3 space-y-1.5">
               <p className="flex items-center gap-1.5 font-semibold text-ink">
                 <Info size={13} className="text-ink-muted" aria-hidden />
-                Embedded with a caveat
+                已嵌入，但有注意事项
               </p>
               <ul className="space-y-0.5 text-ink-muted">
                 {report.degraded.slice(0, 6).map((d, i) => (
                   <li key={i} className="flex gap-1.5">
                     <span aria-hidden>•</span>
                     <span>
-                      <span className="font-medium text-ink">{d.title || `Untitled ${d.type}`}</span>
+                      <span className="font-medium text-ink">{d.title || `未命名${d.type}`}</span>
                       {' — '}{d.note}
                     </span>
                   </li>
@@ -174,9 +174,9 @@ export default function ExportDialog({ data, format, onCancel, onConfirm }: Expo
         </div>
 
         <div className="flex items-center justify-between px-4 py-3 border-t border-line gap-2">
-          <Button variant="secondary" size="sm" onClick={onCancel}>Cancel</Button>
+          <Button variant="secondary" size="sm" onClick={onCancel}>取消</Button>
           <Button ref={confirmRef} variant="primary" size="sm" onClick={() => onConfirm(format)}>
-            {hasLoss ? 'Export anyway' : 'Export'}
+            {hasLoss ? '仍然导出' : '导出'}
           </Button>
         </div>
       </div>

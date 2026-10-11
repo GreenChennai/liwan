@@ -173,7 +173,7 @@ const PLOT_GROUPS = new Set([
  * because rendering someone's radar chart as a column chart is a lie.
  */
 export function chartTypeOf(groups: Element[]): ChartTypeResult {
-  if (!groups.length) return { error: 'no recognisable plot' }
+  if (!groups.length) return { error: '无法识别的绘图类型' }
 
   if (groups.length === 1) {
     const g = groups[0]
@@ -182,7 +182,7 @@ export function chartTypeOf(groups: Element[]): ChartTypeResult {
       const dir = valOf(g, 'barDir') === 'bar' ? 'bar' : 'column'
       const grouping = valOf(g, 'grouping') || 'clustered'
       const suffix = GROUPING_SUFFIX[grouping]
-      if (suffix === undefined) return { error: `bar grouping “${grouping}” has no Vulos equivalent` }
+      if (suffix === undefined) return { error: `条形分组“${grouping}”没有 Vulos 对应类型` }
       return { type: `${dir}${suffix}` }
     }
     if (name === 'lineChart') return { type: 'line' }
@@ -191,7 +191,7 @@ export function chartTypeOf(groups: Element[]): ChartTypeResult {
     if (name === 'doughnutChart') return { type: 'donut' }
     if (name === 'scatterChart') return { type: 'scatter' }
     if (name === 'bubbleChart') return { type: 'bubble' }
-    return { error: `${name.replace(/Chart$/, '')} charts aren’t supported` }
+    return { error: `不支持 ${name.replace(/Chart$/, '')} 图表` }
   }
 
   // Two groups = a combo. Ours is specifically "first series columns, the rest
@@ -202,12 +202,12 @@ export function chartTypeOf(groups: Element[]): ChartTypeResult {
     const line = groups[names.indexOf('lineChart')]
     if (bar && line) {
       if (kids(bar, 'ser').length !== 1) {
-        return { error: 'combo charts with more than one column series aren’t supported' }
+        return { error: '不支持包含多个列数据系列的组合图' }
       }
       return { type: 'combo' }
     }
   }
-  return { error: 'a mixed plot Vulos can’t represent' }
+  return { error: 'Vulos 无法表示的混合图表' }
 }
 
 // ── series → one contiguous range ───────────────────────────────────────────
@@ -227,35 +227,35 @@ export function chartTypeOf(groups: Element[]): ChartTypeResult {
  * Anything else → { error }, which the caller reports to the user.
  */
 export function rangeFromSeries(series: SeriesRef[], sheetName: string | null | undefined): RangeShapeResult {
-  if (!series.length) return { error: 'no data series' }
+  if (!series.length) return { error: '没有数据系列' }
 
   const sheets = new Set<string>()
   for (const s of series) {
     for (const ref of [s.val, s.cat, s.tx].filter((r): r is ParsedRef => !!r)) sheets.add(ref.sheet)
   }
-  if (sheets.size > 1) return { error: 'its series read from more than one sheet' }
+  if (sheets.size > 1) return { error: '其数据系列读取自多个工作表' }
   const only = [...sheets][0]
   if (only != null && sheetName != null && only !== sheetName) {
-    return { error: `its data is on another sheet (“${only}”)` }
+    return { error: `其数据位于另一个工作表（“${only}”）` }
   }
 
   const vals = series.map((s) => s.val)
-  if (vals.some((v) => !v)) return { error: 'a series has no cell reference' }
+  if (vals.some((v) => !v)) return { error: '某个数据系列没有单元格引用' }
   const valRefs = vals as ParsedRef[]
-  if (valRefs.some((v) => v.c0 !== v.c1)) return { error: 'its series run across rows, not down columns' }
+  if (valRefs.some((v) => v.c0 !== v.c1)) return { error: '其数据系列按行排列，而非按列排列' }
 
   const r0 = valRefs[0].r0
   const r1 = valRefs[0].r1
-  if (valRefs.some((v) => v.r0 !== r0 || v.r1 !== r1)) return { error: 'its series cover different rows' }
+  if (valRefs.some((v) => v.r0 !== r0 || v.r1 !== r1)) return { error: '其数据系列覆盖的行不一致' }
 
   const cols = valRefs.map((v) => v.c0)
   const sorted = [...cols].sort((a, b) => a - b)
   for (let i = 1; i < sorted.length; i++) {
-    if (sorted[i] !== sorted[i - 1] + 1) return { error: 'its series come from non-adjacent columns' }
+    if (sorted[i] !== sorted[i - 1] + 1) return { error: '其数据系列来自不相邻的列' }
   }
   // Series order must match column order, or the colours/legend would be shuffled
   // against the data on re-export.
-  if (cols.some((c, i) => c !== sorted[i])) return { error: 'its series are not in column order' }
+  if (cols.some((c, i) => c !== sorted[i])) return { error: '其数据系列未按列顺序排列' }
 
   const firstValCol = sorted[0]
   const lastValCol = sorted[sorted.length - 1]
@@ -266,9 +266,9 @@ export function rangeFromSeries(series: SeriesRef[], sheetName: string | null | 
   let c0 = firstValCol
   let headerCol = false
   if (cat) {
-    if (cat.c0 !== cat.c1) return { error: 'its category labels span several columns' }
-    if (cat.c0 !== firstValCol - 1) return { error: 'its category labels are not next to the data' }
-    if (cat.r0 !== r0 || cat.r1 !== r1) return { error: 'its category labels cover different rows' }
+    if (cat.c0 !== cat.c1) return { error: '其分类标签跨越多列' }
+    if (cat.c0 !== firstValCol - 1) return { error: '其分类标签不在数据旁边' }
+    if (cat.r0 !== r0 || cat.r1 !== r1) return { error: '其分类标签覆盖的行不一致' }
     c0 = cat.c0
     headerCol = true
   }
@@ -445,16 +445,16 @@ export async function readXlsxCharts(
     try {
       const file = zip.file(path)
       const raw = file ? await file.async('string') : ''
-      if (raw.length > MAX_PART_BYTES) { unreadable.push({ title: '', reason: 'the chart part is too large to parse' }); continue }
+      if (raw.length > MAX_PART_BYTES) { unreadable.push({ title: '', reason: '图表部件过大，无法解析' }); continue }
       doc = parseXml(raw)
     } catch { doc = null }
-    if (!doc) { unreadable.push({ title: '', reason: 'its chart data could not be parsed' }); continue }
+    if (!doc) { unreadable.push({ title: '', reason: '无法解析其图表数据' }); continue }
 
     // c:chart is a direct child of c:chartSpace; fall back to a search only if a
     // producer nests it unusually (never match a deeper, unrelated <chart>).
     const chartEl = kid(doc.documentElement, 'chart') || desc(doc.documentElement, 'chart')
     const plotArea = kid(chartEl, 'plotArea')
-    if (!plotArea) { unreadable.push({ title: '', reason: 'it has no plot area' }); continue }
+    if (!plotArea) { unreadable.push({ title: '', reason: '缺少绘图区' }); continue }
 
     // Title: rich text, or a cell reference we resolve against the sheet.
     const titleEl = kid(chartEl, 'title')
@@ -497,7 +497,7 @@ export async function readXlsxCharts(
       // A chart whose numbers are baked into the part (c:numLit) instead of
       // referencing cells — our own histogram export is written that way. There
       // are no cells to point at, so it cannot become a live Vulos chart.
-      unreadable.push({ title, reason: 'its values are stored in the chart, not in cells' })
+      unreadable.push({ title, reason: '其数值存储在图表中，而非单元格中' })
       continue
     }
 

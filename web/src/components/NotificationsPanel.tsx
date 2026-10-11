@@ -44,19 +44,19 @@ export default function NotificationsPanel({ onClose, fileTypeOf }: Notification
       <div className="flex items-center justify-between px-3 h-10 border-b border-line">
         <div className="flex items-center gap-2">
           <Bell size={14} className="text-ink-muted" />
-          <span className="text-sm font-semibold text-ink tracking-tightish">Notifications</span>
+          <span className="text-sm font-semibold text-ink tracking-tightish">通知</span>
         </div>
         <div className="flex items-center gap-1">
           {items.some((n) => !n.read) && (
             <button
               onClick={() => void markAllRead()}
               className="flex items-center gap-1 text-2xs text-ink-faint hover:text-ink-muted transition-colors px-1.5 py-1 rounded-sm"
-              title="Mark all read"
+              title="全部标为已读"
             >
-              <CheckCheck size={12} /> Mark all read
+              <CheckCheck size={12} /> 全部标为已读
             </button>
           )}
-          <button onClick={onClose} className="p-1 rounded-sm hover:bg-accent-tint text-ink-faint" aria-label="Close">
+          <button onClick={onClose} className="p-1 rounded-sm hover:bg-accent-tint text-ink-faint" aria-label="关闭">
             <X size={13} />
           </button>
         </div>
@@ -65,7 +65,7 @@ export default function NotificationsPanel({ onClose, fileTypeOf }: Notification
         {items.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <Bell size={22} className="text-ink-faint/40 mb-2" />
-            <p className="text-xs text-ink-faint">You’re all caught up</p>
+            <p className="text-xs text-ink-faint">你已处理完所有通知</p>
           </div>
         )}
         {items.map((n) => (

@@ -89,18 +89,18 @@ describe('Docs live co-editing gate — OFF (default)', () => {
   it('SAYS co-editing is off rather than showing an empty roster', async () => {
     mountEditor()
     await waitFor(() => expect(document.querySelector('.ProseMirror')).toBeTruthy())
-    expect(screen.getByTestId('collab-off-pill')).toHaveTextContent(/live co-editing off/i)
+    expect(screen.getByTestId('collab-off-pill')).toHaveTextContent(/实时协同编辑已关闭/)
   })
 
   it('the share dialog states plainly that edits will not sync live, and offers no P2P invite link', async () => {
     mountEditor()
     await waitFor(() => expect(document.querySelector('.ProseMirror')).toBeTruthy())
 
-    await userEvent.click(screen.getByRole('button', { name: /Share — with people/i }))
+    await userEvent.click(screen.getByRole('button', { name: /分享——与用户/ }))
     const notice = await screen.findByTestId('live-collab-notice')
     expect(notice).toHaveTextContent(/not appear in real time/i)
     // An invite link that can never sync must not be offered.
-    expect(screen.queryByRole('button', { name: /Share via link \(P2P\)/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /通过链接协作/ })).toBeNull()
   })
 
   it('the editor still works as a single-user editor', async () => {

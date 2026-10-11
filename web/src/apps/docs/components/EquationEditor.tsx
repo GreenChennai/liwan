@@ -18,15 +18,15 @@ import { renderEquationHtml } from '../equation.js'
 
 // A few common templates to make the editor feel first-class (Docs/Word parity).
 const SNIPPETS = [
-  { label: 'Fraction', latex: '\\frac{a}{b}' },
-  { label: 'Square root', latex: '\\sqrt{x}' },
-  { label: 'Power', latex: 'x^{2}' },
-  { label: 'Subscript', latex: 'x_{i}' },
-  { label: 'Sum', latex: '\\sum_{i=1}^{n} i' },
-  { label: 'Integral', latex: '\\int_{a}^{b} f(x)\\,dx' },
-  { label: 'Limit', latex: '\\lim_{x \\to \\infty}' },
-  { label: 'Matrix', latex: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}' },
-  { label: 'Greek', latex: '\\alpha + \\beta = \\gamma' },
+  { label: '分数', latex: '\\frac{a}{b}' },
+  { label: '平方根', latex: '\\sqrt{x}' },
+  { label: '幂', latex: 'x^{2}' },
+  { label: '下标', latex: 'x_{i}' },
+  { label: '求和', latex: '\\sum_{i=1}^{n} i' },
+  { label: '积分', latex: '\\int_{a}^{b} f(x)\\,dx' },
+  { label: '极限', latex: '\\lim_{x \\to \\infty}' },
+  { label: '矩阵', latex: '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}' },
+  { label: '希腊字母', latex: '\\alpha + \\beta = \\gamma' },
 ]
 
 export interface EquationEditorSubmitArgs {
@@ -90,17 +90,17 @@ export default function EquationEditor({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Equation" size="lg">
+    <Modal open={open} onClose={onClose} title="公式" size="lg">
       <Modal.Body className="space-y-3">
         {/* Live preview */}
         <div
           className="min-h-[64px] flex items-center justify-center px-4 py-3 rounded-md border border-line bg-bg-elev2 text-ink overflow-x-auto"
           aria-live="polite"
-          aria-label="Equation preview"
+          aria-label="公式预览"
         >
           {previewHtml
             ? <span dangerouslySetInnerHTML={{ __html: previewHtml }} />
-            : <span className="text-ink-faint text-sm">Preview appears here</span>}
+            : <span className="text-ink-faint text-sm">预览将显示在这里</span>}
         </div>
 
         {/* LaTeX source input */}
@@ -123,8 +123,8 @@ export default function EquationEditor({
             spellCheck={false}
             autoCapitalize="off"
             autoCorrect="off"
-            placeholder="e.g.  E = mc^2   or   \frac{-b \pm \sqrt{b^2-4ac}}{2a}"
-            aria-label="LaTeX source"
+            placeholder="例如：E = mc^2 或 \frac{-b \pm \sqrt{b^2-4ac}}{2a}"
+            aria-label="LaTeX 源码"
             className="mt-1 w-full font-mono text-sm px-3 py-2 rounded-md border border-line bg-paper text-ink placeholder:text-ink-faint focus:outline-none focus:border-accent resize-y"
           />
         </label>
@@ -151,13 +151,13 @@ export default function EquationEditor({
             checked={display}
             onChange={(e) => setDisplay(e.target.checked)}
           />
-          Display (block) equation — centred on its own line
+          独立显示（块级）公式——居中于单独一行
         </label>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
+        <Button variant="secondary" size="sm" onClick={onClose}>取消</Button>
         <Button variant="primary" size="sm" onClick={handleSubmit} disabled={!latex.trim()}>
-          Insert equation
+          插入公式
         </Button>
       </Modal.Footer>
     </Modal>

@@ -171,31 +171,31 @@ export interface ColorScaleKindMeta {
  *   input: 'number' | 'text' | 'date' | 'formula' | null
  */
 export const CS_KIND_META: Record<string, ColorScaleKindMeta> = {
-  colorScale2:     { label: '2-color scale',        args: 0, input: null,      group: 'scale' },
-  colorScale3:     { label: '3-color scale',        args: 0, input: null,      group: 'scale' },
-  dataBar:         { label: 'Data bar',             args: 0, input: null,      group: 'scale' },
-  greaterThan:     { label: 'Greater than',         args: 1, input: 'number',  group: 'value' },
-  lessThan:        { label: 'Less than',            args: 1, input: 'number',  group: 'value' },
-  greaterOrEqual:  { label: 'Greater than or equal to', args: 1, input: 'number', group: 'value' },
-  lessOrEqual:     { label: 'Less than or equal to',    args: 1, input: 'number', group: 'value' },
-  between:         { label: 'Is between',           args: 2, input: 'number',  group: 'value' },
-  notBetween:      { label: 'Is not between',       args: 2, input: 'number',  group: 'value' },
-  equalTo:         { label: 'Is equal to',          args: 1, input: 'text',    group: 'value' },
-  notEqualTo:      { label: 'Is not equal to',      args: 1, input: 'text',    group: 'value' },
-  textContains:    { label: 'Text contains',        args: 1, input: 'text',    group: 'text' },
-  textNotContains: { label: 'Text does not contain', args: 1, input: 'text',   group: 'text' },
-  textStartsWith:  { label: 'Text starts with',     args: 1, input: 'text',    group: 'text' },
-  textEndsWith:    { label: 'Text ends with',       args: 1, input: 'text',    group: 'text' },
-  textExactly:     { label: 'Text is exactly',      args: 1, input: 'text',    group: 'text' },
-  dateBefore:      { label: 'Date is before',       args: 1, input: 'date',    group: 'date' },
-  dateAfter:       { label: 'Date is after',        args: 1, input: 'date',    group: 'date' },
-  dateToday:       { label: 'Date is today',        args: 0, input: null,      group: 'date' },
-  dateThisWeek:    { label: 'Date is this week',    args: 0, input: null,      group: 'date' },
-  dateThisMonth:   { label: 'Date is this month',   args: 0, input: null,      group: 'date' },
-  isEmpty:         { label: 'Cell is empty',        args: 0, input: null,      group: 'other' },
-  isNotEmpty:      { label: 'Cell is not empty',    args: 0, input: null,      group: 'other' },
-  duplicate:       { label: 'Duplicate values',     args: 0, input: null,      group: 'other' },
-  formula:         { label: 'Custom formula is',    args: 0, input: 'formula', group: 'other' },
+  colorScale2:     { label: '双色色阶',             args: 0, input: null,      group: 'scale' },
+  colorScale3:     { label: '三色色阶',             args: 0, input: null,      group: 'scale' },
+  dataBar:         { label: '数据条',               args: 0, input: null,      group: 'scale' },
+  greaterThan:     { label: '大于',                 args: 1, input: 'number',  group: 'value' },
+  lessThan:        { label: '小于',                 args: 1, input: 'number',  group: 'value' },
+  greaterOrEqual:  { label: '大于或等于',           args: 1, input: 'number',  group: 'value' },
+  lessOrEqual:     { label: '小于或等于',           args: 1, input: 'number',  group: 'value' },
+  between:         { label: '介于',                 args: 2, input: 'number',  group: 'value' },
+  notBetween:      { label: '不介于',               args: 2, input: 'number',  group: 'value' },
+  equalTo:         { label: '等于',                 args: 1, input: 'text',    group: 'value' },
+  notEqualTo:      { label: '不等于',               args: 1, input: 'text',    group: 'value' },
+  textContains:    { label: '文本包含',             args: 1, input: 'text',    group: 'text' },
+  textNotContains: { label: '文本不包含',           args: 1, input: 'text',    group: 'text' },
+  textStartsWith:  { label: '文本开头为',           args: 1, input: 'text',    group: 'text' },
+  textEndsWith:    { label: '文本结尾为',           args: 1, input: 'text',    group: 'text' },
+  textExactly:     { label: '文本完全为',           args: 1, input: 'text',    group: 'text' },
+  dateBefore:      { label: '日期早于',             args: 1, input: 'date',    group: 'date' },
+  dateAfter:       { label: '日期晚于',             args: 1, input: 'date',    group: 'date' },
+  dateToday:       { label: '日期为今天',           args: 0, input: null,      group: 'date' },
+  dateThisWeek:    { label: '日期为本周',           args: 0, input: null,      group: 'date' },
+  dateThisMonth:   { label: '日期为本月',           args: 0, input: null,      group: 'date' },
+  isEmpty:         { label: '单元格为空',           args: 0, input: null,      group: 'other' },
+  isNotEmpty:      { label: '单元格非空',           args: 0, input: null,      group: 'other' },
+  duplicate:       { label: '重复值',               args: 0, input: null,      group: 'other' },
+  formula:         { label: '自定义公式为',         args: 0, input: 'formula', group: 'other' },
 }
 
 // Safe defaults (Excel-ish gradients; Google-ish single-colour highlight).
@@ -295,25 +295,25 @@ function csStr(v: unknown): string {
 export function colorScaleError(rule: ColorScaleRuleInput | null | undefined): string | null {
   const kind = typeof rule?.kind === 'string' ? rule.kind : undefined
   const meta = kind ? CS_KIND_META[kind] : undefined
-  if (!meta || !rule) return 'Pick a condition.'
-  if (!parseBounds(typeof rule.range === 'string' ? rule.range : '')) return 'Enter a valid range, e.g. A1:A10.'
+  if (!meta || !rule) return '请选择条件。'
+  if (!parseBounds(typeof rule.range === 'string' ? rule.range : '')) return '请输入有效区域，例如 A1:A10。'
   if (meta.input === 'formula') {
-    return csStr(rule.formula).trim() ? null : 'Enter a formula, e.g. =$A1>10.'
+    return csStr(rule.formula).trim() ? null : '请输入公式，例如 =$A1>10。'
   }
   if (meta.input === 'number') {
     const n1 = Number(String(rule.value1).trim())
-    if (String(rule.value1).trim() === '' || !isFinite(n1)) return 'Enter a number for the condition.'
+    if (String(rule.value1).trim() === '' || !isFinite(n1)) return '请为条件输入数值。'
     if (meta.args === 2) {
       const n2 = Number(String(rule.value2).trim())
-      if (String(rule.value2).trim() === '' || !isFinite(n2)) return 'Enter both numbers for the range.'
+      if (String(rule.value2).trim() === '' || !isFinite(n2)) return '请为区间输入两个数值。'
     }
     return null
   }
   if (meta.input === 'text') {
-    return String(rule.value1).trim() ? null : 'Enter the text to match.'
+    return String(rule.value1).trim() ? null : '请输入要匹配的文本。'
   }
   if (meta.input === 'date') {
-    return Number.isNaN(parseDay(rule.value1)) ? 'Enter a date, e.g. 2026-07-14.' : null
+    return Number.isNaN(parseDay(rule.value1)) ? '请输入日期，例如 2026-07-14。' : null
   }
   return null
 }
@@ -322,9 +322,9 @@ export function colorScaleError(rule: ColorScaleRuleInput | null | undefined): s
 export function colorScaleSummary(rule: ColorScaleRuleInput | null | undefined): string {
   const kind = typeof rule?.kind === 'string' ? rule.kind : undefined
   const meta = kind ? CS_KIND_META[kind] : undefined
-  if (!meta || !rule) return 'Rule'
-  if (rule.kind === 'formula') return `Custom formula ${csStr(rule.formula)}`.trim()
-  if (meta.args === 2) return `${meta.label} ${csStr(rule.value1)} and ${csStr(rule.value2)}`
+  if (!meta || !rule) return '规则'
+  if (rule.kind === 'formula') return `自定义公式 ${csStr(rule.formula)}`.trim()
+  if (meta.args === 2) return `${meta.label} ${csStr(rule.value1)} 与 ${csStr(rule.value2)}`
   if (meta.args === 1) return `${meta.label} ${csStr(rule.value1)}`
   return meta.label
 }

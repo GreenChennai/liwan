@@ -26,10 +26,10 @@ describe('New → Whiteboard', () => {
     createFile.mockClear(); navigate.mockClear()
     render(<NewFileModal onClose={() => {}} />)
 
-    const wbType = await screen.findByRole('button', { name: /Whiteboard/i })
+    const wbType = await screen.findByRole('button', { name: /白板/ })
     await userEvent.click(wbType)
-    await userEvent.type(screen.getByLabelText(/Name/i), 'My Board')
-    await userEvent.click(screen.getByRole('button', { name: /^Create$/i }))
+    await userEvent.type(screen.getByLabelText(/名称/), 'My Board')
+    await userEvent.click(screen.getByRole('button', { name: /^创建$/ }))
 
     await waitFor(() => expect(createFile).toHaveBeenCalled())
     expect(createFile).toHaveBeenCalledWith('My Board', 'whiteboard', expect.anything())

@@ -31,10 +31,10 @@ export interface PresencePeer {
 
 // ─── Status dot tokens (warm-signal palette, not generic Tailwind greens) ─────
 const STATUS_DOT_STYLE: Record<PresenceStatus, { bg: string; label: string }> = {
-  [STATUS_ONLINE]:  { bg: 'var(--signal-success)', label: 'Online'          },
-  [STATUS_AWAY]:    { bg: 'var(--signal-warning)', label: 'Away'            },
-  [STATUS_DND]:     { bg: 'var(--signal-error)',   label: 'Do not disturb' },
-  [STATUS_IN_CALL]: { bg: 'var(--accent)',         label: 'In a call'      },
+  [STATUS_ONLINE]:  { bg: 'var(--signal-success)', label: '在线'          },
+  [STATUS_AWAY]:    { bg: 'var(--signal-warning)', label: '离开' },
+  [STATUS_DND]:     { bg: 'var(--signal-error)',   label: '请勿打扰' },
+  [STATUS_IN_CALL]: { bg: 'var(--accent)',         label: '通话中'      },
 }
 
 // ─── PresenceDot ──────────────────────────────────────────────────────────────
@@ -84,10 +84,10 @@ export function StatusPicker({ currentStatus, currentText = '', onStatusChange, 
   const [text, setText] = useState(currentText)
 
   const options: { value: PresenceStatus; label: string }[] = [
-    { value: STATUS_ONLINE,  label: 'Online'         },
-    { value: STATUS_AWAY,    label: 'Away'            },
-    { value: STATUS_DND,     label: 'Do not disturb' },
-    { value: STATUS_IN_CALL, label: 'In a call'      },
+    { value: STATUS_ONLINE,  label: '在线'         },
+    { value: STATUS_AWAY,    label: '离开' },
+    { value: STATUS_DND,     label: '请勿打扰' },
+    { value: STATUS_IN_CALL, label: '通话中'      },
   ]
 
   return (
@@ -96,7 +96,7 @@ export function StatusPicker({ currentStatus, currentText = '', onStatusChange, 
       onMouseLeave={onClose}
     >
       <p className="px-3 pb-1.5 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">
-        Set status
+        设置状态
       </p>
       {options.map(o => {
         const active = currentStatus === o.value
@@ -125,7 +125,7 @@ export function StatusPicker({ currentStatus, currentText = '', onStatusChange, 
       <div className="mx-3 mt-2 border-t border-line pt-2">
         <input
           type="text"
-          placeholder="Custom status…"
+          placeholder="自定义状态…"
           value={text}
           maxLength={60}
           onChange={e => setText(e.target.value)}
@@ -214,9 +214,9 @@ function Avatar({ peer, size = 32 }: AvatarProps) {
           </span>
           {(peer.isGuest || (peer.status && peer.status !== STATUS_ONLINE) || peer.statusText) && (
             <span className="block text-2xs text-ink-muted mt-0.5 tracking-tightish">
-              {peer.isGuest && 'guest'}
+              {peer.isGuest && '访客'}
               {peer.status && peer.status !== STATUS_ONLINE && (
-                <span className="capitalize">{peer.isGuest ? ' · ' : ''}{peer.status}</span>
+                <span>{peer.isGuest ? ' · ' : ''}{STATUS_DOT_STYLE[peer.status]?.label ?? peer.status}</span>
               )}
               {peer.statusText && <span> "{peer.statusText}"</span>}
             </span>
@@ -257,7 +257,7 @@ export default function PresenceBar({ roster = [], max = 5, className = '' }: Pr
   return (
     <div
       className={`flex items-center ${className}`}
-      aria-label={`${roster.length} collaborator${roster.length !== 1 ? 's' : ''} online`}
+      aria-label={`${roster.length} 位协作者在线`}
     >
       <div className="flex items-center">
         {visible.map((peer, idx) => (

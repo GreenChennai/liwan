@@ -32,8 +32,8 @@ interface CreatedFile {
 const TYPES: FileTypeDef[] = [
   {
     type: 'doc',
-    label: 'Document',
-    desc: 'Rich text with images, tables, and formatting',
+    label: '文档',
+    desc: '支持图片、表格和格式设置的富文本',
     icon: FileText,
     iconCn: 'text-accent',
     bgCn: 'bg-accent-tint',
@@ -42,8 +42,8 @@ const TYPES: FileTypeDef[] = [
   },
   {
     type: 'sheet',
-    label: 'Spreadsheet',
-    desc: 'Formulas, sorting, and structured data',
+    label: '表格',
+    desc: '支持公式、排序和结构化数据',
     icon: Table2,
     iconCn: 'text-success',
     bgCn: 'bg-success-bg',
@@ -52,8 +52,8 @@ const TYPES: FileTypeDef[] = [
   },
   {
     type: 'slide',
-    label: 'Presentation',
-    desc: 'Slides with themes and transitions',
+    label: '幻灯片',
+    desc: '支持主题和切换效果的幻灯片',
     icon: Presentation,
     iconCn: 'text-warning',
     bgCn: 'bg-warning-bg',
@@ -62,8 +62,8 @@ const TYPES: FileTypeDef[] = [
   },
   {
     type: 'whiteboard',
-    label: 'Whiteboard',
-    desc: 'Infinite canvas for diagrams and sketches',
+    label: '白板',
+    desc: '用于绘制图表和草图的无限画布',
     icon: PenTool,
     iconCn: 'text-app-board',
     bgCn: 'bg-app-board-bg',
@@ -126,7 +126,7 @@ export default function NewFileModal({ onClose, defaultType, lockType, parentId 
       // rejection propagated uncaught, and the modal was left open with the
       // Create button simply re-enabled and no indication anything had gone
       // wrong (the user just sees their click appear to do nothing).
-      showToast(err instanceof Error ? err.message : 'Could not create file', 'error')
+      showToast(err instanceof Error ? err.message : '无法创建文件', 'error')
     } finally {
       setCreating(false)
     }
@@ -136,7 +136,7 @@ export default function NewFileModal({ onClose, defaultType, lockType, parentId 
     <Modal
       open
       onClose={onClose}
-      title={lockType ? `New ${selected?.label}` : 'New file'}
+      title={lockType ? `新建${selected?.label}` : '新建文件'}
       size="sm"
     >
       <form onSubmit={(e) => void handleCreate(e)}>
@@ -179,7 +179,7 @@ export default function NewFileModal({ onClose, defaultType, lockType, parentId 
           {/* ── Template gallery (Docs + Sheets) ── */}
           {templates && (
             <div className="space-y-2">
-              <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Start from a template</p>
+              <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">从模板开始</p>
               <div className="grid grid-cols-2 gap-2">
                 {templates.map((t) => {
                   const active = templateId === t.id
@@ -212,19 +212,19 @@ export default function NewFileModal({ onClose, defaultType, lockType, parentId 
 
           {/* ── Name field ── */}
           <Input
-            label="Name"
+            label="名称"
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder={`Untitled ${selected?.label || 'file'}`}
+            placeholder={`未命名${selected?.label || '文件'}`}
             autoFocus
             size="md"
           />
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="secondary" size="md" type="button" onClick={onClose}>Cancel</Button>
+          <Button variant="secondary" size="md" type="button" onClick={onClose}>取消</Button>
           <Button variant="primary" size="md" type="submit" disabled={!name.trim() || creating}>
-            {creating ? (<><Loader2 size={13} className="animate-spin" /> Creating…</>) : 'Create'}
+            {creating ? (<><Loader2 size={13} className="animate-spin" /> 正在创建…</>) : '创建'}
           </Button>
         </Modal.Footer>
       </form>

@@ -69,7 +69,7 @@ function defaultContent(type: string): unknown {
     case 'doc':
       return { type: 'doc', content: [{ type: 'paragraph' }] }
     case 'sheet':
-      return [{ name: 'Sheet1', celldata: [], config: {} }]
+      return [{ name: '工作表1', celldata: [], config: {} }]
     case 'slide':
       return { theme: 'black', transition: 'slide', slides: [{ id: crypto.randomUUID(), title: '', content: '<p></p>', notes: '' }] }
     case 'whiteboard':
@@ -243,12 +243,12 @@ export const useFilesStore = create<FilesState>((set, get) => ({
         // Let the caller reconcile non-CRDT structure explicitly (may re-throw).
         const resolved = await opts.onConflict(current, content)
         if (resolved === false) {
-          const e = Object.assign(new Error('save conflict'), { status: 409, current }) as ApiError
+          const e = Object.assign(new Error('保存冲突'), { status: 409, current }) as ApiError
           throw e
         }
       }
       if (opts._retried || !current) {
-        const e = Object.assign(new Error('save conflict'), { status: 409, current }) as ApiError
+        const e = Object.assign(new Error('保存冲突'), { status: 409, current }) as ApiError
         throw e
       }
       // Retry once against the newer rev, re-applying this caller's content.
@@ -286,7 +286,7 @@ export const useFilesStore = create<FilesState>((set, get) => ({
       return file
     } catch (err) {
       // Draft survives in IndexedDB; surface error state
-      setSaveState(id, 'error', (err as Error)?.message || 'Save failed')
+      setSaveState(id, 'error', (err as Error)?.message || '保存失败')
       throw err
     }
   },

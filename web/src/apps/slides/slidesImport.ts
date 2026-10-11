@@ -388,7 +388,7 @@ async function odpFrameToObject(
 export async function odpToSlides(arrayBuffer: ArrayBuffer, filename = 'file.odp'): Promise<ImportedDeck> {
   const zip = await safeLoadZip(arrayBuffer, filename)
   const contentXml = await entryText(zip, 'content.xml')
-  if (!contentXml) throw new ImportError(`${filename} is not a valid ODP (no content.xml).`)
+  if (!contentXml) throw new ImportError(`${filename} 不是有效的 ODP 文件（缺少 content.xml）。`)
   const doc = parseXmlSafe(contentXml, 'ODP content')
 
   // Page geometry: read the first page-layout's page dimensions if present.

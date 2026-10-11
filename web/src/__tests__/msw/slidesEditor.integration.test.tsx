@@ -57,7 +57,7 @@ describe('Slides editor (full mount, MSW/RTL)', () => {
     mountDeck()
     await waitFor(() => expect(screen.getByDisplayValue('My Deck')).toBeInTheDocument())
     // Slide thumbnail exposes an accessible label.
-    expect(screen.getAllByLabelText(/Slide 1/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByLabelText(/幻灯片 1/).length).toBeGreaterThanOrEqual(1)
   })
 
   it('adds a slide via the Add slide button', async () => {
@@ -66,13 +66,13 @@ describe('Slides editor (full mount, MSW/RTL)', () => {
     await waitFor(() => expect(screen.getByDisplayValue('My Deck')).toBeInTheDocument())
 
     // One slide to start.
-    expect(screen.queryAllByLabelText(/^Slide 2/i)).toHaveLength(0)
+    expect(screen.queryAllByLabelText(/^幻灯片 2/)).toHaveLength(0)
 
-    fireEvent.click(screen.getByLabelText('Add slide'))
+    fireEvent.click(screen.getByLabelText('新建幻灯片'))
 
     // Now a second slide exists (thumbnail rail + overview may each render it).
     await waitFor(() =>
-      expect(screen.getAllByLabelText(/^Slide 2/i).length).toBeGreaterThanOrEqual(1))
+      expect(screen.getAllByLabelText(/^幻灯片 2/).length).toBeGreaterThanOrEqual(1))
   })
 
   it('reorders slides by drag: slide 2 dropped onto slide 1 becomes current', async () => {
@@ -80,10 +80,10 @@ describe('Slides editor (full mount, MSW/RTL)', () => {
     mountDeck()
     await waitFor(() => expect(screen.getByDisplayValue('My Deck')).toBeInTheDocument())
 
-    const thumbs = screen.getAllByLabelText(/^Slide \d/i)
+    const thumbs = screen.getAllByLabelText(/^幻灯片 \d/)
     // Grab the rail thumbnails (first two matches).
-    const first = thumbs.find((t) => /Slide 1/.test(t.getAttribute('aria-label') ?? ''))
-    const second = thumbs.find((t) => /Slide 2/.test(t.getAttribute('aria-label') ?? ''))
+    const first = thumbs.find((t) => /幻灯片 1/.test(t.getAttribute('aria-label') ?? ''))
+    const second = thumbs.find((t) => /幻灯片 2/.test(t.getAttribute('aria-label') ?? ''))
     expect(first && second).toBeTruthy()
 
     // Drag slide 2 over slide 1 and drop → the moved slide becomes current (idx 0).
@@ -93,9 +93,9 @@ describe('Slides editor (full mount, MSW/RTL)', () => {
 
     await waitFor(() => {
       // After the move, the slide now at position 1 is marked current.
-      const current = screen.getAllByLabelText(/\(current\)/i)
+      const current = screen.getAllByLabelText(/（当前）/)
       expect(current.length).toBeGreaterThanOrEqual(1)
-      expect(current[0].getAttribute('aria-label')).toMatch(/Slide 1/)
+      expect(current[0].getAttribute('aria-label')).toMatch(/幻灯片 1/)
     })
   })
 
@@ -108,7 +108,7 @@ describe('Slides editor (full mount, MSW/RTL)', () => {
     mountDeck()
     await waitFor(() => expect(screen.getByDisplayValue('My Deck')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByLabelText('Open presenter view'))
+    fireEvent.click(screen.getByLabelText('打开演讲者视图'))
     expect(openSpy).toHaveBeenCalled()
     openSpy.mockRestore()
   })

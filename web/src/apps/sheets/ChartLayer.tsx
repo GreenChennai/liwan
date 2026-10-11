@@ -144,13 +144,13 @@ const ChartCard = memo(function ChartCard({
       >
         <span className="flex items-center gap-1 text-[10px] text-ink-faint truncate">
           <GripVertical size={11} aria-hidden />
-          <span className="truncate max-w-[180px]">{chart.title || 'Chart'}</span>
+          <span className="truncate max-w-[180px]">{chart.title || '图表'}</span>
         </span>
         <span className="flex items-center gap-0.5">
           <button
             type="button"
-            title="Edit chart"
-            aria-label="Edit chart"
+            title="编辑图表"
+            aria-label="编辑图表"
             className="p-1 rounded hover:bg-bg-hover text-ink-faint hover:text-ink"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onEdit(chart.id) }}
@@ -159,8 +159,8 @@ const ChartCard = memo(function ChartCard({
           </button>
           <button
             type="button"
-            title="Delete chart"
-            aria-label="Delete chart"
+            title="删除图表"
+            aria-label="删除图表"
             className="p-1 rounded hover:bg-danger-bg text-ink-faint hover:text-danger"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onDelete(chart.id) }}
@@ -187,7 +187,7 @@ const ChartCard = memo(function ChartCard({
       {selected && (
         <div
           role="separator"
-          aria-label="Resize chart"
+          aria-label="调整图表大小"
           onPointerDown={(e) => startDrag(e, 'resize')}
           className="absolute"
           style={{

@@ -132,14 +132,14 @@ export default function InstallPrompt() {
           }}
         >
           <WifiOff size={13} aria-hidden="true" />
-          <span>You’re offline — showing cached view</span>
+          <span>当前处于离线状态，正在显示缓存视图</span>
         </div>
       )}
 
       {visible && (
         <div
           role="dialog"
-          aria-label="Install Liwan"
+          aria-label="安装 Liwan"
           data-testid="install-prompt"
           style={{
             position: 'fixed',
@@ -161,9 +161,9 @@ export default function InstallPrompt() {
         >
           <Download size={18} aria-hidden="true" style={{ color: 'var(--accent, #0f6a6c)', flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 'var(--text-sm, 0.8125rem)', fontWeight: 600 }}>Install Office</div>
+            <div style={{ fontSize: 'var(--text-sm, 0.8125rem)', fontWeight: 600 }}>安装应用</div>
             <div style={{ fontSize: 'var(--text-xs, 0.75rem)', color: 'var(--ink-muted, #666)', marginTop: '1px' }}>
-              Add it to your device for a faster, app-like experience.
+              添加到设备，获得更快、更接近原生应用的使用体验。
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
@@ -181,12 +181,12 @@ export default function InstallPrompt() {
                 cursor: 'pointer',
               }}
             >
-              Install
+              安装
             </button>
             <button
               type="button"
               onClick={dismiss}
-              aria-label="Dismiss install prompt"
+              aria-label="关闭安装提示"
               style={{
                 display: 'flex',
                 alignItems: 'center',

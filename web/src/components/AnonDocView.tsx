@@ -70,7 +70,7 @@ function DocBody({ doc }: { doc?: DocNode | null | undefined }) {
     // Not a TipTap doc (sheet/slide or raw) — show a plain read-only notice.
     return (
       <p className="text-sm text-ink-faint">
-        This document type opens read-only. Its text content is shown where available.
+        此类文档以只读方式打开，可显示的文本内容将在此呈现。
       </p>
     )
   }
@@ -112,7 +112,7 @@ export default function AnonDocView() {
         setState({ loading: false, error: null, requiresPassword: false, file: meta })
       }
     } catch (e) {
-      setState({ loading: false, error: (e as Error)?.message || 'This link is unavailable', requiresPassword: false, file: null })
+      setState({ loading: false, error: (e as Error)?.message || '此链接不可用', requiresPassword: false, file: null })
     }
   }, [token])
 
@@ -126,7 +126,7 @@ export default function AnonDocView() {
       const file = await api.viewShareLink(token as string, password) as ShareFile
       setState({ loading: false, error: null, requiresPassword: false, file })
     } catch (err) {
-      setState((s) => ({ ...s, error: (err as Error)?.message || 'Incorrect password' }))
+      setState((s) => ({ ...s, error: (err as Error)?.message || '密码错误' }))
     } finally {
       setSubmitting(false)
     }
@@ -142,7 +142,7 @@ export default function AnonDocView() {
           <Eye size={12} /> Read-only shared document
         </div>
 
-        {loading && <LoadingState label="Opening document…" className="py-16" />}
+        {loading && <LoadingState label="正在打开文档…" className="py-16" />}
 
         {error && !loading && (
           <div className="flex flex-col items-center gap-3 py-16 text-center">
@@ -151,7 +151,7 @@ export default function AnonDocView() {
             </div>
             <p className="text-sm text-danger max-w-sm">{error}</p>
             {requiresPassword && (
-              <Button variant="secondary" size="sm" onClick={() => void loadMeta()}>Try again</Button>
+              <Button variant="secondary" size="sm" onClick={() => void loadMeta()}>重试</Button>
             )}
           </div>
         )}
@@ -161,19 +161,19 @@ export default function AnonDocView() {
             <div className="w-12 h-12 rounded-full bg-accent-tint flex items-center justify-center mx-auto">
               <Lock size={20} className="text-accent" />
             </div>
-            <p className="text-sm text-ink">This document is password protected.</p>
+            <p className="text-sm text-ink">此文档受密码保护。</p>
             <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
-              aria-label="Document password"
+              placeholder="请输入密码"
+              aria-label="文档密码"
               leading={<Lock size={13} />}
               autoFocus
             />
             <Button type="submit" variant="primary" size="md" disabled={submitting || !password} className="w-full justify-center">
               {submitting ? <Loader2 size={14} className="animate-spin" /> : <Eye size={14} />}
-              View document
+              查看文档
             </Button>
           </form>
         )}

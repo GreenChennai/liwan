@@ -74,7 +74,7 @@ describe('Docs editor — real TipTap integration (MSW/RTL)', () => {
   // ── a11y: the toolbar is a proper labelled, horizontally-oriented toolbar ──
   it('exposes the formatting toolbar as an oriented ARIA toolbar', () => {
     renderToolbar('<p>x</p>')
-    const bar = screen.getByRole('toolbar', { name: /document formatting/i })
+    const bar = screen.getByRole('toolbar', { name: /文档格式/ })
     expect(bar).toBeInTheDocument()
     expect(bar.getAttribute('aria-orientation')).toBe('horizontal')
   })
@@ -96,7 +96,7 @@ describe('Docs editor — real TipTap integration (MSW/RTL)', () => {
     act(() => { editor.chain().focus().selectAll().run() })
 
     // Open the font-size selector and pick a preset.
-    const sizeBtn = screen.getByLabelText(/Font size:/i)
+    const sizeBtn = screen.getByLabelText(/字号：/)
     fireEvent.click(sizeBtn)
     // Preset sizes render as menu items; pick "24".
     const opt = await screen.findByText('24', {}, { timeout: 2000 })
@@ -119,7 +119,7 @@ describe('Docs editor — real TipTap integration (MSW/RTL)', () => {
   it('the Bold toolbar button bolds the selection', () => {
     const editor = renderToolbar('<p>make bold</p>')
     act(() => { editor.chain().focus().selectAll().run() })
-    fireEvent.click(screen.getByTitle(/Bold/i))
+    fireEvent.click(screen.getByTitle(/粗体/))
     expect(editor.getHTML()).toMatch(/<strong>/)
   })
 
@@ -150,15 +150,15 @@ describe('Docs editor — real TipTap integration (MSW/RTL)', () => {
   // ── export menu: DOCX / PDF / Markdown wired to exporters ──────────────────
   it('the export menu offers DOCX, PDF and Markdown', async () => {
     renderToolbar('<p>Export <strong>me</strong></p>')
-    fireEvent.click(screen.getByLabelText('Export document'))
-    expect(await screen.findByText('Word document')).toBeInTheDocument()
-    expect(screen.getByText(/PDF document/i)).toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('导出文档'))
+    expect(await screen.findByText('Word 文档')).toBeInTheDocument()
+    expect(screen.getByText(/PDF 文档/)).toBeInTheDocument()
     expect(screen.getByText(/Markdown/i)).toBeInTheDocument()
   })
 
   it('choosing Markdown export invokes saveAs with a .md file', async () => {
     renderToolbar('<p>Export <strong>me</strong></p>')
-    fireEvent.click(screen.getByLabelText('Export document'))
+    fireEvent.click(screen.getByLabelText('导出文档'))
     const md = await screen.findByText(/Markdown/i)
     fireEvent.click(md)
     await waitFor(() => expect(vi.mocked(saveAs)).toHaveBeenCalled())
@@ -168,8 +168,8 @@ describe('Docs editor — real TipTap integration (MSW/RTL)', () => {
 
   it('choosing DOCX export produces a .docx blob via saveAs', async () => {
     renderToolbar('<p>Export <strong>me</strong></p>')
-    fireEvent.click(screen.getByLabelText('Export document'))
-    const docx = await screen.findByText('Word document')
+    fireEvent.click(screen.getByLabelText('导出文档'))
+    const docx = await screen.findByText('Word 文档')
     fireEvent.click(docx)
     await waitFor(() => expect(vi.mocked(saveAs)).toHaveBeenCalled())
     const [, filename] = vi.mocked(saveAs).mock.calls[0] as [Blob, string]

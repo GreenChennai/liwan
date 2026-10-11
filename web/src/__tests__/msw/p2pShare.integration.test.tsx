@@ -115,18 +115,18 @@ describe('P2PShareModal (sharer UI)', () => {
         onRotate={() => {}}
       />,
     )
-    expect(screen.getByText('Editor link')).toBeInTheDocument()
-    expect(screen.getByText('View-only link')).toBeInTheDocument()
+    expect(screen.getByText('编辑链接')).toBeInTheDocument()
+    expect(screen.getByText('仅查看链接')).toBeInTheDocument()
     // Both links are present in read-only inputs and carry the invite fragment.
     const inputs = screen.getAllByDisplayValue(/#vp2p=/)
     expect(inputs).toHaveLength(2)
     // The E2E-encryption promise is surfaced to the user honestly.
-    expect(screen.getByText(/end-to-end encrypted/i)).toBeInTheDocument()
+    expect(screen.getByText(/端到端加密/)).toBeInTheDocument()
   })
 
   it('shows a "Preparing room…" state before links exist', () => {
     render(<P2PShareModal open onClose={() => {}} links={null} />)
-    expect(screen.getByText(/Preparing room/i)).toBeInTheDocument()
+    expect(screen.getByText(/正在准备房间/)).toBeInTheDocument()
   })
 })
 

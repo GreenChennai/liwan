@@ -112,7 +112,7 @@ function SignerRow({ signer }: { signer: VerifySigner }) {
             </span>
           )}
         </div>
-        <Pill ok={signer.token_ok} label={signer.token_ok ? 'Valid' : 'Invalid'} />
+        <Pill ok={signer.token_ok} label={signer.token_ok ? '有效' : '无效'} />
         {open
           ? <ChevronDown size={14} className="text-ink-faint" />
           : <ChevronRight size={14} className="text-ink-faint" />}
@@ -120,18 +120,18 @@ function SignerRow({ signer }: { signer: VerifySigner }) {
       {open && (
         <div className="px-4 pb-4 pt-2 border-t border-line bg-bg-elev2 space-y-1.5 animate-fade-in">
           <div className="flex items-center gap-2 text-2xs text-ink-muted">
-            <span className="font-medium tracking-tightish">Signer ID:</span>
+            <span className="font-medium tracking-tightish">签署人 ID：</span>
             <span className="font-mono break-all">{signer.signer_id}</span>
           </div>
           {signer.identity && (
             <div className="flex items-center gap-2 text-2xs text-ink-muted">
-              <span className="font-medium tracking-tightish">Identity:</span>
+              <span className="font-medium tracking-tightish">身份：</span>
               <span className="font-serif italic">{signer.identity}</span>
             </div>
           )}
           {signer.signed_at && signer.signed_at !== '0001-01-01T00:00:00Z' && (
             <div className="flex items-center gap-2 text-2xs text-ink-muted">
-              <span className="font-medium tracking-tightish">Signed at:</span>
+              <span className="font-medium tracking-tightish">签署时间：</span>
               <span>{new Date(signer.signed_at).toLocaleString()}</span>
             </div>
           )}
@@ -206,7 +206,7 @@ export default function Verify() {
           body: JSON.stringify({ envelope_id: envelopeId.trim() }),
         })
       } else {
-        setError('Upload a sealed PDF or enter an envelope ID.')
+        setError('请上传已签署的 PDF，或输入签署信封 ID。')
         setLoading(false)
         return
       }
@@ -215,10 +215,10 @@ export default function Verify() {
       if (res.ok || res.status === 422) {
         setResult(data)
       } else {
-        setError(data.error || 'Verification request failed.')
+        setError(data.error || '验证请求失败。')
       }
     } catch (err) {
-      setError('Network error: ' + (err instanceof Error ? err.message : String(err)))
+      setError('网络错误：' + (err instanceof Error ? err.message : String(err)))
     } finally {
       setLoading(false)
     }
@@ -247,14 +247,14 @@ export default function Verify() {
             </div>
           </div>
           <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">
-            Public verification
+            公开验证
           </p>
           <h1 className="font-serif text-3xl text-ink leading-tight">
-            Verify an Liwan-signed document
+            验证 Liwan 议事厅签署的文档
           </h1>
           <p className="text-sm text-ink-muted leading-snug max-w-md mx-auto">
-            Drop a sealed PDF to check its cryptographic integrity and audit chain.
-            No account required.
+            拖入已签署的 PDF，即可检查其加密完整性和审计链。
+            无需账号。
           </p>
         </div>
 
@@ -290,11 +290,11 @@ export default function Verify() {
                 ) : (
                   <>
                     <p className="text-sm text-ink tracking-tightish">
-                      Drop a sealed PDF here, or{' '}
-                      <span className="text-accent font-medium">click to browse</span>
+                      将已签署的 PDF 拖到此处，或{' '}
+                      <span className="text-accent font-medium">点击选择文件</span>
                     </p>
                     <p className="text-2xs text-ink-faint mt-1 font-serif italic">
-                      We never store your document.
+                      我们从不存储您的文档。
                     </p>
                   </>
                 )}
@@ -304,7 +304,7 @@ export default function Verify() {
               <div className="flex items-center gap-3">
                 <div className="flex-1 border-t border-line" />
                 <span className="text-2xs text-ink-faint tracking-eyebrow uppercase">
-                  or verify by ID
+                  或通过 ID 验证
                 </span>
                 <div className="flex-1 border-t border-line" />
               </div>
@@ -314,7 +314,7 @@ export default function Verify() {
                 leading={<LinkIcon size={14} />}
                 value={envelopeId}
                 onChange={(e) => setEnvelopeId(e.target.value)}
-                placeholder="Envelope ID (e.g. abc123-...)"
+                placeholder="信封 ID（例如 abc123-...）"
               />
 
               {error && (
@@ -332,8 +332,8 @@ export default function Verify() {
                 disabled={loading || (!file && !envelopeId.trim())}
               >
                 {loading
-                  ? <><Loader2 size={15} className="animate-spin" /> Verifying…</>
-                  : <><Shield size={15} /> Verify document</>}
+                  ? <><Loader2 size={15} className="animate-spin" /> 正在验证…</>
+                  : <><Shield size={15} /> 验证文档</>}
               </Button>
             </Card>
           </form>
@@ -363,10 +363,10 @@ export default function Verify() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-1">
-                  {result.ok ? 'Verified' : 'Tampering detected'}
+                  {result.ok ? '已验证' : '检测到篡改'}
                 </p>
                 <p className="font-serif text-xl text-ink leading-tight">
-                  {result.ok ? 'All checks passed.' : 'Verification failed.'}
+                  {result.ok ? '所有检查均已通过。' : '验证失败。'}
                 </p>
                 {result.title && (
                   <p className="text-sm text-ink-muted mt-1.5 font-serif italic">
@@ -395,11 +395,11 @@ export default function Verify() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-ink tracking-tightish">
-                        Document hash
+                        文档哈希
                       </span>
-                      <Pill ok={result.hash_match} label={result.hash_match ? 'Match' : 'Mismatch'} />
+                      <Pill ok={result.hash_match} label={result.hash_match ? '匹配' : '不匹配'} />
                     </div>
-                    <HashDisplay hash={result.final_doc_hash} label="Expected" />
+                    <HashDisplay hash={result.final_doc_hash} label="预期值" />
                     {result.hash_error && (
                       <p className="mt-1.5 text-2xs text-danger">{result.hash_error}</p>
                     )}
@@ -416,12 +416,12 @@ export default function Verify() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-ink tracking-tightish">
-                        Audit chain integrity
+                        审计链完整性
                       </span>
-                      <Pill ok={result.chain_ok} label={result.chain_ok ? 'Intact' : 'Broken'} />
+                      <Pill ok={result.chain_ok} label={result.chain_ok ? '完整' : '已损坏'} />
                     </div>
                     <p className="text-2xs text-ink-faint mt-1">
-                      {result.total_audit_events} audit event{result.total_audit_events !== 1 ? 's' : ''}
+                      {result.total_audit_events} 条审计事件
                     </p>
                     {result.chain_error && (
                       <p className="mt-1.5 text-2xs text-danger">{result.chain_error}</p>
@@ -432,7 +432,7 @@ export default function Verify() {
                 {/* Sealed at */}
                 {result.sealed_at && result.sealed_at !== '0001-01-01T00:00:00Z' && (
                   <div className="px-4 py-3 text-2xs text-ink-faint tracking-tightish">
-                    Sealed {new Date(result.sealed_at).toLocaleString()}
+                    签署于 {new Date(result.sealed_at).toLocaleString()}
                   </div>
                 )}
               </div>
@@ -442,7 +442,7 @@ export default function Verify() {
             {result.signers && result.signers.length > 0 && (
               <div className="space-y-3">
                 <h2 className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase px-1">
-                  Signers ({result.signers.length})
+                  签署人（{result.signers.length}）
                 </h2>
                 <div className="space-y-2">
                   {result.signers.map((s) => (
@@ -454,14 +454,14 @@ export default function Verify() {
 
             {/* Verify another */}
             <Button variant="secondary" fullWidth onClick={reset}>
-              Verify another document
+              验证其他文档
             </Button>
           </div>
         )}
 
         {/* Quiet provenance footer */}
         <p className="text-2xs text-ink-faint text-center tracking-eyebrow uppercase pt-2">
-          Powered by Liwan
+          由 Liwan 议事厅提供支持
         </p>
       </div>
     </div>

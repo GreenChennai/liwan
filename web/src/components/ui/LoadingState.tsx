@@ -49,7 +49,7 @@ interface LoadingStateProps {
 }
 
 function LoadingStateBase({
-  label = 'Loading…',
+  label = '加载中…',
   size = 'md',
   inline = false,
   showLabel = true,

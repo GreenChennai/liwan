@@ -104,17 +104,17 @@ describe('WAVE41 data validation panel (real component + model)', () => {
       />,
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /Add rule/i }))
+    fireEvent.click(screen.getByRole('button', { name: /添加规则/ }))
     // Default criteria is "dropdown" — fill items + range and save.
-    await userEvent.type(screen.getByLabelText('Items (comma-separated)'), 'Low, Medium, High')
-    const range = screen.getByLabelText('Apply to range')
+    await userEvent.type(screen.getByLabelText('选项（用逗号分隔）'), 'Low, Medium, High')
+    const range = screen.getByLabelText('应用到区域')
     fireEvent.change(range, { target: { value: 'A1:A3' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
 
     // Metadata written across the range, grouped into one rule for A1:A3.
     const rules = listValidationRules(data[0])
     expect(rules).toHaveLength(1)
-    expect(rules[0].summary).toBe('Dropdown · 3 items')
+    expect(rules[0].summary).toBe('下拉列表 · 3 个选项')
     expect(rules[0].count).toBe(3)
     expect(reg(data[0], '0_0').type).toBe('dropdown')
 
@@ -132,18 +132,18 @@ describe('WAVE41 data validation panel (real component + model)', () => {
         onChange={(next: unknown) => { data = cast<TestSheet[]>(next) }}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: /Add rule/i }))
+    fireEvent.click(screen.getByRole('button', { name: /添加规则/ }))
     // Switch criteria to Number.
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'number' } })
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'number' } })
     // "between" is the default condition (needs two values).
-    await userEvent.type(screen.getByLabelText('Value'), '0')
-    await userEvent.type(screen.getByLabelText('Upper value'), '100')
-    fireEvent.change(screen.getByLabelText('Apply to range'), { target: { value: 'B1' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    await userEvent.type(screen.getByLabelText('值'), '0')
+    await userEvent.type(screen.getByLabelText('上限值'), '100')
+    fireEvent.change(screen.getByLabelText('应用到区域'), { target: { value: 'B1' } })
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
 
     const rules = listValidationRules(data[0])
     expect(rules).toHaveLength(1)
-    expect(rules[0].summary).toBe('Number between 0 and 100')
+    expect(rules[0].summary).toBe('数字 介于 0 与 100')
     expect(reg(data[0], '0_1')).toMatchObject({ type: 'number', type2: 'between', value1: '0', value2: '100' })
   })
 
@@ -152,9 +152,9 @@ describe('WAVE41 data validation panel (real component + model)', () => {
     render(
       <DataValidationPanel data={data} activeCell={{ row: 0, col: 0 }} onClose={() => {}} onChange={(n: unknown) => { data = cast<TestSheet[]>(n) }} />,
     )
-    fireEvent.click(screen.getByRole('button', { name: /Add rule/i }))
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
-    expect(await screen.findByRole('alert')).toHaveTextContent(/at least one dropdown item/i)
+    fireEvent.click(screen.getByRole('button', { name: /添加规则/ }))
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/至少添加一个下拉选项/)
     expect(data[0].dataVerification).toBeUndefined()
   })
 })
@@ -172,7 +172,7 @@ describe('WAVE64 data validation kinds (real component + model)', () => {
         onChange={(next: unknown) => { data = cast<TestSheet[]>(next) }}
       />,
     )
-    fireEvent.click(screen.getByRole('button', { name: /Add rule/i }))
+    fireEvent.click(screen.getByRole('button', { name: /添加规则/ }))
     return { view, get: () => data }
   }
 
@@ -184,20 +184,20 @@ describe('WAVE64 data validation kinds (real component + model)', () => {
     // cast — removing it fails `tsc --noEmit` with "Property 'options' does
     // not exist on type 'HTMLElement'". Confirmed by direct removal.
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const values = Array.from((screen.getByLabelText('Criteria') as HTMLSelectElement).options).map((o) => o.value)
+    const values = Array.from((screen.getByLabelText('条件类型') as HTMLSelectElement).options).map((o) => o.value)
     expect(values).toEqual(['dropdown', 'dropdownRange', 'checkbox', 'number', 'date', 'text', 'textLength'])
   })
 
   it('dropdown from a RANGE (cross-sheet) → a native dropdown whose list source is the range', () => {
     const { get } = panel()
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'dropdownRange' } })
-    fireEvent.change(screen.getByLabelText('List source range'), { target: { value: 'Sheet2!A1:A5' } })
-    fireEvent.change(screen.getByLabelText('Apply to range'), { target: { value: 'A1:A2' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'dropdownRange' } })
+    fireEvent.change(screen.getByLabelText('列表来源区域'), { target: { value: 'Sheet2!A1:A5' } })
+    fireEvent.change(screen.getByLabelText('应用到区域'), { target: { value: 'A1:A2' } })
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
 
     const rules = listValidationRules(get()[0])
     expect(rules).toHaveLength(1)
-    expect(rules[0].summary).toBe('Dropdown · from Sheet2!A1:A5')
+    expect(rules[0].summary).toBe('下拉列表 · 来自 Sheet2!A1:A5')
     expect(reg(get()[0], '0_0')).toMatchObject({ type: 'dropdown', value1: 'Sheet2!A1:A5' })
     // Cell values are untouched (CRDT-sync safe), as with every other rule.
     expect(get()[0].celldata).toEqual(makeWorkbook()[0].celldata)
@@ -205,63 +205,63 @@ describe('WAVE64 data validation kinds (real component + model)', () => {
 
   it('checkbox → a two-value rule that rejects anything else', () => {
     const { get } = panel()
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'checkbox' } })
-    fireEvent.change(screen.getByLabelText('Checked value'), { target: { value: 'Yes' } })
-    fireEvent.change(screen.getByLabelText('Unchecked value'), { target: { value: 'No' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'checkbox' } })
+    fireEvent.change(screen.getByLabelText('选中时的值'), { target: { value: 'Yes' } })
+    fireEvent.change(screen.getByLabelText('未选中时的值'), { target: { value: 'No' } })
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
 
-    expect(listValidationRules(get()[0])[0].summary).toBe('Checkbox · Yes / No')
+    expect(listValidationRules(get()[0])[0].summary).toBe('复选框 · Yes / No')
     expect(reg(get()[0], '0_0')).toMatchObject({ value1: 'Yes,No', prohibitInput: true, checkbox: true })
   })
 
   it('date between → a native date rule with both operands', () => {
     const { get } = panel()
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'date' } })
-    fireEvent.change(screen.getByLabelText('Value'), { target: { value: '2026-01-01' } })
-    fireEvent.change(screen.getByLabelText('Upper value'), { target: { value: '2026-12-31' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'date' } })
+    fireEvent.change(screen.getByLabelText('值'), { target: { value: '2026-01-01' } })
+    fireEvent.change(screen.getByLabelText('上限值'), { target: { value: '2026-12-31' } })
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
 
     expect(reg(get()[0], '0_0')).toMatchObject({
       type: 'date', type2: 'between', value1: '2026-01-01', value2: '2026-12-31',
     })
-    expect(listValidationRules(get()[0])[0].summary).toBe('Date between 2026-01-01 and 2026-12-31')
+    expect(listValidationRules(get()[0])[0].summary).toBe('日期 介于 2026-01-01 与 2026-12-31')
   })
 
   it('text contains → a native text_content rule', () => {
     const { get } = panel()
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'text' } })
-    fireEvent.change(screen.getByLabelText('Value'), { target: { value: 'INV-' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'text' } })
+    fireEvent.change(screen.getByLabelText('值'), { target: { value: 'INV-' } })
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
     expect(reg(get()[0], '0_0')).toMatchObject({ type: 'text_content', type2: 'include', value1: 'INV-' })
   })
 
   it('text length → a native text_length rule, and switching criteria resets the condition', () => {
     const { get } = panel()
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'text' } })
-    expect(screen.getByLabelText('Condition')).toHaveValue('include')
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'text' } })
+    expect(screen.getByLabelText('条件')).toHaveValue('include')
     // Switching to a kind with a different condition vocabulary must not carry the
     // old token over (a `text_length` rule with type2 'include' would never match).
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'textLength' } })
-    expect(screen.getByLabelText('Condition')).toHaveValue('between')
-    fireEvent.change(screen.getByLabelText('Condition'), { target: { value: 'lessThanOrEqualTo' } })
-    fireEvent.change(screen.getByLabelText('Value'), { target: { value: '10' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'textLength' } })
+    expect(screen.getByLabelText('条件')).toHaveValue('between')
+    fireEvent.change(screen.getByLabelText('条件'), { target: { value: 'lessThanOrEqualTo' } })
+    fireEvent.change(screen.getByLabelText('值'), { target: { value: '10' } })
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
     expect(reg(get()[0], '0_0')).toMatchObject({ type: 'text_length', type2: 'lessThanOrEqualTo', value1: '10' })
   })
 
   it('a hostile/unusable operand surfaces an error and writes NOTHING', async () => {
     const { get } = panel()
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'dropdownRange' } })
-    fireEvent.change(screen.getByLabelText('List source range'), { target: { value: 'javascript:alert(1)' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
-    expect(await screen.findByRole('alert')).toHaveTextContent(/valid source range/i)
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'dropdownRange' } })
+    fireEvent.change(screen.getByLabelText('列表来源区域'), { target: { value: 'javascript:alert(1)' } })
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/有效的来源区域/)
     expect(get()[0].dataVerification).toBeUndefined()
 
-    fireEvent.change(screen.getByLabelText('Criteria'), { target: { value: 'date' } })
-    fireEvent.change(screen.getByLabelText('Value'), { target: { value: '2026-99-99' } })
-    fireEvent.change(screen.getByLabelText('Upper value'), { target: { value: 'whenever' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
-    expect(await screen.findByRole('alert')).toHaveTextContent(/valid date/i)
+    fireEvent.change(screen.getByLabelText('条件类型'), { target: { value: 'date' } })
+    fireEvent.change(screen.getByLabelText('值'), { target: { value: '2026-99-99' } })
+    fireEvent.change(screen.getByLabelText('上限值'), { target: { value: 'whenever' } })
+    fireEvent.click(screen.getByRole('button', { name: /^保存$/ }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/有效日期/)
     expect(get()[0].dataVerification).toBeUndefined()
   })
 
@@ -274,7 +274,7 @@ describe('WAVE64 data validation kinds (real component + model)', () => {
     }
     const clamped = clampDataValidation(wb)
     expect(Object.keys(clamped[0].dataVerification!)).toEqual(['0_0'])
-    expect(listValidationRules(clamped[0])[0].summary).toBe('Dropdown · 2 items')
+    expect(listValidationRules(clamped[0])[0].summary).toBe('下拉列表 · 2 个选项')
   })
 })
 
@@ -292,8 +292,8 @@ describe('WAVE41 number-format menu (real component + model)', () => {
       />,
     )
     // Open the menu and pick Currency ($).
-    fireEvent.click(screen.getByRole('button', { name: /Number format/i }))
-    fireEvent.click(await screen.findByRole('menuitemradio', { name: /Currency \(\$\)/ }))
+    fireEvent.click(screen.getByRole('button', { name: /数字格式/ }))
+    fireEvent.click(await screen.findByRole('menuitemradio', { name: /货币 \(\$\)/ }))
 
     const b1 = data[0].celldata.find((c) => c.r === 0 && c.c === 1)!
     const b2 = data[0].celldata.find((c) => c.r === 1 && c.c === 1)!
@@ -311,8 +311,8 @@ describe('WAVE41 number-format menu (real component + model)', () => {
     // Pre-format B1 as percent so the menu should highlight it.
     data[0].celldata.find((c) => c.r === 0 && c.c === 1)!.v.ct = { fa: '0.00%', t: 'n' }
     render(<NumberFormatMenu selection={null} activeCell={{ row: 0, col: 1 }} data={data} onChange={() => {}} />)
-    fireEvent.click(screen.getByRole('button', { name: /Number format/i }))
-    const percent = await screen.findByRole('menuitemradio', { name: /^Percent$/ })
+    fireEvent.click(screen.getByRole('button', { name: /数字格式/ }))
+    const percent = await screen.findByRole('menuitemradio', { name: /^百分比$/ })
     expect(percent).toHaveAttribute('aria-checked', 'true')
     expect(detectPresetId(data[0].celldata.find((c) => c.r === 0 && c.c === 1)!.v)).toBe('percent')
   })

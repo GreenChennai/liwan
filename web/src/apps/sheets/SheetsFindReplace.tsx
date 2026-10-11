@@ -189,13 +189,13 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
     <div
       className="absolute top-1 right-2 left-2 sm:left-auto z-50 bg-paper border border-line rounded-lg shadow-e2 p-3 w-auto sm:w-80 animate-scale-in"
       role="dialog"
-      aria-label="Find and replace in sheet"
+      aria-label="表格内查找和替换"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-semibold text-ink-muted tracking-tightish flex items-center gap-1.5">
           <Search size={12} />
-          Find in sheet
+          在表格中查找
         </span>
         <div className="flex items-center gap-1">
           <button
@@ -204,12 +204,12 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
             className="text-2xs text-ink-faint hover:text-ink transition-colors px-1"
             aria-pressed={showReplace}
           >
-            {showReplace ? 'Hide replace' : 'Replace'}
+            {showReplace ? '隐藏替换' : '替换'}
           </button>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close find bar"
+            aria-label="关闭查找栏"
             className="text-ink-faint hover:text-ink transition-colors"
           >
             <X size={13} />
@@ -225,8 +225,8 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
           value={term}
           onChange={(e) => { setTerm(e.target.value); setMatchIdx(0) }}
           onKeyDown={handleKeyDown}
-          placeholder="Find…"
-          aria-label="Search term"
+          placeholder="查找…"
+          aria-label="搜索内容"
           className={[
             'flex-1 h-7 text-xs px-2 rounded-sm border',
             'bg-bg text-ink placeholder:text-ink-faint',
@@ -238,7 +238,7 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
           type="button"
           onClick={goPrev}
           disabled={count === 0}
-          aria-label="Previous match"
+          aria-label="上一个匹配项"
           className="toolbar-btn disabled:opacity-40"
         >
           <ChevronUp size={13} />
@@ -247,7 +247,7 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
           type="button"
           onClick={goNext}
           disabled={count === 0}
-          aria-label="Next match"
+          aria-label="下一个匹配项"
           className="toolbar-btn disabled:opacity-40"
         >
           <ChevronDown size={13} />
@@ -263,12 +263,12 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
             onChange={(e) => { setMatchCase(e.target.checked); setMatchIdx(0) }}
             className="rounded-xs border border-line"
           />
-          Match case
+          区分大小写
         </label>
         <span className="text-2xs text-ink-faint tabular-nums">
           {term
             ? count === 0
-              ? 'No results'
+              ? '无结果'
               : `${safeIdx + 1} / ${count}`
             : ''}
         </span>
@@ -284,8 +284,8 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
               value={replacement}
               onChange={(e) => setReplacement(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Replace with…"
-              aria-label="Replacement text"
+              placeholder="替换为…"
+              aria-label="替换文本"
               className={[
                 'flex-1 h-7 text-xs px-2 rounded-sm border border-line',
                 'bg-bg text-ink placeholder:text-ink-faint',
@@ -304,7 +304,7 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
                 'disabled:opacity-40',
               ].join(' ')}
             >
-              <ArrowRight size={11} /> Replace
+              <ArrowRight size={11} /> 替换
             </button>
             <button
               type="button"
@@ -316,7 +316,7 @@ export default function SheetsFindReplace({ data, onChange, onClose }: SheetsFin
                 'disabled:opacity-40',
               ].join(' ')}
             >
-              Replace all ({count})
+              全部替换 ({count})
             </button>
           </div>
         </>

@@ -66,20 +66,20 @@ interface PdfPageRender {
 
 const FIELD_LABELS_AND_HUE: Record<SignFieldKind, string> = {
   // Single accent for all fields keeps the page calm.  We vary the label only.
-  signature: 'Signature',
-  initial:   'Initial',
-  date:      'Date',
-  name:      'Full name',
-  text:      'Text',
+  signature: '签名',
+  initial:   '缩写',
+  date:      '日期',
+  name:      '全名',
+  text:      '文本',
 }
 
 const FIELD_LABELS = FIELD_LABELS_AND_HUE
 
 const TYPED_FONTS: Array<{ label: string; value: string }> = [
-  { label: 'Elegant', value: '"Dancing Script", cursive' },
-  { label: 'Classic', value: '"Pacifico", cursive' },
-  { label: 'Neat',    value: '"Satisfy", cursive' },
-  { label: 'Formal',  value: 'Georgia, serif' },
+  { label: '优雅', value: '"Dancing Script", cursive' },
+  { label: '经典', value: '"Pacifico", cursive' },
+  { label: '工整', value: '"Satisfy", cursive' },
+  { label: '正式', value: 'Georgia, serif' },
 ]
 
 // SOVEREIGNTY: typed-signature preview fonts are vendored locally via the
@@ -128,7 +128,7 @@ function DrawPad({ onDataUrl }: { onDataUrl: (url: string | null) => void }) {
         onClick={clear}
         className="flex items-center gap-1 text-xs text-ink-muted hover:text-ink transition-colors"
       >
-        <RefreshCw className="w-3 h-3" /> Clear
+        <RefreshCw className="w-3 h-3" /> 清除
       </button>
     </div>
   )
@@ -166,7 +166,7 @@ function TypedPad({ signerName, onDataUrl }: { signerName?: string | undefined; 
         type="text"
         value={text}
         onChange={e => setText(e.target.value)}
-        placeholder="Type your name"
+        placeholder="请输入姓名"
         className="w-full bg-paper border border-line rounded-md px-3 py-2 text-sm outline-none focus:border-accent focus:shadow-focus transition-colors"
       />
 
@@ -222,11 +222,11 @@ function UploadPad({ onDataUrl }: { onDataUrl: (url: string | null) => void }) {
     <div className="space-y-3">
       <label className="flex flex-col items-center justify-center border border-dashed border-line-strong rounded-md py-6 cursor-pointer hover:border-accent hover:bg-accent-tint transition-colors bg-bg-elev2">
         <Upload className="w-6 h-6 text-ink-faint mb-1" />
-        <span className="text-sm text-ink-muted">Click to upload PNG / JPG</span>
+        <span className="text-sm text-ink-muted">点击上传 PNG / JPG</span>
         <input type="file" accept="image/png,image/jpeg" className="hidden" onChange={onFile} />
       </label>
       {preview && (
-        <img src={preview} alt="uploaded signature" className="max-h-20 object-contain rounded-sm border border-line" />
+        <img src={preview} alt="已上传的签名" className="max-h-20 object-contain rounded-sm border border-line" />
       )}
     </div>
   )
@@ -264,7 +264,7 @@ function FieldFillModal({
       <div className="bg-paper rounded-xl shadow-e3 border border-line w-full max-w-lg overflow-hidden animate-scale-in">
         <div className="px-5 py-3.5 border-b border-line flex items-center justify-between">
           <h3 className="font-semibold text-ink text-md tracking-tightish">
-            Fill {FIELD_LABELS[field.type] ?? field.type}
+            填写{FIELD_LABELS[field.type] ?? field.type}
             {field.required && <span className="ml-1 text-danger">*</span>}
           </h3>
           <button onClick={onClose} className="text-ink-faint hover:text-ink text-lg leading-none transition-colors">&times;</button>
@@ -276,9 +276,9 @@ function FieldFillModal({
             <>
               <div className="flex p-0.5 bg-bg-elev2 rounded-md border border-line">
                 {[
-                  { id: 'draw',   label: 'Draw',   icon: Pen },
-                  { id: 'type',   label: 'Type',   icon: Type },
-                  { id: 'upload', label: 'Upload', icon: Upload },
+                  { id: 'draw',   label: '绘制',   icon: Pen },
+                  { id: 'type',   label: '输入',   icon: Type },
+                  { id: 'upload', label: '上传', icon: Upload },
                 ].map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}
@@ -305,7 +305,7 @@ function FieldFillModal({
           {/* date: auto-filled, editable */}
           {field.type === 'date' && (
             <div>
-              <label className="text-xs text-ink-muted font-medium mb-1.5 block tracking-tightish">Date</label>
+              <label className="text-xs text-ink-muted font-medium mb-1.5 block tracking-tightish">日期</label>
               <input
                 type="text"
                 value={textValue}
@@ -325,7 +325,7 @@ function FieldFillModal({
                 type="text"
                 value={textValue}
                 onChange={e => setTextValue(e.target.value)}
-                placeholder={field.type === 'name' ? 'Your full name' : 'Enter text'}
+                placeholder={field.type === 'name' ? '请输入全名' : '请输入文本'}
                 className="w-full bg-paper border border-line rounded-md px-3 py-2 text-sm outline-none focus:border-accent focus:shadow-focus transition-colors"
               />
             </div>
@@ -338,7 +338,7 @@ function FieldFillModal({
             onClick={onClose}
             className="h-8 px-3 text-sm text-ink-muted bg-paper border border-line rounded-md hover:bg-bg-elev2 hover:border-line-strong transition-colors"
           >
-            Cancel
+            取消
           </button>
           <button
             type="button"
@@ -346,7 +346,7 @@ function FieldFillModal({
             disabled={!canSave}
             className="h-8 px-3 text-sm font-medium text-white bg-accent rounded-md hover:bg-accent-hover disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            Apply
+            应用
           </button>
         </div>
       </div>
@@ -386,7 +386,7 @@ export default function SignView() {
           return
         }
         if (!res.ok) {
-          setErrorMsg(data.error || 'Could not load signing session.')
+          setErrorMsg(data.error || '无法加载签署会话。')
           setState('error')
           return
         }
@@ -400,7 +400,7 @@ export default function SignView() {
         setState('ready')
       })
       .catch(() => {
-        setErrorMsg('Network error. Please try again.')
+        setErrorMsg('网络错误，请重试。')
         setState('error')
       })
   }, [token])
@@ -468,12 +468,12 @@ export default function SignView() {
       })
       const data = await res.json() as { error?: string }
       if (!res.ok) {
-        setSubmitError(data.error || 'Submission failed. Please try again.')
+        setSubmitError(data.error || '提交失败，请重试。')
         return
       }
       setState('done')
     } catch {
-      setSubmitError('Network error. Please try again.')
+      setSubmitError('网络错误，请重试。')
     } finally {
       setSubmitting(false)
     }
@@ -494,7 +494,7 @@ export default function SignView() {
     return (
       <StatusFrame>
         <Loader2 className="w-7 h-7 text-accent animate-spin" />
-        <p className="text-sm text-ink-muted font-serif italic">Loading your signing session…</p>
+        <p className="text-sm text-ink-muted font-serif italic">正在加载您的签署会话…</p>
       </StatusFrame>
     )
   }
@@ -503,10 +503,9 @@ export default function SignView() {
     return (
       <StatusFrame>
         <Lock className="w-10 h-10 text-warning" />
-        <h1 className="font-serif text-2xl text-ink">Not your turn yet</h1>
+        <h1 className="font-serif text-2xl text-ink">暂未轮到您签署</h1>
         <p className="text-sm text-ink-muted text-center max-w-sm leading-snug">
-          A prior signer must complete their signature before this link becomes active.
-          You'll be notified when it's your turn.
+          前面的签署人完成签名后，此链接才会生效。轮到您时，我们会通知您。
         </p>
       </StatusFrame>
     )
@@ -516,7 +515,7 @@ export default function SignView() {
     return (
       <StatusFrame>
         <AlertCircle className="w-10 h-10 text-danger" />
-        <h1 className="font-serif text-2xl text-ink">Link unavailable</h1>
+        <h1 className="font-serif text-2xl text-ink">链接不可用</h1>
         <p className="text-sm text-ink-muted text-center max-w-sm leading-snug">{errorMsg}</p>
       </StatusFrame>
     )
@@ -528,13 +527,12 @@ export default function SignView() {
         <div className="w-14 h-14 rounded-full bg-success-bg flex items-center justify-center">
           <CheckCircle className="w-8 h-8 text-success" />
         </div>
-        <h1 className="font-serif text-3xl text-ink">Signed.</h1>
+        <h1 className="font-serif text-3xl text-ink">已签署。</h1>
         <p className="text-sm text-ink-muted text-center max-w-sm leading-snug">
-          Your signature has been submitted and recorded. You may close this window.
+          您的签名已提交并记录，可以关闭此窗口。
         </p>
         <p className="mt-1 text-xs text-ink-faint text-center max-w-sm">
-          Once all signers complete, the document owner can download the sealed PDF.
-          Anyone can verify its integrity at{' '}
+          所有签署人完成后，文档所有者即可下载已封存的 PDF。任何人都可以在{' '}
           <a
             href="/verify"
             className="text-accent underline underline-offset-2 hover:text-accent-hover"
@@ -543,7 +541,7 @@ export default function SignView() {
           >
             /verify
           </a>
-          .
+          验证其完整性。
         </p>
         <p className="mt-6 text-2xs text-ink-faint tracking-eyebrow uppercase">
           Liwan
@@ -571,7 +569,7 @@ export default function SignView() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-0.5">
-              Signature requested
+              签署请求
             </p>
             {/* The signer's name is the document — use the serif. */}
             <h1 className="font-serif text-xl text-ink truncate leading-tight">
@@ -580,7 +578,7 @@ export default function SignView() {
           </div>
           <div className="hidden sm:flex flex-col items-end gap-1 flex-shrink-0">
             <span className="text-2xs text-ink-faint tracking-eyebrow uppercase">
-              {filledCount} of {fields.length} complete
+              已完成 {filledCount} / {fields.length}
             </span>
             {/* Tiny progress bar — calm, never alarming. */}
             <div className="w-32 h-1 rounded-pill bg-bg-elev2 overflow-hidden">
@@ -599,16 +597,16 @@ export default function SignView() {
         <section className="bg-paper rounded-lg border border-line overflow-hidden animate-fade-in">
           <div className="px-4 py-3 border-b border-line flex items-center justify-between">
             <h2 className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">
-              Fields to complete
+              待填写项
             </h2>
             <span className="text-2xs text-ink-faint">
-              {fields.length} {fields.length === 1 ? 'field' : 'fields'}
+              {fields.length} 项
             </span>
           </div>
 
           {fields.length === 0 ? (
             <p className="text-sm text-ink-faint font-serif italic px-4 py-6">
-              No fields assigned to you.
+              没有分配给您的字段。
             </p>
           ) : (
             <ul className="divide-y divide-line">
@@ -637,11 +635,11 @@ export default function SignView() {
                           {FIELD_LABELS[f.type] ?? f.type}
                         </span>
                         {f.required && (
-                          <span className="text-2xs text-danger">required</span>
+                          <span className="text-2xs text-danger">必填</span>
                         )}
                       </div>
                       <span className="text-2xs text-ink-faint">
-                        Page {f.page}
+                        第 {f.page} 页
                       </span>
                     </div>
                     <button
@@ -655,7 +653,7 @@ export default function SignView() {
                           : 'text-white bg-accent hover:bg-accent-hover',
                       ].join(' ')}
                     >
-                      {filled ? 'Edit' : 'Fill'}
+                      {filled ? '编辑' : '填写'}
                     </button>
                   </li>
                 )
@@ -669,7 +667,7 @@ export default function SignView() {
           {pdfLoading && (
             <div className="flex items-center gap-2 text-sm text-ink-faint font-serif italic">
               <Loader2 className="w-4 h-4 animate-spin" />
-              Loading document…
+              正在加载文档…
             </div>
           )}
 
@@ -683,7 +681,7 @@ export default function SignView() {
               >
                 <img
                   src={canvas.toDataURL()}
-                  alt={`Page ${pageNum}`}
+                  alt={`第 ${pageNum} 页`}
                   style={{ width: '100%', display: 'block' }}
                 />
 
@@ -706,7 +704,7 @@ export default function SignView() {
                       {filled && isImg ? (
                         <img
                           src={fieldValues[f.id]}
-                          alt="signature"
+                          alt="签名"
                           style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                         />
                       ) : filled ? (
@@ -748,15 +746,14 @@ export default function SignView() {
               onChange={e => setConsent(e.target.checked)}
             />
             <span className="text-sm text-ink-muted leading-snug">
-              I consent to signing this document electronically. My electronic
-              signature is legally equivalent to a handwritten signature.
+              我同意以电子方式签署本文件。我的电子签名与手写签名具有同等法律效力。
             </span>
           </label>
 
           {requiredFields.length > 0 && !allRequiredFilled && (
             <p className="text-xs text-warning flex items-center gap-1.5 bg-warning-bg rounded-sm px-2 py-1.5">
               <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-              Please fill all required fields before submitting.
+              提交前请填写所有必填字段。
             </p>
           )}
 
@@ -776,14 +773,14 @@ export default function SignView() {
               transition-colors duration-fast ease-out flex items-center justify-center gap-2 shadow-e1 tracking-tightish"
           >
             {submitting
-              ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</>
-              : <><CheckCircle className="w-4 h-4" /> Submit signature</>}
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> 提交中…</>
+              : <><CheckCircle className="w-4 h-4" /> 提交签名</>}
           </button>
         </section>
 
         {/* Quiet footer — establishes provenance without screaming */}
         <p className="text-2xs text-ink-faint text-center tracking-eyebrow uppercase pb-8">
-          Powered by Liwan
+          由 Liwan 提供支持
         </p>
       </div>
 

@@ -44,33 +44,33 @@ const GRID: (string | number)[][] = [
 describe('ChartWizard — every new type is reachable and configurable', () => {
   it('offers all 14 types, grouped, as a keyboard-operable radiogroup', () => {
     render(<ChartWizard data={wbFrom(GRID)} onClose={() => {}} onChange={() => {}} />)
-    const group = screen.getByRole('radiogroup', { name: /chart type/i })
+    const group = screen.getByRole('radiogroup', { name: /图表类型/ })
     const radios = within(group).getAllByRole('radio')
     expect(radios).toHaveLength(CHART_TYPES.length)
     expect(radios.length).toBe(14)
-    for (const label of ['Stacked column', 'Stacked bar', '100% column', '100% bar', 'Donut', 'Histogram']) {
-      expect(within(group).getByRole('radio', { name: new RegExp(label, 'i') })).toBeTruthy()
+    for (const label of ['堆叠柱形图', '堆叠条形图', '百分比柱形图', '百分比条形图', '环形图', '直方图']) {
+      expect(within(group).getByRole('radio', { name: new RegExp(label) })).toBeTruthy()
     }
     // Group headings orient the user instead of a flat wall of 14 buttons.
-    expect(screen.getByText('Bar & column')).toBeTruthy()
-    expect(screen.getByText('Part-to-whole')).toBeTruthy()
-    expect(screen.getByText('Distribution')).toBeTruthy()
+    expect(screen.getByText('柱状图与条形图')).toBeTruthy()
+    expect(screen.getByText('占比')).toBeTruthy()
+    expect(screen.getByText('分布')).toBeTruthy()
   })
 
   it('picking Histogram reveals a bounded bucket control and emits a clamped descriptor', () => {
     const onChange = vi.fn((_data: ChartSheet[]) => {})
     render(<ChartWizard data={wbFrom(GRID)} onClose={() => {}} onChange={onChange} />)
-    fireEvent.click(screen.getByRole('radio', { name: /histogram/i }))
+    fireEvent.click(screen.getByRole('radio', { name: /直方图/ }))
 
-    const bins = screen.getByLabelText(/buckets/i)
+    const bins = screen.getByLabelText(/分箱数/)
     expect(bins).toHaveAttribute('min', '2')
     expect(bins).toHaveAttribute('max', '50')
-    expect(screen.getByText(/bins the FIRST numeric column/i)).toBeTruthy()   // it explains itself
+    expect(screen.getByText(/将第一个数值列分入若干分箱/)).toBeTruthy()   // it explains itself
 
     // Even if the input is driven past its bound, the descriptor is clamped.
     fireEvent.change(bins, { target: { value: '9999' } })
-    fireEvent.change(screen.getByLabelText(/data range/i), { target: { value: 'C1:C4' } })
-    fireEvent.click(screen.getByRole('button', { name: /insert chart/i }))
+    fireEvent.change(screen.getByLabelText(/数据范围/), { target: { value: 'C1:C4' } })
+    fireEvent.click(screen.getByRole('button', { name: /^插入图表$/ }))
 
     const chart = getCharts(onChange.mock.calls[0][0])[0]
     expect(chart.type).toBe('histogram')
@@ -81,7 +81,7 @@ describe('ChartWizard — every new type is reachable and configurable', () => {
   it('picking Combo turns the secondary axis on and exposes its label field', () => {
     const onChange = vi.fn((_data: ChartSheet[]) => {})
     render(<ChartWizard data={wbFrom(GRID)} onClose={() => {}} onChange={onChange} />)
-    fireEvent.click(screen.getByRole('radio', { name: /^combo$/i }))
+    fireEvent.click(screen.getByRole('radio', { name: /^组合图$/ }))
 
     // VERIFIED TOOL DISAGREEMENT: getByLabelText<T extends HTMLElement =
     // HTMLElement>() can't infer T from the later .checked access, so tsc
@@ -89,10 +89,10 @@ describe('ChartWizard — every new type is reachable and configurable', () => {
     // 'checked' does not exist on type 'HTMLElement'". Confirmed by direct
     // removal.
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    const secondary = screen.getByLabelText(/secondary \(right\) axis/i) as HTMLInputElement
+    const secondary = screen.getByLabelText(/次坐标轴（右侧）/) as HTMLInputElement
     expect(secondary.checked).toBe(true)                 // the reason to pick combo at all
-    fireEvent.change(screen.getByLabelText(/secondary axis label/i), { target: { value: 'Margin %' } })
-    fireEvent.click(screen.getByRole('button', { name: /insert chart/i }))
+    fireEvent.change(screen.getByLabelText(/次坐标轴标签/), { target: { value: 'Margin %' } })
+    fireEvent.click(screen.getByRole('button', { name: /^插入图表$/ }))
 
     const chart = getCharts(onChange.mock.calls[0][0])[0]
     expect(chart.type).toBe('combo')
@@ -105,16 +105,16 @@ describe('ChartWizard — every new type is reachable and configurable', () => {
 
   it('a stacked type explains that negatives are not dropped', () => {
     render(<ChartWizard data={wbFrom(GRID)} onClose={() => {}} onChange={() => {}} />)
-    fireEvent.click(screen.getByRole('radio', { name: /stacked column/i }))
-    expect(screen.getByText(/Negative values stack below the zero line/i)).toBeTruthy()
+    fireEvent.click(screen.getByRole('radio', { name: /^堆叠柱形图$/ }))
+    expect(screen.getByText(/负值会堆叠在零线下方/)).toBeTruthy()
   })
 
   it('secondaryAxis is never set for a non-combo type', () => {
     const onChange = vi.fn((_data: ChartSheet[]) => {})
     render(<ChartWizard data={wbFrom(GRID)} onClose={() => {}} onChange={onChange} />)
-    fireEvent.click(screen.getByRole('radio', { name: /^combo$/i }))     // turns it on
-    fireEvent.click(screen.getByRole('radio', { name: /^column$/i }))    // switch away
-    fireEvent.click(screen.getByRole('button', { name: /insert chart/i }))
+    fireEvent.click(screen.getByRole('radio', { name: /^组合图$/ }))     // turns it on
+    fireEvent.click(screen.getByRole('radio', { name: /^柱形图$/ }))    // switch away
+    fireEvent.click(screen.getByRole('button', { name: /^插入图表$/ }))
     expect(getCharts(onChange.mock.calls[0][0])[0].options.secondaryAxis).toBe(false)
   })
 })
@@ -129,17 +129,17 @@ describe('PivotPanel — multi-value editor', () => {
 
   it('adds a second value field with its own aggregation and display mode', () => {
     const onInsert = setup()
-    fireEvent.click(screen.getByRole('button', { name: /add value/i }))
+    fireEvent.click(screen.getByRole('button', { name: /添加值/ }))
 
     // Two value rows, each independently labelled for a screen reader.
-    expect(screen.getByLabelText(/value field 1/i)).toBeTruthy()
-    const field2 = screen.getByLabelText(/value field 2/i)
+    expect(screen.getByLabelText(/值字段 1/)).toBeTruthy()
+    const field2 = screen.getByLabelText(/值字段 2/)
     fireEvent.change(field2, { target: { value: 'Units' } })
-    fireEvent.change(screen.getByLabelText(/aggregation for value 2/i), { target: { value: 'MEDIAN' } })
-    fireEvent.change(screen.getByLabelText(/display for value 2/i), { target: { value: 'pct_total' } })
-    fireEvent.change(screen.getByLabelText(/aggregation for value 1/i), { target: { value: 'SUM' } })
+    fireEvent.change(screen.getByLabelText(/值 2 的汇总方式/), { target: { value: 'MEDIAN' } })
+    fireEvent.change(screen.getByLabelText(/值 2 的显示方式/), { target: { value: 'pct_total' } })
+    fireEvent.change(screen.getByLabelText(/值 1 的汇总方式/), { target: { value: 'SUM' } })
 
-    fireEvent.click(screen.getByRole('button', { name: /insert live pivot/i }))
+    fireEvent.click(screen.getByRole('button', { name: /插入实时数据透视表/ }))
     const pivot = getPivots(onInsert.mock.calls[0][0])[0]
     expect(pivot.values).toHaveLength(2)
     expect(pivot.values[1]).toEqual({ field: 'Units', agg: 'MEDIAN', display: 'pct_total' })
@@ -147,20 +147,20 @@ describe('PivotPanel — multi-value editor', () => {
 
   it('removes a value field', () => {
     setup()
-    fireEvent.click(screen.getByRole('button', { name: /add value/i }))
-    expect(screen.getByLabelText(/value field 2/i)).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: /remove value 2/i }))
-    expect(screen.queryByLabelText(/value field 2/i)).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /添加值/ }))
+    expect(screen.getByLabelText(/值字段 2/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /移除值 2/ }))
+    expect(screen.queryByLabelText(/值字段 2/)).toBeNull()
   })
 
   it('exposes date grouping for the row and column fields', () => {
     const onInsert = setup()
-    fireEvent.change(screen.getByLabelText(/^row field$/i), { target: { value: 'Date' } })
-    fireEvent.change(screen.getByLabelText(/group row dates/i), { target: { value: 'month' } })
-    fireEvent.change(screen.getByLabelText(/^column field$/i), { target: { value: 'Region' } })
-    fireEvent.change(screen.getByLabelText(/group column dates/i), { target: { value: 'year' } })
+    fireEvent.change(screen.getByLabelText(/^行字段$/), { target: { value: 'Date' } })
+    fireEvent.change(screen.getByLabelText(/行日期分组/), { target: { value: 'month' } })
+    fireEvent.change(screen.getByLabelText(/^列字段$/), { target: { value: 'Region' } })
+    fireEvent.change(screen.getByLabelText(/列日期分组/), { target: { value: 'year' } })
 
-    fireEvent.click(screen.getByRole('button', { name: /insert live pivot/i }))
+    fireEvent.click(screen.getByRole('button', { name: /插入实时数据透视表/ }))
     const pivot = getPivots(onInsert.mock.calls[0][0])[0]
     expect(pivot.rowField).toBe('Date')
     expect(pivot.rowGroup).toBe('month')
@@ -169,11 +169,11 @@ describe('PivotPanel — multi-value editor', () => {
 
   it('renders a live preview whose percentage columns are shown as percentages', () => {
     setup()
-    fireEvent.change(screen.getByLabelText(/^row field$/i), { target: { value: 'Region' } })
-    fireEvent.change(screen.getByLabelText(/value field 1/i), { target: { value: 'Sales' } })
-    fireEvent.change(screen.getByLabelText(/display for value 1/i), { target: { value: 'pct_total' } })
+    fireEvent.change(screen.getByLabelText(/^行字段$/), { target: { value: 'Region' } })
+    fireEvent.change(screen.getByLabelText(/值字段 1/), { target: { value: 'Sales' } })
+    fireEvent.change(screen.getByLabelText(/值 1 的显示方式/), { target: { value: 'pct_total' } })
     const table = screen.getByRole('table')
-    expect(within(table).getByText('Sales (% of total)')).toBeTruthy()
+    expect(within(table).getByText('Sales (占总计 %)')).toBeTruthy()
     expect(within(table).getAllByText(/%$/).length).toBeGreaterThan(0)   // e.g. "42.857%"
   })
 })
@@ -189,13 +189,13 @@ describe('ExportDialog — the honest warning', () => {
     const onCancel = vi.fn(); const onConfirm = vi.fn((_format: string) => {})
     render(<ExportDialog data={cast<ExportSheet[]>(dataWithCharts())} format="ods" onCancel={onCancel} onConfirm={onConfirm} />)
 
-    expect(screen.getByRole('dialog', { name: /export as/i })).toBeTruthy()
+    expect(screen.getByRole('dialog', { name: /导出为/ })).toBeTruthy()
     const alert = screen.getByRole('alert')
-    expect(within(alert).getByText(/2 charts can’t be embedded/i)).toBeTruthy()
+    expect(within(alert).getByText(/2 个图表无法嵌入此格式/)).toBeTruthy()
     expect(within(alert).getByText('Rev')).toBeTruthy()        // named, not counted
     expect(within(alert).getByText('Spread')).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^取消$/ }))
     expect(onCancel).toHaveBeenCalled()
     expect(onConfirm).not.toHaveBeenCalled()                  // cancelling really cancels
   })
@@ -204,19 +204,19 @@ describe('ExportDialog — the honest warning', () => {
     const onConfirm = vi.fn((_format: string) => {})
     render(<ExportDialog data={cast<ExportSheet[]>(dataWithCharts())} format="xlsx" onCancel={() => {}} onConfirm={onConfirm} />)
     expect(screen.queryByRole('alert')).toBeNull()            // nothing is LOST in xlsx
-    expect(screen.getByText(/Embedded with a caveat/i)).toBeTruthy()
-    expect(screen.getByText(/histogram bins are embedded as fixed values/i)).toBeTruthy()
-    expect(screen.getByText(/real Excel charts/i)).toBeTruthy()
+    expect(screen.getByText(/已嵌入，但有注意事项/)).toBeTruthy()
+    expect(screen.getByText(/直方图分箱以固定值嵌入/)).toBeTruthy()
+    expect(screen.getByText(/真实 Excel 图表/)).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: /^export$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^导出$/ }))
     expect(onConfirm).toHaveBeenCalledWith('xlsx')
   })
 
   it('labels the confirm button as “Export anyway” when something WILL be lost', () => {
     render(<ExportDialog data={cast<ExportSheet[]>(dataWithCharts())} format="csv" onCancel={() => {}} onConfirm={() => {}} />)
-    expect(screen.getByRole('button', { name: /export anyway/i })).toBeTruthy()
+    expect(screen.getByRole('button', { name: /仍然导出/ })).toBeTruthy()
     // Stated both per-chart (why each one is lost) and as a summary note.
-    expect(screen.getAllByText(/CSV holds values only/i).length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText(/CSV 仅保存数值/).length).toBeGreaterThanOrEqual(2)
   })
 
   it('Escape closes the dialog (focus-trapped modal a11y)', () => {
@@ -241,14 +241,14 @@ describe('ExportDialog — the honest warning', () => {
       render(<ExportDialog data={importedLossy()} format="xlsx" onCancel={() => {}} onConfirm={() => {}} />)
 
       const alert = screen.getByRole('alert')
-      expect(within(alert).getByText(/not in this workbook/i)).toBeTruthy()
+      expect(within(alert).getByText(/既不在此工作簿中/)).toBeTruthy()
       expect(within(alert).getByText(/budget\.xlsx/)).toBeTruthy()
-      expect(within(alert).getByText(/2 pivot tables/i)).toBeTruthy()
-      expect(within(alert).getByText(/imported as ordinary cells/i)).toBeTruthy()
+      expect(within(alert).getByText(/2 个数据透视表/)).toBeTruthy()
+      expect(within(alert).getByText(/已作为普通单元格导入/)).toBeTruthy()
       expect(within(alert).getByText('Radar')).toBeTruthy()
-      expect(within(alert).getByText(/radar charts aren’t supported/i)).toBeTruthy()
+      expect(within(alert).getByText(/radar charts aren’t supported/)).toBeTruthy()
       // A loss the user must acknowledge, even though this format itself is lossless.
-      expect(screen.getByRole('button', { name: /export anyway/i })).toBeTruthy()
+      expect(screen.getByRole('button', { name: /仍然导出/ })).toBeTruthy()
     })
 
     it('says it for EVERY format — the content is gone regardless of what we write', () => {
@@ -256,14 +256,14 @@ describe('ExportDialog — the honest warning', () => {
         const { unmount } = render(
           <ExportDialog data={importedLossy()} format={format} onCancel={() => {}} onConfirm={() => {}} />
         )
-        expect(screen.getByText(/not in this workbook/i)).toBeTruthy()
+        expect(screen.getByText(/既不在此工作簿中/)).toBeTruthy()
         unmount()
       }
     })
 
     it('stays silent for a workbook that lost nothing', () => {
       render(<ExportDialog data={wbFrom(GRID)} format="xlsx" onCancel={() => {}} onConfirm={() => {}} />)
-      expect(screen.queryByText(/not in this workbook/i)).toBeNull()
+      expect(screen.queryByText(/既不在此工作簿中/)).toBeNull()
     })
   })
 })

@@ -36,7 +36,7 @@ describe('AdminApp invites', () => {
     render(<AdminApp />)
     await waitFor(() => expect(mock.adminListInvites).toHaveBeenCalled())
 
-    fireEvent.click(screen.getByText('Mint invite'))
+    fireEvent.click(screen.getByText('生成邀请码'))
 
     await waitFor(() => expect(mock.adminMintInvite).toHaveBeenCalled())
     expect(await screen.findByText('RAW-SECRET-TOKEN')).toBeInTheDocument()
@@ -51,7 +51,7 @@ describe('AdminApp invites', () => {
     mock.adminRevokeInvite.mockResolvedValue({ ok: true })
 
     render(<AdminApp />)
-    const revokeBtn = await screen.findByText('Revoke')
+    const revokeBtn = await screen.findByText('撤销')
     fireEvent.click(revokeBtn)
     await waitFor(() => expect(mock.adminRevokeInvite).toHaveBeenCalledWith('h2'))
   })
@@ -76,10 +76,10 @@ describe('AdminApp audit', () => {
       },
     ])
     render(<AdminApp />)
-    fireEvent.click(screen.getByText('Audit log'))
+    fireEvent.click(screen.getByText('审计日志'))
     await waitFor(() => expect(mock.adminListAudit).toHaveBeenCalled())
 
-    expect(await screen.findByText('ACL granted')).toBeInTheDocument()
+    expect(await screen.findByText('已授予 ACL 权限')).toBeInTheDocument()
     expect(screen.getByText('file-123')).toBeInTheDocument()
     // The malicious detail is rendered verbatim as text (not parsed as HTML),
     // so no <img> element is created.

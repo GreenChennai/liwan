@@ -165,7 +165,7 @@ export default function SmartChipMenu({ editor, people = [], files = [] }: Smart
     <div
       data-testid="smart-chip-menu"
       role="listbox"
-      aria-label="Insert smart chip"
+      aria-label="插入智能标记"
       className="fixed z-50 min-w-[240px] max-w-[340px] max-h-[280px] overflow-auto rounded-lg border border-line bg-paper shadow-e3 py-1 text-sm animate-fade-in"
       style={{ left: `${pos.left}px`, top: `${pos.top}px` }}
       // Prevent the editor from losing focus when the user clicks an item.

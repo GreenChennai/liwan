@@ -18,10 +18,10 @@
 
 // Page sizes in CSS inches (width × height, portrait). 96px = 1in on screen.
 export const PAGE_SIZES = {
-  letter: { label: 'Letter (8.5 × 11 in)', width: 8.5, height: 11 },
-  a4:     { label: 'A4 (210 × 297 mm)',    width: 8.27, height: 11.69 },
-  legal:  { label: 'Legal (8.5 × 14 in)',  width: 8.5, height: 14 },
-  tabloid:{ label: 'Tabloid (11 × 17 in)', width: 11, height: 17 },
+  letter: { label: 'Letter（8.5 × 11 英寸）', width: 8.5, height: 11 },
+  a4:     { label: 'A4（210 × 297 毫米）',    width: 8.27, height: 11.69 },
+  legal:  { label: 'Legal（8.5 × 14 英寸）',  width: 8.5, height: 14 },
+  tabloid:{ label: 'Tabloid（11 × 17 英寸）', width: 11, height: 17 },
 }
 
 export type PageSizeKey = keyof typeof PAGE_SIZES

@@ -33,7 +33,11 @@ interface ThemeGalleryProps {
 }
 
 // Tab list (key, label) — drives both the tablist render and its keyboard nav.
-const TABS: [ThemeTab, string][] = [['gallery', 'Presets'], ['custom', 'Custom']]
+const TABS: [ThemeTab, string][] = [['gallery', '预设'], ['custom', '自定义']]
+
+const COLOR_LABELS: Record<string, string> = {
+  primary: '主色', secondary: '次色', accent: '强调色',
+}
 
 const FONT_OPTIONS = [
   '"Inter", sans-serif',
@@ -172,7 +176,7 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-fade-in p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Theme gallery"
+      aria-label="主题库"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="bg-paper border border-line rounded-xl shadow-e3 w-[660px] max-w-full max-h-[90vh] flex flex-col overflow-hidden">
@@ -180,7 +184,7 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
         <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <div className="flex items-center gap-2">
             <Palette size={15} className="text-accent" />
-            <span className="font-semibold text-ink text-sm">Theme Gallery</span>
+            <span className="font-semibold text-ink text-sm">主题库</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -188,14 +192,14 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
               onClick={() => importRef.current?.click()}
               className="inline-flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink px-2 py-1 rounded-md border border-line hover:border-line-strong transition-colors"
             >
-              <Upload size={12} /> Import from deck
+              <Upload size={12} /> 从幻灯片导入
             </button>
             <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
             <button
               type="button"
               onClick={onClose}
               className="text-ink-faint hover:text-ink p-1 rounded-md transition-colors"
-              aria-label="Close"
+              aria-label="关闭"
             >
               <X size={15} />
             </button>
@@ -203,7 +207,7 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-line" role="tablist" aria-label="Theme source">
+        <div className="flex border-b border-line" role="tablist" aria-label="主题来源">
           {TABS.map(([key, label]) => (
             <button
               key={key}
@@ -255,12 +259,12 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
               aria-labelledby="themetab-custom"
             >
               <p className="text-xs text-ink-muted">
-                Start from the selected preset, then override any values.
+                从所选预设开始，然后按需覆盖任意值。
               </p>
               {/* Base preset */}
               <div>
                 <label htmlFor="theme-base-preset" className="block text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow mb-1">
-                  Base Preset
+                  基础预设
                 </label>
                 <select
                   id="theme-base-preset"
@@ -278,7 +282,7 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="theme-heading-font" className="block text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow mb-1">
-                    Heading Font
+                    标题字体
                   </label>
                   <select
                     id="theme-heading-font"
@@ -291,7 +295,7 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
                 </div>
                 <div>
                   <label htmlFor="theme-body-font" className="block text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow mb-1">
-                    Body Font
+                    正文字体
                   </label>
                   <select
                     id="theme-body-font"
@@ -307,12 +311,12 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
               {/* Colours */}
               <div className="grid grid-cols-4 gap-3">
                 {([
-                  ['primary', 'Primary'],
-                  ['secondary', 'Secondary'],
-                  ['accent', 'Accent'],
-                  ['background', 'Background'],
-                  ['text', 'Text'],
-                  ['textMuted', 'Text Muted'],
+                  ['primary', '主色'],
+                  ['secondary', '次色'],
+                  ['accent', '强调色'],
+                  ['background', '背景'],
+                  ['text', '文字'],
+                  ['textMuted', '次要文字'],
                 ] as [CustomizableKey, string][]).map(([key, lbl]) => (
                   <div key={key}>
                     <label htmlFor={`theme-color-${key}`} className="block text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow mb-1">
@@ -347,7 +351,7 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
                     fontFamily: custom?.headingFont || previewTheme.headingFont,
                   }}
                 >
-                  Slide heading preview
+                  幻灯片标题预览
                 </p>
                 <p
                   className="text-sm mt-1"
@@ -356,7 +360,7 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
                     fontFamily: custom?.bodyFont || previewTheme.bodyFont,
                   }}
                 >
-                  Body copy goes here — lorem ipsum dolor sit amet.
+                  此处为正文示例文字，用于预览主题效果。
                 </p>
                 <div className="flex gap-2 mt-3">
                   {(['primary', 'secondary', 'accent'] as CustomizableKey[]).map((k) => (
@@ -365,7 +369,7 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
                       className="inline-block rounded-md px-3 py-1 text-xs font-semibold text-white"
                       style={{ background: custom?.[k] || previewTheme[k] }}
                     >
-                      {k}
+                      {COLOR_LABELS[k]}
                     </span>
                   ))}
                 </div>
@@ -381,14 +385,14 @@ export default function ThemeGallery({ currentThemeId, customTheme, onApply, onC
             onClick={onClose}
             className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-md border border-line hover:border-line-strong transition-colors"
           >
-            Cancel
+            取消
           </button>
           <button
             type="button"
             onClick={handleApply}
             className="text-xs bg-accent text-white px-4 py-1.5 rounded-md hover:bg-accent-hover transition-colors font-semibold focus-visible:outline-none focus-visible:shadow-focus"
           >
-            Apply to all slides
+            应用到所有幻灯片
           </button>
         </div>
       </div>

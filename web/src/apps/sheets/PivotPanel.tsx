@@ -143,30 +143,30 @@ export default function PivotPanel({ data, pivot: editPivot, selectionRect, onCl
     <div className="flex flex-col w-full sm:w-72 flex-shrink-0 h-full border-l border-line bg-paper overflow-y-auto">
       <div className="flex items-center justify-between px-3 py-2 border-b border-line">
         <span className="flex items-center gap-1.5 text-xs font-semibold text-ink tracking-tightish">
-          <Table2 size={13} /> {isEditing ? 'Edit pivot' : 'Pivot table'}
+          <Table2 size={13} /> {isEditing ? '编辑数据透视表' : '数据透视表'}
         </span>
-        <IconButton size="sm" title="Close" onClick={onClose}><X size={13} /></IconButton>
+        <IconButton size="sm" title="关闭" onClick={onClose}><X size={13} /></IconButton>
       </div>
 
       <div className="flex-1 px-3 py-3 space-y-4 text-xs">
         <div className="space-y-1">
-          <label className="block text-ink-muted font-medium" htmlFor="pivot-range">Source range</label>
-          <input id="pivot-range" value={range} onChange={(e) => setRange(e.target.value)} className={sel} placeholder="e.g. A1:D100" />
+          <label className="block text-ink-muted font-medium" htmlFor="pivot-range">源数据范围</label>
+          <input id="pivot-range" value={range} onChange={(e) => setRange(e.target.value)} className={sel} placeholder="例如 A1:D100" />
         </div>
 
         {headers.length === 0 ? (
-          <p className="text-ink-faint">No headers found in that range. The first row of the range should hold column names.</p>
+          <p className="text-ink-faint">在该范围内未找到表头。范围的第一行应为列名。</p>
         ) : (
           <>
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="pivot-row">Row field</label>
+              <label className="block text-ink-muted font-medium" htmlFor="pivot-row">行字段</label>
               <select id="pivot-row" value={rowField} onChange={(e) => setRowField(e.target.value)} className={sel}>
-                <option value="">— choose —</option>
+                <option value="">— 请选择 —</option>
                 {headers.map((h) => <option key={h} value={h}>{h}</option>)}
               </select>
               {rowField && (
                 <select
-                  aria-label="Group row dates"
+                  aria-label="行日期分组"
                   value={rowGroup}
                   onChange={(e) => setRowGroup(e.target.value as PivotGrouping)}
                   className={selSm}
@@ -177,14 +177,14 @@ export default function PivotPanel({ data, pivot: editPivot, selectionRect, onCl
             </div>
 
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="pivot-col">Column field</label>
+              <label className="block text-ink-muted font-medium" htmlFor="pivot-col">列字段</label>
               <select id="pivot-col" value={colField} onChange={(e) => setColField(e.target.value)} className={sel}>
-                <option value="">— none —</option>
+                <option value="">— 无 —</option>
                 {headers.map((h) => <option key={h} value={h}>{h}</option>)}
               </select>
               {colField && (
                 <select
-                  aria-label="Group column dates"
+                  aria-label="列日期分组"
                   value={colGroup}
                   onChange={(e) => setColGroup(e.target.value as PivotGrouping)}
                   className={selSm}
@@ -197,38 +197,38 @@ export default function PivotPanel({ data, pivot: editPivot, selectionRect, onCl
             {/* Value fields — one row each: field · aggregation · display. */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-ink-muted font-medium">Values</span>
+                <span className="text-ink-muted font-medium">值</span>
                 <button
                   type="button"
                   onClick={addValue}
                   disabled={values.length >= MAX_VALUES || !headers.length}
                   className="flex items-center gap-1 text-[11px] text-accent hover:underline disabled:opacity-40 disabled:no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 rounded"
                 >
-                  <Plus size={11} aria-hidden /> Add value
+                  <Plus size={11} aria-hidden /> 添加值
                 </button>
               </div>
 
               {values.length === 0 ? (
                 <p className="text-ink-faint text-[11px]">
-                  No value field yet — add one to aggregate a column.
+                  尚未添加值字段——添加一个以对某列进行汇总。
                 </p>
               ) : (
                 values.map((v, i) => (
                   <div key={i} className="rounded-md border border-line p-1.5 space-y-1 bg-bg/40">
                     <div className="flex items-center gap-1">
                       <select
-                        aria-label={`Value field ${i + 1}`}
+                        aria-label={`值字段 ${i + 1}`}
                         value={v.field}
                         onChange={(e) => patchValue(i, { field: e.target.value })}
                         className={selSm}
                       >
-                        <option value="">— choose —</option>
+                        <option value="">— 请选择 —</option>
                         {headers.map((h) => <option key={h} value={h}>{h}</option>)}
                       </select>
                       <IconButton
                         size="sm"
-                        title={`Remove value ${i + 1}`}
-                        aria-label={`Remove value ${i + 1}`}
+                        title={`移除值 ${i + 1}`}
+                        aria-label={`移除值 ${i + 1}`}
                         onClick={() => removeValue(i)}
                       >
                         <Trash2 size={11} />
@@ -236,7 +236,7 @@ export default function PivotPanel({ data, pivot: editPivot, selectionRect, onCl
                     </div>
                     <div className="grid grid-cols-2 gap-1">
                       <select
-                        aria-label={`Aggregation for value ${i + 1}`}
+                        aria-label={`值 ${i + 1} 的汇总方式`}
                         value={v.agg}
                         onChange={(e) => patchValue(i, { agg: e.target.value as PivotAgg })}
                         className={selSm}
@@ -244,7 +244,7 @@ export default function PivotPanel({ data, pivot: editPivot, selectionRect, onCl
                         {PIVOT_AGGS.map((k) => <option key={k} value={k}>{k}</option>)}
                       </select>
                       <select
-                        aria-label={`Display for value ${i + 1}`}
+                        aria-label={`值 ${i + 1} 的显示方式`}
                         value={v.display}
                         onChange={(e) => patchValue(i, { display: e.target.value as PivotDisplay })}
                         className={selSm}
@@ -258,17 +258,17 @@ export default function PivotPanel({ data, pivot: editPivot, selectionRect, onCl
             </div>
 
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="pivot-title">Title (optional)</label>
-              <input id="pivot-title" value={title} onChange={(e) => setTitle(e.target.value)} className={sel} placeholder="Pivot title" />
+              <label className="block text-ink-muted font-medium" htmlFor="pivot-title">标题（可选）</label>
+              <input id="pivot-title" value={title} onChange={(e) => setTitle(e.target.value)} className={sel} placeholder="数据透视表标题" />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <Button variant="primary" size="sm" onClick={handleCommit} className="w-full" disabled={!preview}>
-                {isEditing ? 'Update pivot' : 'Insert live pivot'}
+                {isEditing ? '更新数据透视表' : '插入实时数据透视表'}
               </Button>
               {!isEditing && onInsertStatic && (
                 <Button variant="secondary" size="sm" onClick={handleInsertStatic} className="w-full" disabled={!preview}>
-                  Insert as static sheet (exportable)
+                  插入为静态工作表（可导出）
                 </Button>
               )}
             </div>
@@ -276,7 +276,7 @@ export default function PivotPanel({ data, pivot: editPivot, selectionRect, onCl
             {preview ? (
               <div className="overflow-auto border border-line rounded-md">
                 <div className="flex items-center gap-1 px-2 py-1 text-[10px] text-ink-faint border-b border-line">
-                  <RefreshCw size={9} /> Live preview — updates when source cells change
+                  <RefreshCw size={9} /> 实时预览——源单元格变化时自动更新
                 </div>
                 <table className="text-xs w-full border-collapse">
                   <thead>
@@ -304,7 +304,7 @@ export default function PivotPanel({ data, pivot: editPivot, selectionRect, onCl
                 </table>
               </div>
             ) : (
-              <p className="text-ink-faint text-[11px]">Pick a Row field and at least one Value field that match header names to preview.</p>
+              <p className="text-ink-faint text-[11px]">请选择与表头名称匹配的行字段和至少一个值字段以进行预览。</p>
             )}
           </>
         )}

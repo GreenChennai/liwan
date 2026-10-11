@@ -126,7 +126,7 @@ describe('buildChipSuggestions', () => {
     const d = s.find((x) => x.chipType === 'date')
     expect(d).toBeTruthy()
     expect(d!.refId).toBe('2026-07-14')
-    expect(d!.label).toContain('Jul 14, 2026')
+    expect(d!.label).toContain('2026年7月14日')
   })
 
   it('parses an explicit ISO date query', () => {

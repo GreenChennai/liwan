@@ -44,16 +44,16 @@ describe('SaveStatus', () => {
   it('announces via role=status and renders the mapped label per state', () => {
     const { rerender } = render(<SaveStatus status="saving" />)
     const region = screen.getByRole('status')
-    expect(region).toHaveTextContent('Saving')
+    expect(region).toHaveTextContent('保存中')
 
     rerender(<SaveStatus status="saved" />)
-    expect(screen.getByRole('status')).toHaveTextContent('Saved')
+    expect(screen.getByRole('status')).toHaveTextContent('已保存')
 
     rerender(<SaveStatus status="dirty" />)
-    expect(screen.getByRole('status')).toHaveTextContent('Unsaved')
+    expect(screen.getByRole('status')).toHaveTextContent('未保存')
 
     rerender(<SaveStatus status="error" />)
-    expect(screen.getByRole('status')).toHaveTextContent('Save failed')
+    expect(screen.getByRole('status')).toHaveTextContent('保存失败')
   })
 
   it('honours an explicit text override (e.g. retry counter)', () => {
@@ -65,7 +65,7 @@ describe('SaveStatus', () => {
     // Deliberately an invalid status — guards the runtime fallback for a value
     // that couldn't happen under the type system (e.g. from untyped JS callers).
     render(<SaveStatus status={'???' as unknown as 'saved'} />)
-    expect(screen.getByRole('status')).toHaveTextContent('Saved')
+    expect(screen.getByRole('status')).toHaveTextContent('已保存')
   })
 })
 
@@ -133,14 +133,14 @@ describe('ErrorState', () => {
   it('renders a Retry control that fires onRetry', () => {
     const onRetry = vi.fn()
     render(<ErrorState message="boom" onRetry={onRetry} />)
-    const btn = screen.getByRole('button', { name: /retry/i })
+    const btn = screen.getByRole('button', { name: /重试/ })
     btn.click()
     expect(onRetry).toHaveBeenCalledTimes(1)
   })
 
   it('omits the Retry control when no onRetry is given', () => {
     render(<ErrorState message="boom" />)
-    expect(screen.queryByRole('button', { name: /retry/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /重试/ })).toBeNull()
   })
 })
 

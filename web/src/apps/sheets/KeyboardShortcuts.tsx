@@ -204,26 +204,26 @@ export function useSheetKeyboardShortcuts({ containerRef, data, onChange, onShow
 // ── Help overlay ──────────────────────────────────────────────────────────────
 
 const SHORTCUTS = [
-  { keys: '⌘ B',        desc: 'Bold' },
-  { keys: '⌘ I',        desc: 'Italic' },
-  { keys: '⌘ U',        desc: 'Underline' },
-  { keys: '⌘ ;',        desc: 'Insert today\'s date' },
-  { keys: '⌘ :',        desc: 'Insert current time' },
-  { keys: '⌘ ⇧ V',     desc: 'Paste values only' },
-  { keys: '⌘ /',        desc: 'Keyboard shortcuts help' },
-  { keys: 'F4',         desc: 'Toggle absolute reference in formula' },
-  { keys: '⌘ ↵',       desc: 'Fill down (Fortune Sheet built-in)' },
-  { keys: '⌘ Z',        desc: 'Undo (Fortune Sheet built-in)' },
-  { keys: '⌘ Y',        desc: 'Redo (Fortune Sheet built-in)' },
-  { keys: '⌘ F',        desc: 'Find (Fortune Sheet built-in)' },
-  { keys: '⌘ A',        desc: 'Select all (Fortune Sheet built-in)' },
-  { keys: 'Tab / ⇧Tab', desc: 'Move right / left between cells' },
-  { keys: '↵',          desc: 'Confirm edit, move down' },
+  { keys: '⌘ B',        desc: '粗体' },
+  { keys: '⌘ I',        desc: '斜体' },
+  { keys: '⌘ U',        desc: '下划线' },
+  { keys: '⌘ ;',        desc: '插入今天的日期' },
+  { keys: '⌘ :',        desc: '插入当前时间' },
+  { keys: '⌘ ⇧ V',     desc: '仅粘贴数值' },
+  { keys: '⌘ /',        desc: '显示键盘快捷键帮助' },
+  { keys: 'F4',         desc: '切换公式中的绝对引用' },
+  { keys: '⌘ ↵',       desc: '向下填充选区（Fortune Sheet 内置）' },
+  { keys: '⌘ Z',        desc: '撤销（Fortune Sheet 内置）' },
+  { keys: '⌘ Y',        desc: '重做（Fortune Sheet 内置）' },
+  { keys: '⌘ F',        desc: '查找（Fortune Sheet 内置）' },
+  { keys: '⌘ A',        desc: '全选（Fortune Sheet 内置）' },
+  { keys: 'Tab / ⇧Tab', desc: '在单元格间向右 / 向左移动' },
+  { keys: '↵',          desc: '确认编辑并向下移动' },
 ]
 
 export function KeyboardShortcutsHelp({ onClose }: { onClose: () => void }) {
   return (
-    <Modal open onClose={onClose} size="md" title="Keyboard shortcuts">
+    <Modal open onClose={onClose} size="md" title="键盘快捷键">
       <Modal.Body className="max-h-[70vh] overflow-y-auto">
         <table className="w-full text-xs border-collapse">
           <tbody>

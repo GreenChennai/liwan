@@ -86,7 +86,7 @@ export function renderEquationHtml(latex: unknown, displayMode: unknown): string
     // throwOnError:false already prevents most throws; belt-and-braces so a
     // renderer bug can never break the editor. Show the raw source as text.
     const esc = src.replace(/[&<>"']/g, (c) => XML_ESCAPE_MAP[c] ?? c)
-    return `<span class="katex-error" title="Invalid equation">${esc}</span>`
+    return `<span class="katex-error" title="公式无效">${esc}</span>`
   }
 }
 

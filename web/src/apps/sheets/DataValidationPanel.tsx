@@ -101,13 +101,13 @@ const CONDITIONS: Record<string, ConditionGroup> = {
 
 // The message shown when buildRegulation refuses the form.
 const KIND_ERROR: Record<string, string> = {
-  dropdown:      'Add at least one dropdown item (comma-separated).',
-  dropdownRange: 'Enter a valid source range, e.g. Sheet2!A1:A10.',
-  checkbox:      'Give the checkbox two different values.',
-  number:        'Enter valid numeric value(s) for the condition.',
-  date:          'Enter valid date(s), e.g. 2026-07-14.',
-  text:          'Enter the text to match.',
-  textLength:    'Enter a whole-number length for the condition.',
+  dropdown:      '请至少添加一个下拉选项（用逗号分隔）。',
+  dropdownRange: '请输入有效的来源区域，例如 Sheet2!A1:A10。',
+  checkbox:      '请为复选框设置两个不同的值。',
+  number:        '请为条件输入有效的数值。',
+  date:          '请输入有效日期，例如 2026-07-14。',
+  text:          '请输入要匹配的文本。',
+  textLength:    '请为条件输入整数长度。',
 }
 
 export default function DataValidationPanel({ data, activeCell, onClose, onChange }: DataValidationPanelProps) {
@@ -147,11 +147,11 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
   function save() {
     const reg = buildRegulation(form)
     if (!reg) {
-      setError(KIND_ERROR[form.kind] || 'Complete the rule before saving.')
+      setError(KIND_ERROR[form.kind] || '保存前请完整填写规则。')
       return
     }
     const parsed = parseRange(range)?.[0]
-    if (!parsed) { setError('Enter a valid range, e.g. A1:A10.'); return }
+    if (!parsed) { setError('请输入有效区域，例如 A1:A10。'); return }
     const next = applyValidation(data, range, reg, parseRangeTyped)
     onChange?.(next)
     setEditing(false)
@@ -171,9 +171,9 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
     <div className="flex flex-col w-full sm:w-80 flex-shrink-0 h-full border-l border-line bg-paper overflow-y-auto">
       <div className="flex items-center justify-between px-3 py-2 border-b border-line">
         <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink tracking-tightish">
-          <ListChecks size={13} aria-hidden /> Data validation
+          <ListChecks size={13} aria-hidden /> 数据验证
         </span>
-        <IconButton size="sm" title="Close" onClick={onClose}><X size={13} /></IconButton>
+        <IconButton size="sm" title="关闭" onClick={onClose}><X size={13} /></IconButton>
       </div>
 
       <div className="flex-1 px-3 py-3 space-y-3 text-xs overflow-y-auto">
@@ -181,8 +181,7 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
           <>
             {rules.length === 0 && (
               <p className="text-ink-faint">
-                No validation rules. Add one to give cells a dropdown list, a checkbox,
-                or to restrict them to a number, a date, or text of a given shape.
+                暂无验证规则。添加规则可为单元格设置下拉列表、复选框，或将其限制为特定形式的数字、日期或文本。
               </p>
             )}
 
@@ -191,13 +190,13 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-ink truncate">{rule.summary}</p>
                   <p className="text-ink-faint text-[10px]">
-                    {rule.count} cell{rule.count === 1 ? '' : 's'}
-                    {rule.reg?.prohibitInput ? ' · rejects invalid input' : ''}
+                    {rule.count} 个单元格
+                    {rule.reg?.prohibitInput ? ' · 拒绝无效输入' : ''}
                   </p>
                 </div>
                 <button
                   onClick={() => removeRule(rule.keys)}
-                  aria-label={`Remove validation rule: ${rule.summary}`}
+                  aria-label={`移除验证规则：${rule.summary}`}
                   className="text-ink-faint hover:text-danger mt-0.5 rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
                 >
                   <Trash2 size={11} />
@@ -206,7 +205,7 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
             ))}
 
             <Button variant="secondary" size="sm" onClick={startNew} className="w-full">
-              <Plus size={11} className="mr-1" /> Add rule
+              <Plus size={11} className="mr-1" /> 添加规则
             </Button>
           </>
         )}
@@ -214,19 +213,19 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
         {editing && (
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="dv-range">Apply to range</label>
+              <label className="block text-ink-muted font-medium" htmlFor="dv-range">应用到区域</label>
               <input
                 id="dv-range"
                 value={range}
                 onChange={(e) => { setRange(e.target.value); setError('') }}
                 className={inputCls}
-                placeholder="e.g. A1:A10"
+                placeholder="例如 A1:A10"
                 autoFocus
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium" htmlFor="dv-kind">Criteria</label>
+              <label className="block text-ink-muted font-medium" htmlFor="dv-kind">条件类型</label>
               <select
                 id="dv-kind"
                 value={form.kind}
@@ -240,13 +239,13 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
             {form.kind === 'dropdown' && (
               <>
                 <div className="space-y-1">
-                  <label className="block text-ink-muted font-medium" htmlFor="dv-items">Items (comma-separated)</label>
+                  <label className="block text-ink-muted font-medium" htmlFor="dv-items">选项（用逗号分隔）</label>
                   <input
                     id="dv-items"
                     value={form.items}
                     onChange={(e) => patch({ items: e.target.value })}
                     className={inputCls}
-                    placeholder="e.g. Low, Medium, High"
+                    placeholder="例如 低, 中, 高"
                   />
                 </div>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -255,7 +254,7 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
                     checked={form.allowMulti}
                     onChange={(e) => patch({ allowMulti: e.target.checked })}
                   />
-                  <span className="text-ink-muted">Allow multiple selection</span>
+                  <span className="text-ink-muted">允许多选</span>
                 </label>
               </>
             )}
@@ -263,16 +262,16 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
             {form.kind === 'dropdownRange' && (
               <>
                 <div className="space-y-1">
-                  <label className="block text-ink-muted font-medium" htmlFor="dv-source">List source range</label>
+                  <label className="block text-ink-muted font-medium" htmlFor="dv-source">列表来源区域</label>
                   <input
                     id="dv-source"
                     value={form.sourceRange}
                     onChange={(e) => patch({ sourceRange: e.target.value })}
                     className={inputCls}
-                    placeholder="e.g. Sheet2!A1:A10"
+                    placeholder="例如 Sheet2!A1:A10"
                   />
                   <p className="text-ink-faint text-[10px]">
-                    The list follows the cells — edit the source and every dropdown updates.
+                    列表会跟随单元格变化——编辑来源后，所有下拉列表都会更新。
                   </p>
                 </div>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -281,7 +280,7 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
                     checked={form.allowMulti}
                     onChange={(e) => patch({ allowMulti: e.target.checked })}
                   />
-                  <span className="text-ink-muted">Allow multiple selection</span>
+                  <span className="text-ink-muted">允许多选</span>
                 </label>
               </>
             )}
@@ -289,7 +288,7 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
             {form.kind === 'checkbox' && (
               <div className="flex gap-2">
                 <div className="flex-1 space-y-1">
-                  <label className="block text-ink-muted font-medium" htmlFor="dv-checked">Checked value</label>
+                  <label className="block text-ink-muted font-medium" htmlFor="dv-checked">选中时的值</label>
                   <input
                     id="dv-checked"
                     value={form.checkedValue}
@@ -298,7 +297,7 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
                   />
                 </div>
                 <div className="flex-1 space-y-1">
-                  <label className="block text-ink-muted font-medium" htmlFor="dv-unchecked">Unchecked value</label>
+                  <label className="block text-ink-muted font-medium" htmlFor="dv-unchecked">未选中时的值</label>
                   <input
                     id="dv-unchecked"
                     value={form.uncheckedValue}
@@ -312,7 +311,7 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
             {cond && (
               <>
                 <div className="space-y-1">
-                  <label className="block text-ink-muted font-medium" htmlFor="dv-cond">Condition</label>
+                  <label className="block text-ink-muted font-medium" htmlFor="dv-cond">条件</label>
                   <select
                     id="dv-cond"
                     value={form.condition}
@@ -324,23 +323,23 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
                 </div>
                 <div className="flex gap-2">
                   <input
-                    aria-label="Value"
+                    aria-label="值"
                     type={cond.input === 'date' ? 'date' : 'text'}
                     inputMode={cond.input === 'date' || cond.input === 'text' ? undefined : (cond.input as React.HTMLAttributes<HTMLInputElement>['inputMode'])}
                     value={form.value1}
                     onChange={(e) => patch({ value1: e.target.value })}
                     className={inputCls}
-                    placeholder={form.kind === 'textLength' ? 'Length' : 'Value'}
+                    placeholder={form.kind === 'textLength' ? '长度' : '值'}
                   />
                   {arity === 2 && (
                     <input
-                      aria-label="Upper value"
+                      aria-label="上限值"
                       type={cond.input === 'date' ? 'date' : 'text'}
                       inputMode={cond.input === 'date' || cond.input === 'text' ? undefined : (cond.input as React.HTMLAttributes<HTMLInputElement>['inputMode'])}
                       value={form.value2}
                       onChange={(e) => patch({ value2: e.target.value })}
                       className={inputCls}
-                      placeholder="and"
+                      placeholder="与"
                     />
                   )}
                 </div>
@@ -354,7 +353,7 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
                 onChange={(e) => patch({ rejectInvalid: e.target.checked })}
                 disabled={form.kind === 'checkbox'}
               />
-              <span className="text-ink-muted">Reject invalid input</span>
+              <span className="text-ink-muted">拒绝无效输入</span>
             </label>
 
             {error && (
@@ -364,8 +363,8 @@ export default function DataValidationPanel({ data, activeCell, onClose, onChang
             )}
 
             <div className="flex gap-2">
-              <Button variant="primary"   size="sm" onClick={save}                 className="flex-1">Save</Button>
-              <Button variant="secondary" size="sm" onClick={() => setEditing(false)} className="flex-1">Cancel</Button>
+              <Button variant="primary"   size="sm" onClick={save}                 className="flex-1">保存</Button>
+              <Button variant="secondary" size="sm" onClick={() => setEditing(false)} className="flex-1">取消</Button>
             </div>
           </div>
         )}

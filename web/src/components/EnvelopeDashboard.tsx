@@ -45,11 +45,11 @@ interface RemindResponse {
 }
 
 const STATUS_META: Record<string, { label: string; tone: string; icon: LucideIcon }> = {
-  draft:     { label: 'Draft',     tone: 'neutral', icon: Clock },
-  sent:      { label: 'Sent',      tone: 'info',    icon: Clock },
-  completed: { label: 'Complete',  tone: 'success', icon: CheckCircle2 },
-  declined:  { label: 'Declined',  tone: 'danger',  icon: XCircle },
-  voided:    { label: 'Voided',    tone: 'warning', icon: AlertCircle },
+  draft:     { label: '草稿',     tone: 'neutral', icon: Clock },
+  sent:      { label: '已发送',      tone: 'info',    icon: Clock },
+  completed: { label: '已完成',  tone: 'success', icon: CheckCircle2 },
+  declined:  { label: '已拒绝',  tone: 'danger',  icon: XCircle },
+  voided:    { label: '已作废',    tone: 'warning', icon: AlertCircle },
 }
 
 const TONE_CLASSES: Record<string, string> = {
@@ -61,11 +61,11 @@ const TONE_CLASSES: Record<string, string> = {
 }
 
 const SIGNER_STATUS_META: Record<string, { label: string; dot: string }> = {
-  pending:  { label: 'Pending',  dot: 'bg-line-strong' },
-  sent:     { label: 'Sent',     dot: 'bg-info' },
-  viewed:   { label: 'Viewed',   dot: 'bg-warning' },
-  signed:   { label: 'Signed',   dot: 'bg-success' },
-  declined: { label: 'Declined', dot: 'bg-danger' },
+  pending:  { label: '待签署',  dot: 'bg-line-strong' },
+  sent:     { label: '已发送',     dot: 'bg-info' },
+  viewed:   { label: '已查看',   dot: 'bg-warning' },
+  signed:   { label: '已签署',   dot: 'bg-success' },
+  declined: { label: '已拒绝', dot: 'bg-danger' },
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -142,7 +142,7 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
       const data = await api.envelopeStatus(envelope.id) as EnvelopeStatus
       setStatus(data)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load status')
+      setError(e instanceof Error ? e.message : '加载状态失败')
     } finally {
       setLoading(false)
     }
@@ -157,7 +157,7 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
       const data = await api.verifyEnvelope(envelope.id) as VerifyResult
       setVerifyResult(data)
     } catch (e) {
-      setVerifyError(e instanceof Error ? e.message : 'Verification failed')
+      setVerifyError(e instanceof Error ? e.message : '验证失败')
     } finally {
       setVerifyLoading(false)
     }
@@ -218,7 +218,7 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
         <div className="flex items-center gap-0.5 ml-1" onClick={e => e.stopPropagation()}>
           {active && (
             <>
-              <Tooltip label="Send reminders">
+              <Tooltip label="发送提醒">
                 <IconButton
                   size="sm"
                   onClick={() => onRemind(envelope.id)}
@@ -227,7 +227,7 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
                   <Bell size={13} />
                 </IconButton>
               </Tooltip>
-              <Tooltip label="Cancel envelope">
+              <Tooltip label="撤销信封">
                 <IconButton
                   size="sm"
                   onClick={() => onCancel(envelope.id)}
@@ -240,19 +240,19 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
           )}
           {envelope.status === 'completed' && (
             <>
-              <Tooltip label="Download sealed PDF">
+              <Tooltip label="下载密封 PDF">
                 {/* anchor styled like IconButton — sm size h-7 w-7 */}
                 <a
                   href={api.sealedPDFUrl(envelope.id)}
                   download={`sealed-${envelope.id}.pdf`}
                   className="inline-flex items-center justify-center shrink-0 h-7 w-7 rounded-md text-ink-muted transition-[background,color] duration-fast ease-out hover:bg-success-bg hover:text-success"
-                  title="Download sealed PDF"
-                  aria-label="Download sealed PDF"
+                  title="下载密封 PDF"
+                  aria-label="下载密封 PDF"
                 >
                   <Download size={13} />
                 </a>
               </Tooltip>
-              <Tooltip label="Verify document integrity">
+              <Tooltip label="校验文档完整性">
                 <IconButton
                   size="sm"
                   onClick={() => void onVerify()}
@@ -263,7 +263,7 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
               </Tooltip>
             </>
           )}
-          <Tooltip label="Refresh">
+          <Tooltip label="刷新">
             <IconButton
               size="sm"
               onClick={() => { void loadStatus(); onRefresh() }}
@@ -281,7 +281,7 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
       {expanded && (
         <div className="border-t border-line px-4 py-3 bg-bg-elev2 animate-fade-in">
           {loading && (
-            <LoadingState size="sm" label="Loading signers…" className="py-2" />
+            <LoadingState size="sm" label="正在加载签署人…" className="py-2" />
           )}
           {error && (
             <p className="text-2xs text-danger py-1">{error}</p>
@@ -319,7 +319,7 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
                 <ShieldCheck size={14} className="mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <span className="font-semibold tracking-tightish">
-                    {verifyResult.ok ? 'Document verified — all checks passed.' : 'Verification failed.'}
+                    {verifyResult.ok ? '文档已验证，所有检查均已通过。' : '验证失败。'}
                   </span>
                   {!verifyResult.ok && (
                     <div className="mt-1 space-y-0.5 text-2xs opacity-80">
@@ -337,7 +337,7 @@ function EnvelopeRow({ envelope, onRemind, onCancel, onRefresh }: EnvelopeRowPro
             </div>
           )}
           {verifyLoading && (
-            <p className="mt-3 text-2xs text-ink-faint font-serif italic">Verifying…</p>
+            <p className="mt-3 text-2xs text-ink-faint font-serif italic">校验中…</p>
           )}
           {verifyError && (
             <p className="mt-3 text-2xs text-danger">{verifyError}</p>
@@ -371,7 +371,7 @@ export default function EnvelopeDashboard() {
       const data = await api.listEnvelopes() as Envelope[]
       setEnvelopes(Array.isArray(data) ? data : [])
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load envelopes')
+      setError(e instanceof Error ? e.message : '加载信封失败')
     } finally {
       setLoading(false)
     }
@@ -383,20 +383,20 @@ export default function EnvelopeDashboard() {
     try {
       const res = await api.envelopeRemind(envelopeId) as RemindResponse
       const reminded = res.reminded || []
-      showToast(`Reminders sent to ${reminded.length} signer(s).`, 'success')
+      showToast(`已向 ${reminded.length} 位签署人发送提醒。`, 'success')
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Failed to send reminders', 'error')
+      showToast(e instanceof Error ? e.message : '发送提醒失败', 'error')
     }
   }, [showToast])
 
   const handleCancel = useCallback(async (envelopeId: string) => {
-    if (!window.confirm('Cancel (void) this envelope? This cannot be undone.')) return
+    if (!window.confirm('确定撤销（作废）此信封？此操作无法撤销。')) return
     try {
       await api.envelopeCancel(envelopeId)
-      showToast('Envelope voided.', 'success')
+      showToast('信封已作废。', 'success')
       void loadEnvelopes()
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Failed to cancel envelope', 'error')
+      showToast(e instanceof Error ? e.message : '撤销信封失败', 'error')
     }
   }, [showToast, loadEnvelopes])
 
@@ -418,11 +418,11 @@ export default function EnvelopeDashboard() {
 
       <header className="mb-6">
         <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-1">
-          Signing
+          签署
         </p>
         <div className="flex items-center justify-between gap-3">
           <h1 className="font-serif text-2xl text-ink tracking-tightish flex items-center gap-2.5">
-            Envelopes
+            信封
           </h1>
           <Button
             variant="secondary"
@@ -430,13 +430,13 @@ export default function EnvelopeDashboard() {
             onClick={() => void loadEnvelopes()}
           >
             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-            Refresh
+            刷新
           </Button>
         </div>
       </header>
 
       {loading && (
-        <LoadingState label="Loading envelopes…" className="py-12" />
+        <LoadingState label="正在加载信封…" className="py-12" />
       )}
 
       {error && (
@@ -450,7 +450,7 @@ export default function EnvelopeDashboard() {
         <div className="text-center py-20">
           <FileSignature size={36} className="mx-auto mb-3 text-ink-faint opacity-50" />
           <p className="font-serif italic text-ink-muted">
-            No signing envelopes yet.
+            暂无签署信封。
           </p>
         </div>
       )}

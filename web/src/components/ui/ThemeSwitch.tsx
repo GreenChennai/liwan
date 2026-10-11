@@ -22,9 +22,9 @@ import Tooltip from './Tooltip'
 import { useTheme } from './useTheme'
 
 const OPTIONS: { value: string; Icon: LucideIcon; label: string }[] = [
-  { value: 'light',  Icon: Sun,     label: 'Light'  },
-  { value: 'system', Icon: Monitor, label: 'System' },
-  { value: 'dark',   Icon: Moon,    label: 'Dark'   },
+  { value: 'light',  Icon: Sun,     label: '浅色'  },
+  { value: 'system', Icon: Monitor, label: '跟随系统' },
+  { value: 'dark',   Icon: Moon,    label: '深色'   },
 ]
 
 interface ThemeSwitchProps {
@@ -41,12 +41,12 @@ export default function ThemeSwitch({ collapsed = false }: ThemeSwitchProps) {
     const next =
       theme === 'light' ? 'system' : theme === 'system' ? 'dark' : 'light'
     return (
-      <Tooltip label={`Theme: ${active.label} · switch to ${next}`} side="right">
+      <Tooltip label={`主题：${active.label} · 切换为 ${next}`} side="right">
         <IconButton
           size="sm"
           onClick={cycle}
           active
-          aria-label={`Theme: ${active.label}. Activate to switch to ${next}.`}
+          aria-label={`主题：${active.label}。点击切换为 ${next}。`}
         >
           <Icon size={14} />
         </IconButton>
@@ -58,11 +58,11 @@ export default function ThemeSwitch({ collapsed = false }: ThemeSwitchProps) {
   return (
     <div>
       <p className="px-1 pb-1.5 font-mono text-[10px] font-medium uppercase tracking-wider text-ink-faint select-none">
-        Appearance
+        外观
       </p>
       <div
         role="radiogroup"
-        aria-label="Color theme"
+        aria-label="颜色主题"
         className="grid grid-cols-3 gap-0.5 p-0.5 rounded-md bg-bg-sunk border border-line"
       >
         {OPTIONS.map(({ value, Icon, label }) => {
@@ -73,7 +73,7 @@ export default function ThemeSwitch({ collapsed = false }: ThemeSwitchProps) {
               type="button"
               role="radio"
               aria-checked={isActive}
-              title={`${label} theme`}
+              title={`${label}主题`}
               onClick={() => setTheme(value)}
               className={[
                 'group relative flex items-center justify-center gap-1.5 h-7 rounded-[5px]',

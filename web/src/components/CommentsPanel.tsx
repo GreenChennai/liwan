@@ -152,13 +152,13 @@ function ReplyItem({ reply, fileId, commentId, authorId, collaborators = [], onD
               disabled={busy}
               className="px-2 py-0.5 text-2xs bg-accent text-white rounded-xs hover:bg-accent-hover disabled:opacity-60 transition-colors focus-visible:outline-none focus-visible:shadow-focus"
             >
-              Save
+              保存
             </button>
             <button
               onClick={() => { setEditing(false); setDraft(reply.body) }}
               className="px-2 py-0.5 text-2xs border border-line text-ink-muted rounded-xs hover:bg-bg-elev2 transition-colors focus-visible:outline-none focus-visible:shadow-focus"
             >
-              Cancel
+              取消
             </button>
           </div>
         </div>
@@ -167,8 +167,8 @@ function ReplyItem({ reply, fileId, commentId, authorId, collaborators = [], onD
       )}
       {isOwn && !editing && (
         <div className="flex gap-2">
-          <button onClick={() => setEditing(true)} className="text-2xs text-accent hover:underline rounded-sm focus-visible:outline-none focus-visible:shadow-focus">Edit</button>
-          <button onClick={() => void handleDelete()} disabled={busy} className="text-2xs text-danger/80 hover:text-danger rounded-sm focus-visible:outline-none focus-visible:shadow-focus">Delete</button>
+          <button onClick={() => setEditing(true)} className="text-2xs text-accent hover:underline rounded-sm focus-visible:outline-none focus-visible:shadow-focus">编辑</button>
+          <button onClick={() => void handleDelete()} disabled={busy} className="text-2xs text-danger/80 hover:text-danger rounded-sm focus-visible:outline-none focus-visible:shadow-focus">删除</button>
         </div>
       )}
     </div>
@@ -257,7 +257,7 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
   }
 
   const handleDelete = async () => {
-    if (!window.confirm('Delete this comment and all replies?')) return
+    if (!window.confirm('确定删除此评论及其所有回复？')) return
     setBusy(true)
     try {
       await api.deleteComment(fileId, item.id)
@@ -326,19 +326,19 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-xs font-semibold text-ink tracking-tightish">{item.author_id || 'Anonymous'}</span>
             {isResolved && (
-              <span className="text-2xs bg-success-bg text-success px-1.5 py-0.5 rounded-pill font-medium">Resolved</span>
+              <span className="text-2xs bg-success-bg text-success px-1.5 py-0.5 rounded-pill font-medium">已解决</span>
             )}
             {!isResolved && item.assignee && (
               <span
                 className="inline-flex items-center gap-0.5 text-2xs bg-accent-tint text-accent px-1.5 py-0.5 rounded-pill font-medium"
-                title={`Assigned to ${item.assignee}`}
+                title={`已指派给 ${item.assignee}`}
               >
                 <UserCheck size={9} aria-hidden /> {item.assignee}
               </span>
             )}
             {item.anchor?.orphaned && (
-              <span className="text-2xs bg-warning-bg text-warning px-1.5 py-0.5 rounded-pill font-medium" title="The commented text was edited or removed; this comment may have moved.">
-                May have moved
+              <span className="text-2xs bg-warning-bg text-warning px-1.5 py-0.5 rounded-pill font-medium" title="评论所对应的文字已被编辑或删除，此评论可能已移位。">
+                可能已移位
               </span>
             )}
             <span className="text-2xs text-ink-faint">{formatTs(item.created_at)}</span>
@@ -347,8 +347,8 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
             canJump ? (
               <button
                 onClick={() => onJump?.(item.id)}
-                title={`Jump to “${anchorLabel(item.anchor)}”`}
-                aria-label={`Jump to commented text: ${anchorLabel(item.anchor)}`}
+                title={`跳转到“${anchorLabel(item.anchor)}”`}
+                aria-label={`跳转到评论文字：${anchorLabel(item.anchor)}`}
                 className="group flex items-center gap-1 text-2xs text-accent mt-0.5 max-w-full hover:underline rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
               >
                 <Crosshair size={10} className="flex-shrink-0 opacity-70 group-hover:opacity-100" aria-hidden />
@@ -364,7 +364,7 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
         <button
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
-          aria-label={expanded ? 'Collapse comment' : 'Expand comment'}
+          aria-label={expanded ? '收起评论' : '展开评论'}
           className="text-ink-faint hover:text-ink-muted flex-shrink-0 mt-0.5 transition-colors rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
         >
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -388,13 +388,13 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
                   disabled={busy}
                   className="px-2.5 py-1 text-xs bg-accent text-white rounded-sm hover:bg-accent-hover disabled:opacity-60 transition-colors focus-visible:outline-none focus-visible:shadow-focus"
                 >
-                  Save
+                  保存
                 </button>
                 <button
                   onClick={() => { setEditing(false); setEditDraft(item.body) }}
                   className="px-2.5 py-1 text-xs border border-line text-ink-muted rounded-sm hover:bg-bg-elev2 transition-colors focus-visible:outline-none focus-visible:shadow-focus"
                 >
-                  Cancel
+                  取消
                 </button>
               </div>
             </div>
@@ -428,14 +428,14 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
                 onEnter={() => void handleReply()}
                 collaborators={collaborators}
                 rows={1}
-                placeholder="Reply…"
+                placeholder="回复…"
                 wrapperClassName="flex-1"
                 className="w-full text-xs bg-paper border border-line rounded-sm px-2 py-1 resize-none outline-none focus:border-accent focus:shadow-focus transition-colors min-h-[28px]"
               />
               <button
                 onClick={() => void handleReply()}
                 disabled={!replyDraft.trim() || busy}
-                aria-label="Post reply"
+                aria-label="发送回复"
                 className="p-1.5 bg-accent text-white rounded-sm hover:bg-accent-hover disabled:opacity-40 flex-shrink-0 transition-colors focus-visible:outline-none focus-visible:shadow-focus"
               >
                 <Send size={12} />
@@ -451,7 +451,7 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
                 disabled={busy}
                 className="flex items-center gap-1 text-2xs text-ink-faint hover:text-accent transition-colors rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
               >
-                <RotateCcw size={10} /> Reopen
+                <RotateCcw size={10} /> 重新打开
               </button>
             ) : (
               <button
@@ -459,7 +459,7 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
                 disabled={busy}
                 className="flex items-center gap-1 text-2xs text-success hover:text-accent-press transition-colors rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
               >
-                <CheckCircle size={10} /> Resolve
+                <CheckCircle size={10} /> 标记为已解决
               </button>
             )}
             {!isResolved && (
@@ -471,7 +471,7 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
                   aria-expanded={assignOpen}
                   className="flex items-center gap-1 text-2xs text-ink-faint hover:text-accent transition-colors rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
                 >
-                  <UserCheck size={10} /> {item.assignee ? 'Reassign' : 'Assign'}
+                  <UserCheck size={10} /> {item.assignee ? '重新指派' : '指派'}
                 </button>
                 {assignOpen && (
                   <ul
@@ -484,12 +484,12 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
                           onClick={() => void handleAssign('')}
                           className="w-full text-left px-2.5 py-1 text-ink-muted hover:bg-bg-elev2 rounded-sm"
                         >
-                          Unassign
+                          取消指派
                         </button>
                       </li>
                     )}
                     {collaborators.length === 0 && (
-                      <li className="px-2.5 py-1 text-ink-faint">Share the file to assign people</li>
+                      <li className="px-2.5 py-1 text-ink-faint">分享文件后即可指派给他人</li>
                     )}
                     {collaborators.map((p) => (
                       <li key={p.account_id}>
@@ -514,7 +514,7 @@ function CommentItem({ item, fileId, authorId, collaborators = [], onUpdated, on
                   onClick={() => setEditing(true)}
                   className="text-2xs text-accent hover:underline rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
                 >
-                  Edit
+                  编辑
                 </button>
                 <button
                   onClick={() => void handleDelete()}
@@ -641,14 +641,14 @@ export default function CommentsPanel({ fileId, anchorCtx, authorId = 'You', onC
       <div className="flex items-center justify-between px-3 h-11 border-b border-line bg-paper flex-shrink-0">
         <div className="flex items-center gap-2">
           <MessageSquare size={14} className="text-ink-muted" />
-          <span className="text-sm font-semibold text-ink tracking-tightish">Comments</span>
+          <span className="text-sm font-semibold text-ink tracking-tightish">评论</span>
           {comments.length > 0 && (
             <span className="text-2xs bg-bg-elev2 text-ink-faint rounded-pill px-1.5 py-0.5 font-medium">
               {comments.length}
             </span>
           )}
         </div>
-        <IconButton size="sm" title="Close" onClick={onClose}>
+        <IconButton size="sm" title="关闭" onClick={onClose}>
           <X size={14} />
         </IconButton>
       </div>
@@ -659,9 +659,9 @@ export default function CommentsPanel({ fileId, anchorCtx, authorId = 'You', onC
           value={filter}
           onChange={(v) => setFilter(v as 'all' | 'open' | 'resolved')}
           items={[
-            { value: 'all',      label: 'All',      count: comments.length },
-            { value: 'open',     label: 'Open',     count: openCount       },
-            { value: 'resolved', label: 'Resolved', count: resolvedCount   },
+            { value: 'all',      label: '全部',      count: comments.length },
+            { value: 'open',     label: '待处理',     count: openCount       },
+            { value: 'resolved', label: '已解决', count: resolvedCount   },
           ]}
         />
       </div>
@@ -680,7 +680,7 @@ export default function CommentsPanel({ fileId, anchorCtx, authorId = 'You', onC
           onEnter={() => void handleAdd()}
           collaborators={collaborators}
           rows={2}
-          placeholder="Add a comment…"
+          placeholder="添加评论…"
           className="w-full text-sm bg-bg-elev2 border border-line rounded-sm px-2 py-1.5 resize-none outline-none focus:border-accent focus:shadow-focus focus:bg-paper transition-colors"
         />
         <button
@@ -688,21 +688,21 @@ export default function CommentsPanel({ fileId, anchorCtx, authorId = 'You', onC
           disabled={!newBody.trim() || busy}
           className="w-full h-7 text-xs font-medium bg-accent text-white rounded-sm hover:bg-accent-hover disabled:opacity-50 transition-colors tracking-tightish focus-visible:outline-none focus-visible:shadow-focus"
         >
-          {busy ? 'Posting…' : 'Comment'}
+          {busy ? '发送中…' : '评论'}
         </button>
       </div>
 
       {/* Comment list — only the comments scroll */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
         {loading && (
-          <LoadingState size="sm" label="Loading comments…" className="py-6" />
+          <LoadingState size="sm" label="正在加载评论…" className="py-6" />
         )}
         {!loading && filtered.length === 0 && (
           <EmptyState
             size="sm"
             icon={MessageSquare}
-            title={filter === 'all' ? 'No comments yet.' : `No ${filter} comments.`}
-            hint={filter === 'all' ? 'Select text in the document to leave the first note.' : undefined}
+            title={filter === 'all' ? '暂无评论。' : filter === 'open' ? '暂无待处理的评论。' : '暂无已解决的评论。'}
+            hint={filter === 'all' ? '在文档中选中文字即可添加第一条评论。' : undefined}
           />
         )}
         {filtered.map((item) => (

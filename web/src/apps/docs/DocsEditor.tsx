@@ -334,7 +334,7 @@ export default function DocsEditor() {
   const collabEnabled = useMemo(() => docsCollabEnabled(), [])
   const { files, saveFileWithDraft, markDirty } = useFilesStore()
   const [file, setFile] = useState<LiwanFile | undefined>(files.find((f) => f.id === id))
-  const [title, setTitle] = useState(file?.name || 'Untitled')
+  const [title, setTitle] = useState(file?.name || '未命名文档')
   const [pendingContent, setPendingContent] = useState<string | Record<string, unknown> | null>(null)
   const [saveStatus, setSaveStatus] = useState<SaveState>(getSaveState(id || ''))
   const [draft, setDraft] = useState<Draft | null>(null)           // pending draft to offer restore
@@ -428,9 +428,8 @@ export default function DocsEditor() {
   useEffect(() => {
     if (!p2p.inviteIgnored) return
     showToast(
-      'This is a collaboration invite link, but live co-editing is turned off on ' +
-      'this deployment — it cannot connect you to the other editor. You are viewing ' +
-      'your own copy of the document.',
+      '这是一个协作邀请链接，但本服务已关闭实时协同编辑，无法连接到其他编辑者。' +
+      '您当前查看的是自己的文档副本。',
       'error',
     )
   }, [p2p.inviteIgnored, showToast])
@@ -445,10 +444,9 @@ export default function DocsEditor() {
   useEffect(() => {
     if (!p2p.peeringUnavailable) return
     showToast(
-      "This invite link needs P2P collaboration support this server doesn't provide " +
-      '(standalone deployment, no rendezvous URL configured). Ask the document owner to ' +
-      'share your account instead, host Office behind a Vulos OS/Relay server, or point ' +
-      'this deployment at a self-hosted relayd.',
+      '此邀请链接需要本服务不提供的 P2P 协同支持（独立部署，且未配置会合服务地址）。' +
+      '请让文档所有者改为直接分享账号，或将 Office 部署在 Vulos OS/Relay 服务器之后，' +
+      '或将本部署指向自建的 relayd。',
       'error',
     )
   }, [p2p.peeringUnavailable, showToast])
@@ -553,7 +551,7 @@ export default function DocsEditor() {
       TaskList,
       TaskItem.configure({ nested: true }),
       CharacterCount,
-      Placeholder.configure({ placeholder: 'Start writing…' }),
+      Placeholder.configure({ placeholder: '开始输入…' }),
       Typography,
       Subscript,
       Superscript,
@@ -1023,9 +1021,9 @@ export default function DocsEditor() {
       const parsedIdentity = parsed as Partial<LocalIdentity> | null
       localCursorIdentity.current = (parsedIdentity?.accountId ? parsedIdentity : {
         accountId: `guest:${sessionStorage.getItem('vulos_peer_id') || 'local'}`,
-        displayName: 'Me',
+        displayName: '我',
       }) as LocalIdentity
-    } catch { localCursorIdentity.current = { accountId: 'local', displayName: 'Me' } }
+    } catch { localCursorIdentity.current = { accountId: 'local', displayName: '我' } }
   }
   // The peering fabric carries live cursors + the presence roster. The DOCUMENT
   // rides the E2E-encrypted p2p room (Yjs, see yP2PSession) — this hook is
@@ -1088,7 +1086,7 @@ export default function DocsEditor() {
         // Ctrl+P / Cmd+P: print document (set title for the print dialog).
         e.preventDefault()
         const old = document.title
-        document.title = titleRef.current || 'Document'
+        document.title = titleRef.current || '文档'
         window.print()
         document.title = old
         return
@@ -1295,13 +1293,13 @@ export default function DocsEditor() {
   // <SaveStatus> (a breathing dot + quiet label). We only compute the retry text
   // override here; the component owns the crafted visual + a11y announcement.
   const saveStatusText =
-    saveStatus.status === 'error' && retryCount > 0 ? `Retrying ${retryCount}/3` : undefined
+    saveStatus.status === 'error' && retryCount > 0 ? `正在重试 ${retryCount}/3` : undefined
 
   if (!editor) {
     // Paper-shaped skeleton (not a bare spinner) so the open feels like a
     // document settling in, using the shared shimmer.
     return (
-      <div className="flex-1 overflow-hidden bg-bg" role="status" aria-label="Opening document…">
+      <div className="flex-1 overflow-hidden bg-bg" role="status" aria-label="正在打开文档…">
         <div className="mx-auto my-8 w-full max-w-3xl px-10 py-12 bg-paper border border-line rounded-md shadow-e1">
           <Skeleton className="h-8 w-2/3 mb-6" />
           <LoadingState.Lines count={3} className="mb-6" />
@@ -1317,7 +1315,7 @@ export default function DocsEditor() {
   // Live collaborators (from the merged p2p + server cursor layer) → avatar stack.
   const collaborators = Array.from(mergedRemoteCursors?.values?.() || [])
     .filter((p) => p && p.accountId)
-    .map((p) => ({ id: p.accountId, name: p.displayName || 'Guest', color: p.color }))
+    .map((p) => ({ id: p.accountId, name: p.displayName || '访客', color: p.color }))
   const pendingSuggestions = suggestions.filter((s) => s.state === 'pending').length
 
   return (
@@ -1331,10 +1329,10 @@ export default function DocsEditor() {
         <div className="flex items-center gap-3 px-4 py-2 bg-warning-bg border-b border-line text-xs text-warning animate-fade-in">
           <AlertCircle size={14} className="flex-shrink-0" />
           <span className="flex-1 text-ink-muted">
-            Unsaved changes from a previous session were found.
+            发现上次会话中未保存的更改。
           </span>
-          <Button variant="primary" size="sm" onClick={handleRestoreDraft}>Restore</Button>
-          <Button variant="secondary" size="sm" onClick={handleDiscardDraft}>Discard</Button>
+          <Button variant="primary" size="sm" onClick={handleRestoreDraft}>恢复</Button>
+          <Button variant="secondary" size="sm" onClick={handleDiscardDraft}>放弃</Button>
         </div>
       )}
 
@@ -1347,7 +1345,7 @@ export default function DocsEditor() {
       {/* Top bar — composed from the design system */}
       <Topbar
         leading={
-          <Tooltip label="Back to Docs">
+          <Tooltip label="返回文档">
             <IconButton size="sm" onClick={() => void navigate('/docs')}>
               <ArrowLeft size={15} />
             </IconButton>
@@ -1357,7 +1355,7 @@ export default function DocsEditor() {
           <input
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Untitled document"
+            placeholder="未命名文档"
             className={[
               'flex-1 min-w-0 text-sm font-semibold tracking-tightish',
               'bg-transparent border border-transparent rounded-sm px-2 py-1',
@@ -1395,7 +1393,7 @@ export default function DocsEditor() {
                   data-testid="collab-off-pill"
                 >
                   <Users size={11} />
-                  Live co-editing off
+                  实时协同编辑已关闭
                 </span>
               </Tooltip>
             )}
@@ -1406,13 +1404,13 @@ export default function DocsEditor() {
             {!collabEnabled ? null : mergedRoster && mergedRoster.length > 1 ? (
               <PresenceBar roster={mergedRoster} className="ml-1" />
             ) : collaborators.length > 0 ? (
-              <Tooltip label={`${collaborators.length} editing now`}>
+              <Tooltip label={`${collaborators.length} 人正在编辑`}>
                 <AvatarStack people={collaborators} size={22} max={4} />
               </Tooltip>
             ) : peerCount > 0 && (
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-pill bg-accent-tint text-accent-press"
-                title={`${peerCount} peer(s) connected`}
+                title={`已连接 ${peerCount} 个节点`}
               >
                 <Users size={11} />
                 {peerCount}
@@ -1420,15 +1418,15 @@ export default function DocsEditor() {
             )}
             {/* Typing/active indicator: someone has a live cursor in the doc. */}
             {mergedRoster && mergedRoster.length > 1 && collaborators.length > 0 && (
-              <span className="text-2xs text-ink-faint italic" title={`${collaborators.length} actively editing`}>
-                {collaborators.length === 1 ? 'editing…' : `${collaborators.length} editing…`}
+              <span className="text-2xs text-ink-faint italic" title={`${collaborators.length} 人正在活跃编辑`}>
+                {collaborators.length === 1 ? '正在编辑…' : `${collaborators.length} 人正在编辑…`}
               </span>
             )}
             {/* WAVE-25: P2P collaboration status */}
             {p2p.active && (
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-pill bg-accent-tint text-accent-press"
-                title={`Peer-to-peer collaboration (${p2p.peerCount} peer(s), end-to-end encrypted)`}
+                title={`点对点协同（${p2p.peerCount} 个节点，端到端加密）`}
               >
                 <Users size={11} />
                 {p2p.peerCount} · P2P
@@ -1437,42 +1435,42 @@ export default function DocsEditor() {
             {p2p.readOnly && (
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-pill bg-bg-elev2 text-ink-muted border border-line"
-                title="You joined with a view-only link — you can read live edits but not change the document."
+                title="您通过仅查看链接加入，可以阅读实时编辑内容，但无法修改文档。"
               >
                 <Eye size={11} />
-                View only
+                仅查看
               </span>
             )}
           </>
         }
         actions={
           <>
-            <Tooltip label="Document outline">
+            <Tooltip label="文档大纲">
               <IconButton size="sm" active={showOutline} onClick={() => setShowOutline((v) => !v)}>
                 <ListTree size={14} />
               </IconButton>
             </Tooltip>
-            <Tooltip label="Find (Cmd+F)">
+            <Tooltip label="查找 (Cmd+F)">
               <IconButton size="sm" active={!!findMode} onClick={() => setFindMode((m) => (m ? null : 'find'))}>
                 <Search size={14} />
               </IconButton>
             </Tooltip>
-            <Tooltip label="Version history">
+            <Tooltip label="版本历史">
               <IconButton size="sm" active={showHistory} onClick={() => setShowHistory((v) => !v)}>
                 <History size={14} />
               </IconButton>
             </Tooltip>
-            <Tooltip label="Activity">
+            <Tooltip label="活动">
               <IconButton size="sm" active={showActivity} onClick={() => setShowActivity((v) => !v)}>
                 <Activity size={14} />
               </IconButton>
             </Tooltip>
-            <Tooltip label="Comments">
+            <Tooltip label="评论">
               <IconButton size="sm" active={showComments} onClick={() => setShowComments((v) => !v)}>
                 <MessageSquare size={14} />
               </IconButton>
             </Tooltip>
-            <Tooltip label={suggestionMode ? 'Exit suggestion mode' : 'Suggestion mode (track changes)'}>
+            <Tooltip label={suggestionMode ? '退出建议模式' : '建议模式（修订追踪）'}>
               <button
                 onClick={handleToggleSuggestionMode}
                 className={[
@@ -1484,11 +1482,11 @@ export default function DocsEditor() {
                 ].join(' ')}
               >
                 <GitBranch size={13} />
-                {suggestionMode ? 'Suggesting' : 'Suggest'}
+                {suggestionMode ? '建议中' : '建议'}
               </button>
             </Tooltip>
             {!suggestionMode && pendingSuggestions > 0 && (
-              <Tooltip label={`${pendingSuggestions} pending suggestion${pendingSuggestions === 1 ? '' : 's'}`}>
+              <Tooltip label={`${pendingSuggestions} 条待处理建议`}>
                 <IconButton size="sm" active={showSuggestions} onClick={() => setShowSuggestions((v) => !v)}>
                   <GitBranch size={14} />
                 </IconButton>
@@ -1499,7 +1497,7 @@ export default function DocsEditor() {
                 P2P end-to-end-encrypted link path. Hidden for ro peers who
                 joined via a view-only link (they cannot re-share). */}
             {!p2p.readOnly && (
-              <Tooltip label="Share — with people (accounts) or via an E2E link">
+              <Tooltip label="分享——与用户（账号）分享，或通过端到端加密链接分享">
                 <IconButton
                   size="sm"
                   active={showAccountShare || showP2PShare}
@@ -1518,7 +1516,7 @@ export default function DocsEditor() {
               {saveStatus.status === 'saving'
                 ? <Loader2 size={13} className="animate-spin" />
                 : <Save size={13} />}
-              Save
+              保存
             </Button>
           </>
         }
@@ -1529,10 +1527,10 @@ export default function DocsEditor() {
         <div className="flex items-center gap-2 px-4 py-1.5 bg-success-bg border-b border-line text-xs text-success animate-fade-in">
           <GitBranch size={12} className="flex-shrink-0" />
           <span className="flex-1 text-ink-muted tracking-tightish">
-            Suggestion mode — edits are recorded as proposals.
+            建议模式——编辑将被记录为修改建议。
           </span>
           <Button variant="ghost" size="sm" onClick={() => setShowSuggestions((v) => !v)}>
-            {showSuggestions ? 'Hide' : 'Review'}
+            {showSuggestions ? '隐藏' : '查看'}
           </Button>
         </div>
       )}
@@ -1618,7 +1616,7 @@ export default function DocsEditor() {
                   className="doc-page-break"
                   style={{ top: `${y}px`, ['--page-gap' as string]: '40px', ['--page-pad-x' as string]: `${geo.marginLeftPx}px` }}
                 >
-                  <span className="doc-page-num">page {i + 2}</span>
+                  <span className="doc-page-num">第 {i + 2} 页</span>
                 </div>
               ))}
             </div>
@@ -1701,20 +1699,20 @@ export default function DocsEditor() {
       <footer className="status-bar justify-end">
         {p2p.readOnly && (
           <span className="status-item text-ink-faint mr-auto">
-            <Eye size={11} aria-hidden /> View only
+            <Eye size={11} aria-hidden /> 仅查看
           </span>
         )}
         <button
           onClick={() => setShowWordCount(true)}
-          title="Word count details"
+          title="字数统计详情"
           className="status-item"
-          aria-label="Open word count details"
+          aria-label="打开字数统计详情"
         >
-          <span>{wordCount} words</span>
+          <span>{wordCount} 字</span>
           <span className="opacity-40">·</span>
-          <span>{pageCount} {pageCount === 1 ? 'page' : 'pages'}</span>
+          <span>{pageCount} 页</span>
           <span className="opacity-40">·</span>
-          <span>{charCount} characters</span>
+          <span>{charCount} 个字符</span>
         </button>
       </footer>
 

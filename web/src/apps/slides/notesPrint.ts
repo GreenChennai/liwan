@@ -39,17 +39,17 @@ export function buildNotesPrintHtml(
   const slides = Array.isArray(slidesData?.slides) ? slidesData.slides : []
   const body = slides.map((slide, i) => `
       <div style="page-break-after:always;padding:20px;border-bottom:2px solid #eee">
-        <h2 style="font-size:18px">${i + 1}. ${esc(slide.title || 'Untitled')}</h2>
+        <h2 style="font-size:18px">${i + 1}. ${esc(slide.title || '未命名')}</h2>
         <div style="background:#f5f5f5;padding:12px;border-radius:4px;margin:8px 0;font-size:12px">
           ${sanitize(slide.content || '')}
         </div>
         <div style="margin-top:12px">
-          <strong style="font-size:11px;text-transform:uppercase;color:#666">Notes</strong>
-          <p style="font-size:13px;white-space:pre-wrap">${esc(slide.notes || '(no notes)')}</p>
+          <strong style="font-size:11px;text-transform:uppercase;color:#666">备注</strong>
+          <p style="font-size:13px;white-space:pre-wrap">${esc(slide.notes || '（无备注）')}</p>
         </div>
       </div>
     `).join('')
-  return `<!DOCTYPE html><html><head><title>${esc(title)} — Notes</title>
+  return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>${esc(title)} — 备注</title>
       <style>body{font-family:Georgia,serif;margin:0;padding:0}</style>
     </head><body>${body}</body></html>`
 }

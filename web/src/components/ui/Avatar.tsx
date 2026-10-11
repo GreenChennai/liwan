@@ -103,7 +103,7 @@ export function AvatarStack({ people = [], max = 4, size = 22, className = '' }:
   return (
     <span
       className={`avatar-stack inline-flex items-center ${className}`.trim()}
-      aria-label={names ? `Collaborators: ${names}` : undefined}
+      aria-label={names ? `协作者：${names}` : undefined}
     >
       {shown.map((p, i) => (
         <Avatar

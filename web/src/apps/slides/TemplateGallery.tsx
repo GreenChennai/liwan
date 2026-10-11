@@ -58,7 +58,7 @@ export default function TemplateGallery({ onApply, onClose }: TemplateGalleryPro
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-fade-in p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Template gallery"
+      aria-label="模板库"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="bg-paper border border-line rounded-xl shadow-e3 w-[560px] max-w-full max-h-[90vh] flex flex-col overflow-hidden">
@@ -66,13 +66,13 @@ export default function TemplateGallery({ onApply, onClose }: TemplateGalleryPro
         <div className="flex items-center justify-between px-5 py-3 border-b border-line">
           <div className="flex items-center gap-2">
             <FileText size={15} className="text-accent" />
-            <span className="font-semibold text-ink text-sm">New from Template</span>
+            <span className="font-semibold text-ink text-sm">从模板新建</span>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="text-ink-faint hover:text-ink p-1 rounded-md transition-colors"
-            aria-label="Close"
+            aria-label="关闭"
           >
             <X size={15} />
           </button>
@@ -126,7 +126,7 @@ export default function TemplateGallery({ onApply, onClose }: TemplateGalleryPro
                     className="text-2xs"
                     style={{ color: theme.textMuted }}
                   >
-                    {tpl.slides.length} slides · {tpl.label}
+                    {tpl.slides.length} 页 · {tpl.label}
                   </div>
                 </div>
                 {isSelected && (
@@ -155,7 +155,7 @@ export default function TemplateGallery({ onApply, onClose }: TemplateGalleryPro
           >
             <div className="text-center">
               <div className="text-xl font-bold text-ink-faint">+</div>
-              <div className="text-xs text-ink-muted mt-1">Blank deck</div>
+              <div className="text-xs text-ink-muted mt-1">空白幻灯片</div>
             </div>
           </button>
         </div>
@@ -167,7 +167,7 @@ export default function TemplateGallery({ onApply, onClose }: TemplateGalleryPro
             onClick={onClose}
             className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-md border border-line hover:border-line-strong transition-colors"
           >
-            Cancel
+            取消
           </button>
           <button
             type="button"
@@ -180,7 +180,7 @@ export default function TemplateGallery({ onApply, onClose }: TemplateGalleryPro
                 : 'bg-line text-ink-faint cursor-not-allowed',
             ].join(' ')}
           >
-            Create deck
+            创建幻灯片
           </button>
         </div>
       </div>

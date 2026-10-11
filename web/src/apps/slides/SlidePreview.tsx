@@ -125,13 +125,13 @@ export default function SlidePreview({ data, onClose }: { data: PreviewData; onC
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Presentation"
+      aria-label="演示"
       className="fixed inset-0 z-50 bg-black flex flex-col animate-fade-in">
       <div className="absolute top-4 right-4 z-10">
         <button
           onClick={onClose}
-          aria-label="Exit presentation"
-          title="Exit presentation (Esc)"
+          aria-label="退出演示"
+          title="退出演示 (Esc)"
           className={[
             'inline-flex items-center justify-center h-9 w-9 rounded-md',
             'bg-black/55 text-white border border-white/10',

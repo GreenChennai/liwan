@@ -22,34 +22,34 @@ describe('ConnectionPill', () => {
   })
 
   it('renders Live with success tone and peer count', () => {
-    render(<ConnectionPill pill={pill('live', 'Live', 'success')} peerCount={3} />)
+    render(<ConnectionPill pill={pill('live', '实时', 'success')} peerCount={3} />)
     const el = screen.getByRole('status')
-    expect(el).toHaveTextContent('Live')
+    expect(el).toHaveTextContent('实时')
     expect(el.className).toMatch(/text-success/)
     // Folds peer count into the accessible label.
-    expect(el).toHaveAttribute('aria-label', expect.stringContaining('3 collaborators'))
+    expect(el).toHaveAttribute('aria-label', expect.stringContaining('3 位协作者'))
   })
 
   it('singularises the collaborator count', () => {
-    render(<ConnectionPill pill={pill('live', 'Live', 'success')} peerCount={1} />)
+    render(<ConnectionPill pill={pill('live', '实时', 'success')} peerCount={1} />)
     expect(screen.getByRole('status')).toHaveAttribute(
-      'aria-label', expect.stringContaining('1 collaborator connected'),
+      'aria-label', expect.stringContaining('1 位协作者已连接'),
     )
   })
 
   it('renders Reconnecting with warning tone and a motion-safe pulse', () => {
-    render(<ConnectionPill pill={pill('reconnecting', 'Reconnecting…', 'warning')} />)
+    render(<ConnectionPill pill={pill('reconnecting', '重新连接中…', 'warning')} />)
     const el = screen.getByRole('status')
-    expect(el).toHaveTextContent('Reconnecting…')
+    expect(el).toHaveTextContent('重新连接中…')
     expect(el.className).toMatch(/text-warning/)
     // Pulse is gated behind motion-safe (reduced-motion respect).
     expect(el.className).toMatch(/motion-safe:animate-pulse/)
   })
 
   it('renders Offline with muted tone and no pulse', () => {
-    render(<ConnectionPill pill={pill('offline', 'Offline', 'muted')} />)
+    render(<ConnectionPill pill={pill('offline', '离线', 'muted')} />)
     const el = screen.getByRole('status')
-    expect(el).toHaveTextContent('Offline')
+    expect(el).toHaveTextContent('离线')
     expect(el.className).toMatch(/text-ink-muted/)
     expect(el.className).not.toMatch(/animate-pulse/)
   })
@@ -57,15 +57,15 @@ describe('ConnectionPill', () => {
   it('renders the engine mismatch with a danger tone', () => {
     // Deliberately louder than every other state in this component: it is the
     // only one that means "this will not fix itself".
-    render(<ConnectionPill pill={pill('mismatch', 'Not syncing', 'danger')} />)
+    render(<ConnectionPill pill={pill('mismatch', '未同步', 'danger')} />)
     const el = screen.getByRole('status')
-    expect(el).toHaveTextContent('Not syncing')
+    expect(el).toHaveTextContent('未同步')
     expect(el.className).toMatch(/text-danger/)
     expect(el.className).not.toMatch(/animate-pulse/)
   })
 
   it('is announced politely to assistive tech', () => {
-    render(<ConnectionPill pill={pill('connecting', 'Connecting…', 'muted')} />)
+    render(<ConnectionPill pill={pill('connecting', '连接中…', 'muted')} />)
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite')
   })
 })

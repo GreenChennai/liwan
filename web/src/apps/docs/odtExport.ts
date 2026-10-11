@@ -126,10 +126,10 @@ export async function buildOdtBlob(editor: Editor): Promise<Blob> {
 <office:document-styles ${NS} office:version="1.2">
   <office:styles>
     <style:style style:name="Standard" style:family="paragraph" style:class="text"/>
-    <style:style style:name="Heading_20_1" style:display-name="Heading 1" style:family="paragraph" style:parent-style-name="Standard"><style:text-properties fo:font-size="24pt" fo:font-weight="bold"/></style:style>
-    <style:style style:name="Heading_20_2" style:display-name="Heading 2" style:family="paragraph" style:parent-style-name="Standard"><style:text-properties fo:font-size="18pt" fo:font-weight="bold"/></style:style>
-    <style:style style:name="Heading_20_3" style:display-name="Heading 3" style:family="paragraph" style:parent-style-name="Standard"><style:text-properties fo:font-size="14pt" fo:font-weight="bold"/></style:style>
-    <style:style style:name="Preformatted_20_Text" style:display-name="Preformatted Text" style:family="paragraph"><style:text-properties style:font-name="Courier New"/></style:style>
+    <style:style style:name="Heading_20_1" style:display-name="标题 1" style:family="paragraph" style:parent-style-name="Standard"><style:text-properties fo:font-size="24pt" fo:font-weight="bold"/></style:style>
+    <style:style style:name="Heading_20_2" style:display-name="标题 2" style:family="paragraph" style:parent-style-name="Standard"><style:text-properties fo:font-size="18pt" fo:font-weight="bold"/></style:style>
+    <style:style style:name="Heading_20_3" style:display-name="标题 3" style:family="paragraph" style:parent-style-name="Standard"><style:text-properties fo:font-size="14pt" fo:font-weight="bold"/></style:style>
+    <style:style style:name="Preformatted_20_Text" style:display-name="预格式文本" style:family="paragraph"><style:text-properties style:font-name="Courier New"/></style:style>
   </office:styles>
 </office:document-styles>`
 

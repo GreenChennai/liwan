@@ -31,10 +31,10 @@ export function timeAgo(input: DateInput): string {
   const d = toDate(input)
   if (!d) return ''
   const diff = Date.now() - d.getTime()
-  if (diff < 60_000)     return 'just now'
-  if (diff < 3_600_000)  return `${Math.floor(diff / 60_000)}m ago`
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`
-  if (diff < 604_800_000) return `${Math.floor(diff / 86_400_000)}d ago`
+  if (diff < 60_000)     return '刚刚'
+  if (diff < 3_600_000)  return `${Math.floor(diff / 60_000)}分钟前`
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}小时前`
+  if (diff < 604_800_000) return `${Math.floor(diff / 86_400_000)}天前`
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
@@ -47,13 +47,13 @@ export function timeAgoLong(input: DateInput): string {
   const d = toDate(input)
   if (!d) return ''
   const diffSec = Math.floor((Date.now() - d.getTime()) / 1000)
-  if (diffSec < 60) return 'just now'
+  if (diffSec < 60) return '刚刚'
   const diffMin = Math.floor(diffSec / 60)
-  if (diffMin < 60) return `${diffMin}m ago`
+  if (diffMin < 60) return `${diffMin}分钟前`
   const diffHr = Math.floor(diffMin / 60)
-  if (diffHr < 24) return `${diffHr}h ago`
+  if (diffHr < 24) return `${diffHr}小时前`
   const diffDay = Math.floor(diffHr / 24)
-  if (diffDay < 30) return `${diffDay}d ago`
+  if (diffDay < 30) return `${diffDay}天前`
   return d.toLocaleDateString()
 }
 

@@ -71,16 +71,16 @@ describe('Sheets cell edit via Find/Replace (real component + model)', () => {
     render(<SheetsFindReplace data={data} onChange={onChange} onClose={() => {}} />)
 
     // Reveal the replace row (toggle button carries aria-pressed).
-    const toggle = screen.getByRole('button', { name: 'Replace', pressed: false })
+    const toggle = screen.getByRole('button', { name: '替换', pressed: false })
     fireEvent.click(toggle)
 
     // Type a find term + replacement, then Replace All.
-    const findInput = screen.getByPlaceholderText('Find…')
+    const findInput = screen.getByPlaceholderText('查找…')
     await userEvent.type(findInput, 'Cost')
-    const replaceInput = screen.getByPlaceholderText('Replace with…')
+    const replaceInput = screen.getByPlaceholderText('替换为…')
     await userEvent.type(replaceInput, 'Expense')
 
-    fireEvent.click(screen.getByRole('button', { name: /Replace all/i }))
+    fireEvent.click(screen.getByRole('button', { name: /全部替换/ }))
 
     await waitFor(() => {
       const edited = current[0].celldata.find((c) => c.r === 1 && c.c === 0)
@@ -90,20 +90,20 @@ describe('Sheets cell edit via Find/Replace (real component + model)', () => {
 })
 
 describe('Sheets presence pill', () => {
-  it('renders "Live" with a peer count when a collaborator is connected', () => {
+  it('renders "实时" with a peer count when a collaborator is connected', () => {
     const peers = { p2: 'connected' }
     const pill = deriveStatusPill({ configured: true, joined: true, peers })
     expect(pill.status).toBe('live')
     render(<ConnectionPill pill={pill} peerCount={countLivePeers(peers)} />)
     const el = screen.getByRole('status')
-    expect(el).toHaveTextContent('Live')
-    expect(el).toHaveAttribute('aria-label', expect.stringContaining('1 collaborator'))
+    expect(el).toHaveTextContent('实时')
+    expect(el).toHaveAttribute('aria-label', expect.stringContaining('1 位协作者'))
   })
 
-  it('renders a calm "Live" (solo) when connected with no peers', () => {
+  it('renders a calm "实时" (solo) when connected with no peers', () => {
     const pill = deriveStatusPill({ configured: true, joined: true, peers: {} })
     expect(pill.status).toBe('solo')
     render(<ConnectionPill pill={pill} />)
-    expect(screen.getByRole('status')).toHaveTextContent('Live')
+    expect(screen.getByRole('status')).toHaveTextContent('实时')
   })
 })

@@ -98,7 +98,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-bg">
-        <LoadingState label="Loading Liwan…" />
+        <LoadingState label="正在加载 Liwan…" />
       </div>
     )
   }

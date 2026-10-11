@@ -53,50 +53,50 @@ interface AppConfig {
 
 const CONFIG: Record<'doc' | 'sheet' | 'slide' | 'whiteboard' | 'pdf', AppConfig> = {
   doc: {
-    label: 'Documents', singularLabel: 'Document',
+    label: '文档', singularLabel: '文档',
     icon: FileText,
     iconCn: 'text-accent',       bgCn: 'bg-accent-tint',
-    route: 'docs', emptyMsg: 'No documents yet',
+    route: 'docs', emptyMsg: '还没有文档',
     localExts: ['.doc', '.docx', '.txt', '.md', '.rtf', '.odt'],
     extLabel: 'docx, odt, txt, md, html',
     importExts: '.docx,.txt,.md,.rtf,.html,.htm,.odt',
     canCreate: true,
   },
   sheet: {
-    label: 'Spreadsheets', singularLabel: 'Spreadsheet',
+    label: '表格', singularLabel: '表格',
     icon: Table2,
     iconCn: 'text-success',      bgCn: 'bg-success-bg',
-    route: 'sheets', emptyMsg: 'No spreadsheets yet',
+    route: 'sheets', emptyMsg: '还没有表格',
     localExts: ['.xls', '.xlsx', '.csv', '.ods'],
     extLabel: 'xlsx, xls, ods, csv',
     importExts: '.xlsx,.xls,.csv,.tsv,.ods',
     canCreate: true,
   },
   slide: {
-    label: 'Presentations', singularLabel: 'Presentation',
+    label: '幻灯片', singularLabel: '幻灯片',
     icon: Presentation,
     iconCn: 'text-warning',      bgCn: 'bg-warning-bg',
-    route: 'slides', emptyMsg: 'No presentations yet',
+    route: 'slides', emptyMsg: '还没有幻灯片',
     localExts: ['.ppt', '.pptx', '.odp'],
     extLabel: 'pptx, odp',
     importExts: '.pptx,.odp',
     canCreate: true,
   },
   whiteboard: {
-    label: 'Whiteboards', singularLabel: 'Whiteboard',
+    label: '白板', singularLabel: '白板',
     icon: PenTool,
     iconCn: 'text-app-board',    bgCn: 'bg-app-board-bg',
-    route: 'whiteboards', emptyMsg: 'No whiteboards yet',
+    route: 'whiteboards', emptyMsg: '还没有白板',
     localExts: ['.excalidraw'],
     extLabel: 'excalidraw',
     importExts: '.excalidraw',
     canCreate: true,
   },
   pdf: {
-    label: 'PDFs', singularLabel: 'PDF',
+    label: 'PDF', singularLabel: 'PDF',
     icon: FileSearch,
     iconCn: 'text-danger',       bgCn: 'bg-danger-bg',
-    route: 'pdf', emptyMsg: 'No PDFs yet',
+    route: 'pdf', emptyMsg: '还没有 PDF',
     localExts: ['.pdf'],
     extLabel: 'pdf',
     importExts: '.pdf',
@@ -152,11 +152,11 @@ export default function AppHome({ type }: AppHomeProps) {
     setImporting('__file__')
     try {
       if (!detectType(file.name)) {
-        throw new Error(`Cannot open .${(file.name.split('.').pop() || '').toLowerCase()} files.`)
+        throw new Error(`无法打开 .${(file.name.split('.').pop() || '').toLowerCase()} 文件。`)
       }
       await importFile(file, navigate)
     } catch (err) {
-      showToast(`Could not open ${file.name}: ${err instanceof Error ? err.message : String(err)}`, 'error')
+      showToast(`无法打开 ${file.name}：${err instanceof Error ? err.message : String(err)}`, 'error')
     } finally {
       setImporting(null)
     }
@@ -273,7 +273,7 @@ export default function AppHome({ type }: AppHomeProps) {
     try {
       if (renameValue.trim()) await renameFile(id, renameValue.trim())
     } catch (e) {
-      showToast(`Could not rename: ${e instanceof Error ? e.message : String(e)}`, 'error')
+      showToast(`无法重命名：${e instanceof Error ? e.message : String(e)}`, 'error')
     } finally {
       setRenaming(null)
     }
@@ -283,17 +283,17 @@ export default function AppHome({ type }: AppHomeProps) {
     try {
       if (renameValue.trim()) await renameFolder(id, renameValue.trim())
     } catch (e) {
-      showToast(`Could not rename folder: ${e instanceof Error ? e.message : String(e)}`, 'error')
+      showToast(`无法重命名文件夹：${e instanceof Error ? e.message : String(e)}`, 'error')
     } finally {
       setRenaming(null)
     }
   }
 
   const handleNewFolder = async () => {
-    const name = window.prompt('New folder name')
+    const name = window.prompt('新建文件夹名称')
     if (name && name.trim()) {
       try { await createFolder(name.trim(), view === 'browse' ? folderId : '') }
-      catch (e) { showToast(`Could not create folder: ${e instanceof Error ? e.message : String(e)}`, 'error') }
+      catch (e) { showToast(`无法创建文件夹：${e instanceof Error ? e.message : String(e)}`, 'error') }
     }
   }
 
@@ -304,7 +304,7 @@ export default function AppHome({ type }: AppHomeProps) {
   // the menu, matching the try/catch/finally this replaced exactly.
   const wrap = <A extends unknown[]>(label: string, fn: (...a: A) => Promise<unknown>) => (...a: A): void => {
     fn(...a)
-      .catch((e: unknown) => showToast(`${label}: ${e instanceof Error ? e.message : String(e)}`, 'error'))
+      .catch((e: unknown) => showToast(`${label}失败：${e instanceof Error ? e.message : String(e)}`, 'error'))
       .finally(() => setMenuOpen(null))
   }
 
@@ -314,7 +314,7 @@ export default function AppHome({ type }: AppHomeProps) {
       await importFromUrl(file, navigate)
     } catch (e) {
       console.error(e)
-      showToast(`Could not open ${file.name}: ${e instanceof Error ? e.message : String(e)}`, 'error')
+      showToast(`无法打开 ${file.name}：${e instanceof Error ? e.message : String(e)}`, 'error')
     } finally {
       setImporting(null)
     }
@@ -337,8 +337,8 @@ export default function AppHome({ type }: AppHomeProps) {
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-accent-tint/80 backdrop-blur-sm border-2 border-dashed border-accent m-3 rounded-xl pointer-events-none">
           <div className="text-center">
             <Upload size={32} className="text-accent mx-auto mb-2" />
-            <p className="font-serif text-lg text-ink">Drop to open</p>
-            <p className="text-sm text-ink-muted">docx, xlsx, pptx, odt, ods, odp, pdf and more</p>
+            <p className="font-serif text-lg text-ink">松开即可打开</p>
+            <p className="text-sm text-ink-muted">支持 docx、xlsx、pptx、odt、ods、odp、pdf 等格式</p>
           </div>
         </div>
       )}
@@ -353,7 +353,7 @@ export default function AppHome({ type }: AppHomeProps) {
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search…"
+            placeholder="搜索…"
             size="sm"
             leading={<Search size={13} />}
           />
@@ -362,12 +362,12 @@ export default function AppHome({ type }: AppHomeProps) {
         <div className="ml-auto flex items-center gap-1.5">
           <ThemeSwitch collapsed />
           <div className="flex items-center gap-0.5 p-0.5 bg-bg-elev2 border border-line rounded-md mr-1">
-            <Tooltip label="Grid view" side="bottom">
+            <Tooltip label="网格视图" side="bottom">
               <IconButton size="sm" active={viewMode === 'grid'} onClick={() => setViewMode('grid')}>
                 <LayoutGrid size={13} />
               </IconButton>
             </Tooltip>
-            <Tooltip label="List view" side="bottom">
+            <Tooltip label="列表视图" side="bottom">
               <IconButton size="sm" active={viewMode === 'list'} onClick={() => setViewMode('list')}>
                 <List size={13} />
               </IconButton>
@@ -381,17 +381,17 @@ export default function AppHome({ type }: AppHomeProps) {
             disabled={importing === '__file__'}
           >
             {importing === '__file__' ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
-            Open file
+            打开文件
           </Button>
           {cfg.canCreate && (
             <>
-              <Tooltip label="New folder" side="bottom">
-                <IconButton size="sm" onClick={() => void handleNewFolder()} aria-label="New folder">
+              <Tooltip label="新建文件夹" side="bottom">
+                <IconButton size="sm" onClick={() => void handleNewFolder()} aria-label="新建文件夹">
                   <FolderPlus size={14} />
                 </IconButton>
               </Tooltip>
               <Button variant="primary" size="sm" onClick={() => setShowNew(true)}>
-                <Plus size={13} /> New {cfg.singularLabel}
+                <Plus size={13} /> 新建{cfg.singularLabel}
               </Button>
             </>
           )}
@@ -402,20 +402,20 @@ export default function AppHome({ type }: AppHomeProps) {
       <div className="max-w-6xl mx-auto px-6 pt-4 flex items-center gap-2 flex-wrap">
         <div className="flex items-center gap-1 p-0.5 bg-bg-elev2 border border-line rounded-md">
           <ViewTab active={view === 'browse'} onClick={() => { setView('browse'); setFolderId('') }}>
-            <Home size={12} /> All
+            <Home size={12} /> 全部
           </ViewTab>
           <ViewTab active={view === 'starred'} onClick={() => setView('starred')}>
-            <Star size={12} /> Starred{starredCount > 0 ? ` (${starredCount})` : ''}
+            <Star size={12} /> 星标{starredCount > 0 ? ` (${starredCount})` : ''}
           </ViewTab>
           <ViewTab active={view === 'trash'} onClick={() => setView('trash')}>
-            <Trash2 size={12} /> Trash{trashCount > 0 ? ` (${trashCount})` : ''}
+            <Trash2 size={12} /> 回收站{trashCount > 0 ? ` (${trashCount})` : ''}
           </ViewTab>
         </div>
 
         {view === 'browse' && folderId && (
-          <nav className="flex items-center gap-1 text-2xs text-ink-faint ml-1" aria-label="Folder path">
+          <nav className="flex items-center gap-1 text-2xs text-ink-faint ml-1" aria-label="文件夹路径">
             <button className="hover:text-ink-muted flex items-center gap-1 rounded-sm px-1 -mx-1 focus:outline-none focus-visible:shadow-focus focus-visible:text-ink-muted" onClick={() => setFolderId('')}>
-              <Home size={11} /> Home
+              <Home size={11} /> 首页
             </button>
             {crumbs.map((c) => (
               <span key={c.id} className="flex items-center gap-1">
@@ -442,7 +442,7 @@ export default function AppHome({ type }: AppHomeProps) {
 
         <section>
           {loading && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" role="status" aria-label={`Loading ${cfg.label.toLowerCase()}`}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" role="status" aria-label={`正在加载${cfg.label}`}>
               {Array.from({ length: 8 }, (_, i) => (
                 <div key={i} className="rounded-lg border border-line overflow-hidden bg-paper">
                   <Skeleton className="h-28" rounded="rounded-none" />
@@ -461,22 +461,22 @@ export default function AppHome({ type }: AppHomeProps) {
                 <Icon size={28} className={`${cfg.iconCn} opacity-40`} />
               </div>
               <p className="font-serif text-lg text-ink mb-1">
-                {search ? 'No results' : view === 'trash' ? 'Trash is empty' : view === 'starred' ? 'No starred items' : cfg.emptyMsg}
+                {search ? '没有结果' : view === 'trash' ? '回收站是空的' : view === 'starred' ? '没有星标项目' : cfg.emptyMsg}
               </p>
               <p className="text-sm text-ink-muted mb-6">
-                {search ? 'Try a different search term'
-                  : view === 'trash' ? 'Deleted items appear here and can be restored'
-                  : view === 'starred' ? 'Star items to find them quickly'
-                  : `Start fresh with a blank ${cfg.singularLabel.toLowerCase()}`}
+                {search ? '请尝试其他搜索词'
+                  : view === 'trash' ? '已删除的项目会显示在这里，可以恢复'
+                  : view === 'starred' ? '为项目加星标，便于快速查找'
+                  : `从空白${cfg.singularLabel}开始`}
               </p>
               {!search && view === 'browse' && (
                 <div className="flex items-center gap-2">
                   <Button variant="secondary" size="md" onClick={() => fileInputRef.current?.click()}>
-                    <Upload size={14} /> Open File
+                    <Upload size={14} /> 打开文件
                   </Button>
                   {cfg.canCreate && (
                     <Button variant="primary" size="md" onClick={() => setShowNew(true)}>
-                      <Plus size={14} /> New {cfg.singularLabel}
+                      <Plus size={14} /> 新建{cfg.singularLabel}
                     </Button>
                   )}
                 </div>
@@ -487,7 +487,7 @@ export default function AppHome({ type }: AppHomeProps) {
           {/* ── Folders (browse/starred/trash) ── */}
           {!loading && visibleFolders.length > 0 && (
             <div className="mb-6">
-              <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-3">Folders</p>
+              <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-3">文件夹</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                 {visibleFolders.map(folder => (
                   <FolderCard
@@ -503,9 +503,9 @@ export default function AppHome({ type }: AppHomeProps) {
                     onOpen={() => { setView('browse'); setFolderId(folder.id) }}
                     onRename={() => startRenameFolder(folder)}
                     onRenameCommit={() => void commitRenameFolder(folder.id)}
-                    onTrash={wrap('Trash folder', () => trashFolder(folder.id, true))}
-                    onRestore={wrap('Restore folder', () => trashFolder(folder.id, false))}
-                    onDelete={wrap('Delete folder', () => deleteFolder(folder.id))}
+                    onTrash={wrap('移入回收站', () => trashFolder(folder.id, true))}
+                    onRestore={wrap('恢复', () => trashFolder(folder.id, false))}
+                    onDelete={wrap('删除', () => deleteFolder(folder.id))}
                   />
                 ))}
               </div>
@@ -515,7 +515,7 @@ export default function AppHome({ type }: AppHomeProps) {
           {!loading && myFiles.length > 0 && (
             <>
               {visibleFolders.length > 0 && (
-                <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-3">Files</p>
+                <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-3">文件</p>
               )}
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -535,12 +535,12 @@ export default function AppHome({ type }: AppHomeProps) {
                       onOpen={() => openFile(file)}
                       onRename={() => startRename(file)}
                       onRenameCommit={() => void commitRename(file.id)}
-                      onStar={wrap('Star', () => toggleStar(file.id))}
+                      onStar={wrap('星标', () => toggleStar(file.id))}
                       onMove={() => { setMoving(file); setMenuOpen(null) }}
                       onShare={() => { setSharing(file); setMenuOpen(null) }}
-                      onTrash={wrap('Trash', () => trashFile(file.id))}
-                      onRestore={wrap('Restore', () => restoreFile(file.id))}
-                      onDelete={wrap('Delete', () => deleteFile(file.id))}
+                      onTrash={wrap('移入回收站', () => trashFile(file.id))}
+                      onRestore={wrap('恢复', () => restoreFile(file.id))}
+                      onDelete={wrap('删除', () => deleteFile(file.id))}
                     />
                   ))}
                 </div>
@@ -559,12 +559,12 @@ export default function AppHome({ type }: AppHomeProps) {
                   onOpen={openFile}
                   onRename={startRename}
                   onRenameCommit={(id) => void commitRename(id)}
-                  onStar={(id) => wrap('Star', () => toggleStar(id))()}
+                  onStar={(id) => wrap('星标', () => toggleStar(id))()}
                   onMove={(file) => { setMoving(file); setMenuOpen(null) }}
                   onShare={(file) => { setSharing(file); setMenuOpen(null) }}
-                  onTrash={(id) => wrap('Trash', () => trashFile(id))()}
-                  onRestore={(id) => wrap('Restore', () => restoreFile(id))()}
-                  onDelete={(id) => wrap('Delete', () => deleteFile(id))()}
+                  onTrash={(id) => wrap('移入回收站', () => trashFile(id))()}
+                  onRestore={(id) => wrap('恢复', () => restoreFile(id))()}
+                  onDelete={(id) => wrap('删除', () => deleteFile(id))()}
                 />
               )}
             </>
@@ -576,7 +576,7 @@ export default function AppHome({ type }: AppHomeProps) {
           <section>
             <div className="flex items-center gap-2 mb-3">
               <Users size={13} className="text-ink-faint" />
-              <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Shared with me</p>
+              <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">与我共享</p>
               <span className="text-2xs text-ink-faint bg-bg-elev2 border border-line rounded-pill px-2 py-0.5">
                 {sharedFiles.length}
               </span>
@@ -600,12 +600,12 @@ export default function AppHome({ type }: AppHomeProps) {
                     <p className="text-sm font-medium text-ink truncate tracking-tightish">{file.name}</p>
                     <p className="text-2xs text-ink-faint truncate flex items-center gap-1">
                       <Avatar name={file.owner} size={13} color={hueFor(file.owner)} />
-                      Shared by {file.owner}
+                      由 {file.owner} 分享
                     </p>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0 text-2xs text-ink-faint tracking-tightish">
                     <span className="px-1.5 py-0.5 rounded-xs bg-bg-elev2 border border-line font-semibold uppercase text-[9px] capitalize">
-                      {(file.role as string | undefined) || 'shared'}
+                      {(file.role as string | undefined) || '已共享'}
                     </span>
                     <span>{timeAgo(file.updated_at)}</span>
                     <ArrowUpRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -622,14 +622,14 @@ export default function AppHome({ type }: AppHomeProps) {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <HardDrive size={13} className="text-ink-faint" />
-                <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">On Your Computer</p>
+                <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">我的电脑</p>
                 <span className="text-2xs text-ink-faint bg-bg-elev2 border border-line rounded-pill px-2 py-0.5">
                   {myLocalFiles.length}
                 </span>
               </div>
               <button onClick={() => void scan()} className="flex items-center gap-1.5 text-2xs text-ink-faint hover:text-ink-muted transition-colors rounded-sm px-1 -mx-1 focus:outline-none focus-visible:shadow-focus focus-visible:text-ink-muted">
                 <RefreshCw size={11} className={localLoading ? 'animate-spin' : ''} />
-                Rescan
+                重新扫描
               </button>
             </div>
             <Card>
@@ -683,7 +683,7 @@ export default function AppHome({ type }: AppHomeProps) {
             // satisfies this prop's void-returning callback type.
             void (async () => {
               try { await moveFile(moving.id, { parentId: targetId }) }
-              catch (e) { showToast(`Move failed: ${e instanceof Error ? e.message : String(e)}`, 'error') }
+              catch (e) { showToast(`移动失败：${e instanceof Error ? e.message : String(e)}`, 'error') }
               setMoving(null)
             })()
           }}
@@ -735,13 +735,13 @@ export function ContentSearchResults({ results, searching, query, onOpen }: Cont
   if (results === null && !searching) return null
 
   return (
-    <section aria-label="Content search results">
+    <section aria-label="内容搜索结果">
       <h2 className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-2 flex items-center gap-1.5">
-        <Search size={11} /> Matches in content
+        <Search size={11} /> 内容中的匹配
         {searching && <Loader2 size={11} className="animate-spin" />}
       </h2>
       {!searching && results && results.length === 0 && (
-        <p className="text-2xs text-ink-faint">No content matches for “{query}”.</p>
+        <p className="text-2xs text-ink-faint">没有与“{query}”匹配的内容。</p>
       )}
       {results && results.length > 0 && (
         <ul className="rounded-lg border border-line divide-y divide-line overflow-hidden bg-paper">
@@ -752,10 +752,10 @@ export function ContentSearchResults({ results, searching, query, onOpen }: Cont
                 className="w-full text-left px-3.5 py-2.5 hover:bg-accent-tint transition-colors focus:outline-none focus-visible:shadow-focus"
               >
                 <div className="flex items-center gap-2">
-                  <p className="text-xs font-medium text-ink truncate tracking-tightish">{r.name || 'Untitled'}</p>
+                  <p className="text-xs font-medium text-ink truncate tracking-tightish">{r.name || '未命名'}</p>
                   {r.shared && (
                     <span className="text-2xs text-ink-faint flex items-center gap-0.5">
-                      <Users size={9} /> shared{r.owner ? ` by ${r.owner}` : ''}
+                      <Users size={9} /> 已共享{r.owner ? `，由 ${r.owner} 分享` : ''}
                     </span>
                   )}
                 </div>
@@ -842,7 +842,7 @@ function FolderCard({
           <button
             onClick={() => setMenuOpen(menuOpen === menuKey ? null : menuKey)}
             className="p-0.5 rounded-sm hover:bg-accent-tint text-ink-faint opacity-0 group-hover:opacity-100 transition-[opacity,background] duration-fast"
-            aria-label="Folder actions"
+            aria-label="文件夹操作"
           >
             <MoreVertical size={12} />
           </button>
@@ -850,13 +850,13 @@ function FolderCard({
             <div className="absolute right-0 top-full mt-1 w-36 bg-paper border border-line rounded-lg shadow-e2 z-20 py-1 text-xs overflow-hidden animate-scale-in">
               {view === 'trash' ? (
                 <>
-                  <MenuItem onClick={onRestore}><RotateCcw size={12} className="text-ink-faint" /> Restore</MenuItem>
-                  <MenuItem danger onClick={onDelete}><Trash2 size={12} /> Delete forever</MenuItem>
+                  <MenuItem onClick={onRestore}><RotateCcw size={12} className="text-ink-faint" /> 恢复</MenuItem>
+                  <MenuItem danger onClick={onDelete}><Trash2 size={12} /> 永久删除</MenuItem>
                 </>
               ) : (
                 <>
-                  <MenuItem onClick={onRename}><Pencil size={12} className="text-ink-faint" /> Rename</MenuItem>
-                  <MenuItem danger onClick={onTrash}><Trash2 size={12} /> Move to trash</MenuItem>
+                  <MenuItem onClick={onRename}><Pencil size={12} className="text-ink-faint" /> 重命名</MenuItem>
+                  <MenuItem danger onClick={onTrash}><Trash2 size={12} /> 移入回收站</MenuItem>
                 </>
               )}
             </div>
@@ -917,7 +917,7 @@ function FileCard({
         onClick={inTrash ? undefined : onOpen}
         role="button"
         tabIndex={inTrash ? -1 : 0}
-        aria-label={`Open ${file.name}`}
+        aria-label={`打开 ${file.name}`}
         onKeyDown={(e) => { if (!inTrash && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onOpen() } }}
       >
         <DocThumb type={type} className="h-full" />
@@ -932,7 +932,7 @@ function FileCard({
               'bg-bg-elevated/80 backdrop-blur-sm border border-line',
             ].join(' ')}
             onClick={(e) => { e.stopPropagation(); onStar() }}
-            aria-label={file.starred ? 'Unstar' : 'Star'}
+            aria-label={file.starred ? '取消星标' : '星标'}
             aria-pressed={!!file.starred}
           >
             <Star size={13} fill={file.starred ? 'currentColor' : 'none'} />
@@ -966,7 +966,7 @@ function FileCard({
             <button
               onClick={() => setMenuOpen(menuOpen === file.id ? null : file.id)}
               className="p-0.5 rounded-sm hover:bg-accent-tint text-ink-faint opacity-0 group-hover:opacity-100 transition-[opacity,background] duration-fast"
-              aria-label="File actions"
+              aria-label="文件操作"
             >
               <MoreVertical size={12} />
             </button>
@@ -974,18 +974,18 @@ function FileCard({
               <div className="absolute right-0 bottom-full mb-1 w-36 bg-paper border border-line rounded-lg shadow-e2 z-20 py-1 text-xs overflow-hidden animate-scale-in">
                 {inTrash ? (
                   <>
-                    <MenuItem onClick={onRestore}><RotateCcw size={12} className="text-ink-faint" /> Restore</MenuItem>
-                    <MenuItem danger onClick={onDelete}><Trash2 size={12} /> Delete forever</MenuItem>
+                    <MenuItem onClick={onRestore}><RotateCcw size={12} className="text-ink-faint" /> 恢复</MenuItem>
+                    <MenuItem danger onClick={onDelete}><Trash2 size={12} /> 永久删除</MenuItem>
                   </>
                 ) : (
                   <>
-                    <MenuItem onClick={onShare}><Share2 size={12} className="text-ink-faint" /> Share</MenuItem>
+                    <MenuItem onClick={onShare}><Share2 size={12} className="text-ink-faint" /> 分享</MenuItem>
                     <MenuItem onClick={onStar}>
-                      <Star size={12} className="text-ink-faint" /> {file.starred ? 'Unstar' : 'Star'}
+                      <Star size={12} className="text-ink-faint" /> {file.starred ? '取消星标' : '星标'}
                     </MenuItem>
-                    <MenuItem onClick={onMove}><FolderInput size={12} className="text-ink-faint" /> Move to…</MenuItem>
-                    <MenuItem onClick={onRename}><Pencil size={12} className="text-ink-faint" /> Rename</MenuItem>
-                    <MenuItem danger onClick={onTrash}><Trash2 size={12} /> Move to trash</MenuItem>
+                    <MenuItem onClick={onMove}><FolderInput size={12} className="text-ink-faint" /> 移动到…</MenuItem>
+                    <MenuItem onClick={onRename}><Pencil size={12} className="text-ink-faint" /> 重命名</MenuItem>
+                    <MenuItem danger onClick={onTrash}><Trash2 size={12} /> 移入回收站</MenuItem>
                   </>
                 )}
               </div>
@@ -1031,8 +1031,8 @@ function FileListTable({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-line bg-bg-elev2">
-            <th className="text-left px-4 py-2.5 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Name</th>
-            <th className="text-left px-4 py-2.5 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Modified</th>
+            <th className="text-left px-4 py-2.5 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">名称</th>
+            <th className="text-left px-4 py-2.5 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">修改时间</th>
             <th className="w-10" />
           </tr>
         </thead>
@@ -1072,7 +1072,7 @@ function FileListTable({
                   <button
                     onClick={() => setMenuOpen(menuOpen === file.id ? null : file.id)}
                     className="p-1 rounded-sm hover:bg-accent-tint text-ink-faint opacity-0 group-hover:opacity-100 transition-[opacity,background] duration-fast"
-                    aria-label="File actions"
+                    aria-label="文件操作"
                   >
                     <MoreVertical size={14} />
                   </button>
@@ -1080,18 +1080,18 @@ function FileListTable({
                     <div className="absolute right-0 top-full mt-1 w-36 bg-paper border border-line rounded-lg shadow-e2 z-20 py-1 text-xs overflow-hidden animate-scale-in">
                       {inTrash ? (
                         <>
-                          <MenuItem onClick={() => onRestore(file.id)}><RotateCcw size={12} className="text-ink-faint" /> Restore</MenuItem>
-                          <MenuItem danger onClick={() => onDelete(file.id)}><Trash2 size={12} /> Delete forever</MenuItem>
+                          <MenuItem onClick={() => onRestore(file.id)}><RotateCcw size={12} className="text-ink-faint" /> 恢复</MenuItem>
+                          <MenuItem danger onClick={() => onDelete(file.id)}><Trash2 size={12} /> 永久删除</MenuItem>
                         </>
                       ) : (
                         <>
-                          <MenuItem onClick={() => onShare(file)}><Share2 size={12} className="text-ink-faint" /> Share</MenuItem>
+                          <MenuItem onClick={() => onShare(file)}><Share2 size={12} className="text-ink-faint" /> 分享</MenuItem>
                           <MenuItem onClick={() => onStar(file.id)}>
-                            <Star size={12} className="text-ink-faint" /> {file.starred ? 'Unstar' : 'Star'}
+                            <Star size={12} className="text-ink-faint" /> {file.starred ? '取消星标' : '星标'}
                           </MenuItem>
-                          <MenuItem onClick={() => onMove(file)}><FolderInput size={12} className="text-ink-faint" /> Move to…</MenuItem>
-                          <MenuItem onClick={() => onRename(file)}><Pencil size={12} className="text-ink-faint" /> Rename</MenuItem>
-                          <MenuItem danger onClick={() => onTrash(file.id)}><Trash2 size={12} /> Move to trash</MenuItem>
+                          <MenuItem onClick={() => onMove(file)}><FolderInput size={12} className="text-ink-faint" /> 移动到…</MenuItem>
+                          <MenuItem onClick={() => onRename(file)}><Pencil size={12} className="text-ink-faint" /> 重命名</MenuItem>
+                          <MenuItem danger onClick={() => onTrash(file.id)}><Trash2 size={12} /> 移入回收站</MenuItem>
                         </>
                       )}
                     </div>
@@ -1138,7 +1138,7 @@ function MoveToFolderModal({ file, folders, onClose, onMove }: MoveToFolderModal
       >
         <Folder size={13} className="text-accent flex-shrink-0" />
         <span className="truncate">{f.name}</span>
-        {(file.parent_id || '') === f.id && <span className="ml-auto text-2xs text-ink-faint">current</span>}
+        {(file.parent_id || '') === f.id && <span className="ml-auto text-2xs text-ink-faint">当前</span>}
       </button>
       {renderTree(f.id, depth + 1)}
     </div>
@@ -1148,8 +1148,8 @@ function MoveToFolderModal({ file, folders, onClose, onMove }: MoveToFolderModal
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
       <div className="bg-paper border border-line rounded-xl shadow-e3 w-full max-w-sm mx-4 animate-scale-in" onClick={e => e.stopPropagation()}>
         <div className="px-4 py-3 border-b border-line">
-          <p className="text-sm font-semibold text-ink tracking-tightish">Move “{file.name}”</p>
-          <p className="text-2xs text-ink-faint mt-0.5">Choose a destination folder</p>
+          <p className="text-sm font-semibold text-ink tracking-tightish">移动“{file.name}”</p>
+          <p className="text-2xs text-ink-faint mt-0.5">选择目标文件夹</p>
         </div>
         <div className="max-h-72 overflow-auto py-1">
           <button
@@ -1161,16 +1161,16 @@ function MoveToFolderModal({ file, folders, onClose, onMove }: MoveToFolderModal
             disabled={(file.parent_id || '') === ''}
           >
             <Home size={13} className="text-ink-faint flex-shrink-0" />
-            <span>Home (root)</span>
-            {(file.parent_id || '') === '' && <span className="ml-auto text-2xs text-ink-faint">current</span>}
+            <span>首页（根目录）</span>
+            {(file.parent_id || '') === '' && <span className="ml-auto text-2xs text-ink-faint">当前</span>}
           </button>
           {renderTree('', 0)}
           {folders.length === 0 && (
-            <p className="px-3 py-4 text-2xs text-ink-faint text-center">No folders yet — create one first.</p>
+            <p className="px-3 py-4 text-2xs text-ink-faint text-center">还没有文件夹，请先创建一个。</p>
           )}
         </div>
         <div className="px-4 py-3 border-t border-line flex justify-end">
-          <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
+          <Button variant="secondary" size="sm" onClick={onClose}>取消</Button>
         </div>
       </div>
     </div>

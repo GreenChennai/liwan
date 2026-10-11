@@ -146,7 +146,7 @@ describe('security — untrusted cell labels never inject', () => {
     const data = wb({ '0_1': 'S', '1_0': 'N', '1_1': 10, '2_0': 'S', '2_1': 20 })
     const chart = makeChart({ range: 'A1:B3', title: 'Sales', options: { headerRow: true, headerCol: true } })
     const summary = chartAccessibleSummary(chart, extractChartData(chart, data[0]))
-    expect(summary).toContain('chart')
+    expect(summary).toContain('图表')
     expect(typeof summary).toBe('string')
   })
 })
@@ -453,7 +453,7 @@ describe('chartAccessibleSummary — new types describe themselves', () => {
 
   it('says a stacked chart is stacked (a screen reader must not think it is grouped)', () => {
     const c = makeChart({ type: 'column-stacked', range: 'A1:C3', title: 'S' })
-    expect(chartAccessibleSummary(c, extractChartData(c, sheet))).toMatch(/stacked/i)
+    expect(chartAccessibleSummary(c, extractChartData(c, sheet))).toMatch(/堆叠/)
     const p = makeChart({ type: 'bar-100', range: 'A1:C3', title: 'P' })
     expect(chartAccessibleSummary(p, extractChartData(p, sheet))).toMatch(/100%/)
   })
@@ -461,12 +461,12 @@ describe('chartAccessibleSummary — new types describe themselves', () => {
   it('describes a histogram as a distribution, not as categories', () => {
     const h = makeChart({ type: 'histogram', range: 'B1:B3', title: 'H', options: { headerRow: true, headerCol: false, bins: 3 } })
     const s = chartAccessibleSummary(h, extractChartData(h, sheet))
-    expect(s).toMatch(/bins/i)
-    expect(s).toMatch(/Histogram/i)
+    expect(s).toMatch(/区间/)
+    expect(s).toMatch(/直方图/)
   })
 
   it('announces a combo secondary axis', () => {
     const c = makeChart({ type: 'combo', range: 'A1:C3', title: 'C', options: { secondaryAxis: true } })
-    expect(chartAccessibleSummary(c, extractChartData(c, sheet))).toMatch(/secondary axis/i)
+    expect(chartAccessibleSummary(c, extractChartData(c, sheet))).toMatch(/次坐标轴/)
   })
 })

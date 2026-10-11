@@ -548,7 +548,7 @@ function Histogram({ chart, extracted, plot, W, H, legendH }: ChartBodyProps) {
     <g data-testid="histogram">
       <ValueGrid plot={plot} maxV={maxV} />
       <AxisFrame chart={chart} plot={plot} W={W} H={H} legendH={legendH}
-                 yLabel={chart.options?.yAxisLabel || 'Frequency'}
+                 yLabel={chart.options?.yAxisLabel || '频次'}
                  xLabel={chart.options?.xAxisLabel || extracted.series[0]?.name || ''} />
       {bins.map((b, i) => {
         const h = maxV ? (b.count / maxV) * plot.h : 0
@@ -586,7 +586,7 @@ function Pie({ extracted, W, H, legendH, donut, showLegend }: PieProps) {
   const r = plotRadius(W, H - legendH)
   const inner = donut ? r * 0.58 : 0
   if (total <= 0) {
-    return <text x={cx} y={cy} textAnchor="middle" fontSize="12" fill={AXIS}>No positive values</text>
+    return <text x={cx} y={cy} textAnchor="middle" fontSize="12" fill={AXIS}>没有正值</text>
   }
   let acc = 0
   const slices = values.map((v, i) => {
@@ -621,7 +621,7 @@ function Pie({ extracted, W, H, legendH, donut, showLegend }: PieProps) {
             {formatTick(total)}
           </text>
           <text x={cx} y={cy + 12} textAnchor="middle" fontSize="9" fill={AXIS}>
-            {truncate(s?.name || 'Total', 14)}
+            {truncate(s?.name || '总计', 14)}
           </text>
         </g>
       )}

@@ -24,11 +24,11 @@
 type SaveStatusKind = 'saved' | 'saving' | 'dirty' | 'error' | 'offline'
 
 const MAP: Record<SaveStatusKind, { dot: string; text: string; tone: string }> = {
-  saving:  { dot: 'save-dot--saving',  text: 'Saving',   tone: 'text-ink-faint' },
-  saved:   { dot: 'save-dot--saved',   text: 'Saved',    tone: 'text-ink-faint' },
-  dirty:   { dot: '',                  text: 'Unsaved',  tone: 'text-ink-faint' },
-  error:   { dot: 'save-dot--error',   text: 'Save failed', tone: 'text-danger' },
-  offline: { dot: 'save-dot--offline', text: 'Offline',  tone: 'text-warning' },
+  saving:  { dot: 'save-dot--saving',  text: '保存中',   tone: 'text-ink-faint' },
+  saved:   { dot: 'save-dot--saved',   text: '已保存',    tone: 'text-ink-faint' },
+  dirty:   { dot: '',                  text: '未保存',  tone: 'text-ink-faint' },
+  error:   { dot: 'save-dot--error',   text: '保存失败', tone: 'text-danger' },
+  offline: { dot: 'save-dot--offline', text: '离线',  tone: 'text-warning' },
 }
 
 interface SaveStatusProps {

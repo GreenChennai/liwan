@@ -250,7 +250,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
   // ─── Load PDF ─────────────────────────────────────────────
   const loadPDF = useCallback(async (file: File | null | undefined) => {
     if (!file || file.type !== 'application/pdf') {
-      showToast('Please provide a valid PDF file')
+      showToast('请选择有效的 PDF 文件')
       return
     }
     setLoadingPdf(true)
@@ -269,9 +269,9 @@ export default function PDFEditor(_props: PDFEditorProps) {
       blankPageBuffers.current = {}
       setFormFieldsByPage({})
       setFilledPages({})
-      showToast('PDF loaded')
+      showToast('PDF 已加载')
     } catch (e) {
-      showToast('Error loading PDF: ' + (e as Error).message)
+      showToast('加载 PDF 失败：' + (e as Error).message)
     } finally {
       setLoadingPdf(false)
     }
@@ -295,9 +295,9 @@ export default function PDFEditor(_props: PDFEditorProps) {
       blankPageBuffers.current = {}
       setFormFieldsByPage({})
       setFilledPages({})
-      showToast('PDF loaded')
+      showToast('PDF 已加载')
     } catch (e) {
-      showToast('Error loading PDF: ' + (e as Error).message)
+      showToast('加载 PDF 失败：' + (e as Error).message)
     } finally {
       setLoadingPdf(false)
     }
@@ -423,22 +423,22 @@ export default function PDFEditor(_props: PDFEditorProps) {
   const fillCurrentPageFields = useCallback(async () => {
     const fields = formFieldsByPage[currentPage]
     if (!fields || fields.length === 0 || !pdfJsDoc) return
-    if (filledPages[currentPage]) { showToast('Fields already added — edit them on the page'); return }
+    if (filledPages[currentPage]) { showToast('已添加表单字段，请直接在页面上编辑'); return }
     try {
       const orig = pageOrder[currentPage - 1]
       const page = await pdfJsDoc.getPage(orig)
       const pageHeightPdf = page.getViewport({ scale: 1 }).height
       const seeds = fieldsToAnnotations(fields, currentPage, pageHeightPdf, zoom, ANNOT_INK, genId)
-      if (seeds.length === 0) { showToast('No fillable fields on this page'); return }
+      if (seeds.length === 0) { showToast('此页没有可填写的字段'); return }
       setAnnotations(prev => ({
         ...prev,
         [currentPage]: [...(prev[currentPage] || []), ...seeds],
       }))
       setFilledPages(prev => ({ ...prev, [currentPage]: true }))
       setActiveTool(TOOLS.SELECT)
-      showToast(`Added ${seeds.length} fillable field${seeds.length === 1 ? '' : 's'}`)
+      showToast(`已添加 ${seeds.length} 个可填写字段`)
     } catch (e) {
-      showToast('Could not read form fields: ' + (e as Error).message)
+      showToast('无法读取表单字段：' + (e as Error).message)
     }
   }, [formFieldsByPage, currentPage, pdfJsDoc, pageOrder, zoom, filledPages, showToast])
 
@@ -527,7 +527,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
 
   const deletePageSlot = (displaySlot: number) => {
     if (!pdfJsDoc || pageOrder.length <= 1) {
-      showToast('Cannot delete the only page')
+      showToast('无法删除唯一的页面')
       return
     }
     const oldOrder = [...pageOrder]
@@ -572,7 +572,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
       if (c > displaySlot) return c - 1
       return c
     })
-    showToast('Page deleted')
+    showToast('页面已删除')
   }
 
   const rotatePage = (displaySlot: number, by = 90) => {
@@ -641,7 +641,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
     setPageOrder(newOrder)
     setTotalPages(newOrder.length)
     setCurrentPage(afterSlot + 1)
-    showToast('Blank page inserted')
+    showToast('已插入空白页')
   }
 
   const insertPDFPage = async (file: File | null | undefined, afterSlot: number) => {
@@ -704,9 +704,9 @@ export default function PDFEditor(_props: PDFEditorProps) {
       setPageOrder(newOrder)
       setTotalPages(newOrder.length)
       setCurrentPage(afterSlot + 1)
-      showToast('Page inserted from PDF')
+      showToast('已从 PDF 插入页面')
     } catch (e) {
-      showToast('Error inserting page: ' + (e as Error).message)
+      showToast('插入页面失败：' + (e as Error).message)
     }
   }
 
@@ -952,19 +952,19 @@ export default function PDFEditor(_props: PDFEditorProps) {
     try {
       if (sigTab === 'draw') {
         if (!sigPadRef.current || sigPadRef.current.isEmpty()) {
-          showToast('Please draw your signature first')
+          showToast('请先绘制签名')
           return
         }
         imageData = sigPadRef.current.toDataURL('image/png')
       } else {
-        if (!typedName.trim()) { showToast('Please type your name'); return }
+        if (!typedName.trim()) { showToast('请输入姓名'); return }
         imageData = await renderTypedSig(typedName.trim(), sigFont)
       }
     } catch (e) {
       // renderTypedSig can reject if a 2D canvas context is unavailable —
       // this had no handling, so that would have been an unhandled rejection
       // on a direct "Apply signature" click.
-      showToast('Could not render signature: ' + (e as Error).message)
+      showToast('无法生成签名：' + (e as Error).message)
       return
     }
 
@@ -1050,7 +1050,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
   // ─── Save PDF ─────────────────────────────────────────────
   const savePDF = async () => {
     if (!pdfArrayBuffer) return
-    showToast('Preparing PDF…')
+    showToast('正在准备 PDF…')
     try {
       const srcDoc = await PDFDocument.load(pdfArrayBuffer)
       const outDoc = await PDFDocument.create()
@@ -1157,9 +1157,9 @@ export default function PDFEditor(_props: PDFEditorProps) {
       a.download = (filename.replace(/\.pdf$/i, '') || 'document') + '_edited.pdf'
       a.click()
       URL.revokeObjectURL(url)
-      showToast('PDF downloaded')
+      showToast('PDF 已下载')
     } catch (e) {
-      showToast('Save error: ' + (e as Error).message)
+      showToast('保存失败：' + (e as Error).message)
       console.error(e)
     }
   }
@@ -1178,7 +1178,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
       <Topbar
         leading={
           <>
-            <Tooltip label="Back">
+            <Tooltip label="返回">
               <IconButton size="sm" onClick={() => void navigate(-1)}>
                 <ArrowLeft size={15} />
               </IconButton>
@@ -1201,7 +1201,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
         meta={
           pdfJsDoc && (
             <span className="text-2xs text-ink-faint tracking-tightish">
-              {totalAnns} annotation{totalAnns === 1 ? '' : 's'} · {Math.round(zoom * 100)}%
+              {totalAnns} 处标注 · {Math.round(zoom * 100)}%
             </span>
           )
         }
@@ -1209,17 +1209,17 @@ export default function PDFEditor(_props: PDFEditorProps) {
           <>
             {pdfJsDoc && (
               <>
-                <Tooltip label="Zoom out (−)">
+                <Tooltip label="缩小 (−)">
                   <IconButton size="sm" onClick={() => changeZoom(-0.15)}>
                     <ZoomOut size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Zoom in (+)">
+                <Tooltip label="放大 (+)">
                   <IconButton size="sm" onClick={() => changeZoom(0.15)}>
                     <ZoomIn size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Fit page">
+                <Tooltip label="适合页面">
                   <IconButton size="sm" onClick={() => void fitPage()}>
                     <Maximize2 size={13} />
                   </IconButton>
@@ -1232,7 +1232,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
               size="sm"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload size={13} /> Open PDF
+              <Upload size={13} /> 打开 PDF
             </Button>
             {pdfJsDoc && (
               /* Prepare to Sign = the distinguished primary affordance */
@@ -1241,7 +1241,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                 size="sm"
                 onClick={() => void navigate('/signing-setup', { state: { localFileUrl: filename ? undefined : null, pdfReady: true } })}
               >
-                <FileSignature size={13} /> Prepare to Sign
+                <FileSignature size={13} /> 准备签署
               </Button>
             )}
             {pdfJsDoc && (
@@ -1250,7 +1250,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                 size="sm"
                 onClick={() => void savePDF()}
               >
-                <Download size={13} /> Download
+                <Download size={13} /> 下载
               </Button>
             )}
           </>
@@ -1260,13 +1260,13 @@ export default function PDFEditor(_props: PDFEditorProps) {
       {/* Tool toolbar */}
       <div className="bg-paper border-b border-line h-11 flex items-center gap-1 px-3 flex-shrink-0">
         <span className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mr-1">
-          Tools
+          工具
         </span>
         {[
-          { tool: TOOLS.SELECT, icon: MousePointer2, label: 'Select (V)' },
-          { tool: TOOLS.TEXT, icon: Type, label: 'Text (T)' },
-          { tool: TOOLS.SIGNATURE, icon: PenLine, label: 'Signature (S)' },
-          { tool: TOOLS.DRAW, icon: Pencil, label: 'Draw (D)' },
+          { tool: TOOLS.SELECT, icon: MousePointer2, label: '选择 (V)' },
+          { tool: TOOLS.TEXT, icon: Type, label: '文本 (T)' },
+          { tool: TOOLS.SIGNATURE, icon: PenLine, label: '签名 (S)' },
+          { tool: TOOLS.DRAW, icon: Pencil, label: '绘制 (D)' },
         ].map(({ tool, icon: Icon, label }) => (
           <Tooltip key={tool} label={label}>
             <IconButton
@@ -1283,7 +1283,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
         {currentPageFieldCount > 0 && (
           <>
             <span aria-hidden className="h-5 w-px bg-line mx-1" />
-            <Tooltip label={`Add ${currentPageFieldCount} fillable field${currentPageFieldCount === 1 ? '' : 's'} from this form`}>
+            <Tooltip label={`从此表单添加 ${currentPageFieldCount} 个可填写字段`}>
               <Button
                 variant={filledPages[currentPage] ? 'secondary' : 'primary'}
                 size="sm"
@@ -1291,7 +1291,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                 disabled={!!filledPages[currentPage]}
               >
                 <FileSignature size={13} />
-                {filledPages[currentPage] ? 'Fields added' : `Fill ${currentPageFieldCount} field${currentPageFieldCount === 1 ? '' : 's'}`}
+                {filledPages[currentPage] ? '已添加字段' : `填写 ${currentPageFieldCount} 个字段`}
               </Button>
             </Tooltip>
           </>
@@ -1335,9 +1335,9 @@ export default function PDFEditor(_props: PDFEditorProps) {
           </select>
 
           {([
-            { key: 'bold',      icon: Bold,          label: 'Bold' },
-            { key: 'italic',    icon: Italic,        label: 'Italic' },
-            { key: 'underline', icon: UnderlineIcon, label: 'Underline' },
+            { key: 'bold',      icon: Bold,          label: '粗体' },
+            { key: 'italic',    icon: Italic,        label: '斜体' },
+            { key: 'underline', icon: UnderlineIcon, label: '下划线' },
           ] as const).map(({ key, icon: Icon, label }) => (
             <Tooltip key={key} label={label}>
               <IconButton
@@ -1374,7 +1374,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
 
         <div className="flex-1" />
 
-        <Tooltip label="Toggle page thumbnails">
+        <Tooltip label="显示/隐藏页面缩略图">
           <IconButton
             size="sm"
             active={sidebarOpen}
@@ -1383,7 +1383,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
             <LayoutList size={14} />
           </IconButton>
         </Tooltip>
-        <Tooltip label="Toggle properties">
+        <Tooltip label="显示/隐藏属性面板">
           <IconButton
             size="sm"
             active={panelOpen}
@@ -1402,10 +1402,10 @@ export default function PDFEditor(_props: PDFEditorProps) {
           <aside className="w-52 bg-bg-elev2 border-r border-line flex flex-col flex-shrink-0 overflow-hidden">
             <div className="px-3 py-2.5 border-b border-line flex items-center justify-between">
               <span className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">
-                Pages
+                页面
               </span>
               {totalPages > 0 && (
-                <span className="text-2xs text-ink-faint">{totalPages} total</span>
+                <span className="text-2xs text-ink-faint">共 {totalPages} 页</span>
               )}
             </div>
 
@@ -1417,19 +1417,19 @@ export default function PDFEditor(_props: PDFEditorProps) {
                   className="flex-1"
                   onClick={() => {
                     insertBlankPage(currentPage).catch((e: unknown) => {
-                      showToast('Could not insert blank page: ' + (e as Error).message)
+                      showToast('无法插入空白页：' + (e as Error).message)
                     })
                   }}
-                  title="Insert blank page after current"
+                  title="在当前页后插入空白页"
                 >
-                  <FilePlus size={12} /> Blank
+                  <FilePlus size={12} /> 空白
                 </Button>
                 <Button
                   variant="secondary"
                   size="sm"
                   className="flex-1"
                   onClick={() => insertFileInputRef.current?.click()}
-                  title="Insert page from PDF after current"
+                  title="从 PDF 在当前页后插入页面"
                 >
                   <Upload size={12} /> PDF
                 </Button>
@@ -1439,7 +1439,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
             <div className="flex-1 overflow-y-auto p-2 flex flex-col gap-1.5">
               {!pdfJsDoc ? (
                 <p className="text-2xs text-ink-faint text-center py-6 font-serif italic">
-                  Open a PDF to see pages.
+                  打开 PDF 后可查看页面。
                 </p>
               ) : (
                 Array.from({ length: pageOrder.length || totalPages }, (_, i) => i + 1).map(n => {
@@ -1501,7 +1501,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                         >
                           {n}
                         </span>
-                        <Tooltip label="Rotate 90°">
+                        <Tooltip label="旋转 90°">
                           <button
                             type="button"
                             onClick={e => { e.stopPropagation(); rotatePage(n, 90) }}
@@ -1510,7 +1510,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                             <RotateCw size={11} />
                           </button>
                         </Tooltip>
-                        <Tooltip label="Delete page">
+                        <Tooltip label="删除页面">
                           <button
                             type="button"
                             onClick={e => { e.stopPropagation(); deletePageSlot(n) }}
@@ -1553,13 +1553,13 @@ export default function PDFEditor(_props: PDFEditorProps) {
               </div>
               <div className="text-center">
                 <h2 className="font-serif text-xl text-ink leading-tight">
-                  Open a PDF to get started
+                  打开 PDF 开始编辑
                 </h2>
                 <p className="text-sm text-ink-muted mt-1 font-serif italic">
-                  Drag & drop here, or click to browse.
+                  拖放到此处，或点击浏览文件。
                 </p>
               </div>
-              <Button variant="primary">Browse files</Button>
+              <Button variant="primary">浏览文件</Button>
             </div>
           ) : (
             <>
@@ -1617,7 +1617,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                     <ChevronLeft size={15} />
                   </IconButton>
                   <span className="text-xs text-ink-muted tracking-tightish bg-paper border border-line rounded-md px-3 py-1">
-                    Page {currentPage} of {totalPages}
+                    第 {currentPage} 页，共 {totalPages} 页
                   </span>
                   <IconButton
                     size="sm"
@@ -1637,7 +1637,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
           <aside className="w-64 bg-bg-elev2 border-l border-line flex flex-col flex-shrink-0 overflow-hidden">
             <div className="px-3 py-2.5 border-b border-line">
               <span className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">
-                Properties
+                属性
               </span>
             </div>
             <div className="flex-1 overflow-y-auto p-3 space-y-4">
@@ -1645,11 +1645,11 @@ export default function PDFEditor(_props: PDFEditorProps) {
               {selectedAnn && (
                 <div className="bg-paper border border-line rounded-md p-3 space-y-3">
                   <div className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">
-                    Selection
+                    选中项
                   </div>
                   {selectedAnn.type === 'text' && (
                     <>
-                      <PanelRow label="Size">
+                      <PanelRow label="字号">
                         <input
                           type="number"
                           min={6}
@@ -1659,7 +1659,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                           className="w-full h-7 bg-paper border border-line rounded-sm px-2 text-xs text-ink outline-none focus:border-accent focus:shadow-focus"
                         />
                       </PanelRow>
-                      <PanelRow label="Color">
+                      <PanelRow label="颜色">
                         <input
                           type="color"
                           value={selectedAnn.color}
@@ -1673,12 +1673,12 @@ export default function PDFEditor(_props: PDFEditorProps) {
                     <div className="space-y-1.5">
                       <img
                         src={selectedAnn.imageData}
-                        alt="sig"
+                        alt="签名"
                         className="w-full object-contain max-h-16 bg-paper border border-line rounded-sm p-1"
                       />
                       <p className="text-2xs text-ink-faint font-serif italic">
                         {Math.round(selectedAnn.width)} × {Math.round(selectedAnn.height)} px
-                        — drag to reposition, resize from corner.
+                        — 拖动可调整位置，拖动右下角可调整大小。
                       </p>
                     </div>
                   )}
@@ -1688,7 +1688,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                     fullWidth
                     onClick={() => deleteAnn(selectedAnn.id)}
                   >
-                    <Trash2 size={12} /> Delete
+                    <Trash2 size={12} /> 删除
                   </Button>
                 </div>
               )}
@@ -1696,11 +1696,11 @@ export default function PDFEditor(_props: PDFEditorProps) {
               {/* Saved signatures */}
               <div className="space-y-2">
                 <div className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">
-                  Saved signatures
+                  已保存的签名
                 </div>
                 {savedSigs.length === 0 ? (
                   <p className="text-2xs text-ink-faint font-serif italic">
-                    No signatures saved yet.
+                    尚未保存签名。
                   </p>
                 ) : (
                   <div className="flex flex-col gap-1.5">
@@ -1713,19 +1713,19 @@ export default function PDFEditor(_props: PDFEditorProps) {
                           'border-line',
                         ].join(' ')}
                         onClick={() => {
-                          if (!pdfJsDoc) { showToast('Open a PDF first'); return }
+                          if (!pdfJsDoc) { showToast('请先打开 PDF'); return }
                           const canvas = pageCanvasRef.current
                           if (!canvas) return
                           placeSig(sig.imageData, canvas.width / 2, canvas.height / 2)
-                          showToast('Signature placed — drag to position')
+                          showToast('签名已放置，拖动可调整位置')
                         }}
                       >
                         <img
                           src={sig.imageData}
-                          alt="sig"
+                          alt="签名"
                           className="h-7 max-w-[110px] object-contain flex-1"
                         />
-                        <Tooltip label="Remove">
+                        <Tooltip label="移除">
                           <button
                             type="button"
                             onClick={e => { e.stopPropagation(); setSavedSigs(p => p.filter(s => s.id !== sig.id)) }}
@@ -1744,20 +1744,20 @@ export default function PDFEditor(_props: PDFEditorProps) {
                   fullWidth
                   onClick={() => { pendingSigPos.current = null; openSigModal() }}
                 >
-                  <Plus size={12} /> New signature
+                  <Plus size={12} /> 新建签名
                 </Button>
               </div>
 
               {/* Stats */}
               <div className="bg-paper border border-line rounded-md p-3 space-y-1.5">
                 <div className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-1">
-                  Document
+                  文档
                 </div>
                 {[
-                  ['Pages', totalPages || '—'],
-                  ['Annotations', totalAnns],
-                  ['Zoom', Math.round(zoom * 100) + '%'],
-                  ['Current page', pdfJsDoc ? currentPage : '—'],
+                  ['页数', totalPages || '—'],
+                  ['标注数', totalAnns],
+                  ['缩放', Math.round(zoom * 100) + '%'],
+                  ['当前页', pdfJsDoc ? currentPage : '—'],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-xs text-ink-muted tracking-tightish">
                     <span>{k}</span>
@@ -1773,10 +1773,10 @@ export default function PDFEditor(_props: PDFEditorProps) {
       {/* STATUS BAR — quiet hairline */}
       <div className="bg-paper border-t border-line h-7 flex items-center gap-4 px-3 flex-shrink-0">
         {[
-          ['Tool', activeTool.charAt(0).toUpperCase() + activeTool.slice(1)],
-          ['Zoom', Math.round(zoom * 100) + '%'],
-          ['Page', pdfJsDoc ? `${currentPage} / ${totalPages}` : '—'],
-          ['Annotations', totalAnns],
+          ['工具', activeTool.charAt(0).toUpperCase() + activeTool.slice(1)],
+          ['缩放', Math.round(zoom * 100) + '%'],
+          ['页码', pdfJsDoc ? `${currentPage} / ${totalPages}` : '—'],
+          ['标注数', totalAnns],
         ].map(([k, v]) => (
           <div key={k} className="flex gap-1.5 items-center text-2xs text-ink-faint tracking-tightish">
             {k}: <span className="text-ink-muted">{v}</span>
@@ -1784,7 +1784,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
         ))}
         <div className="flex-1" />
         <span className="text-2xs text-ink-faint tracking-tightish">
-          V · Select &nbsp; T · Text &nbsp; S · Signature &nbsp; D · Draw &nbsp; Del · Delete
+          V · 选择 &nbsp; T · 文本 &nbsp; S · 签名 &nbsp; D · 绘制 &nbsp; Del · 删除
         </span>
       </div>
 
@@ -1801,8 +1801,8 @@ export default function PDFEditor(_props: PDFEditorProps) {
             className="bg-paper text-ink rounded-xl border border-line shadow-e3 w-full max-w-xl overflow-hidden animate-scale-in"
           >
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-line">
-              <h3 className="text-md font-semibold tracking-tightish">Add signature</h3>
-              <IconButton size="sm" onClick={closeSigModal} title="Close">
+              <h3 className="text-md font-semibold tracking-tightish">添加签名</h3>
+              <IconButton size="sm" onClick={closeSigModal} title="关闭">
                 <X size={15} />
               </IconButton>
             </div>
@@ -1812,8 +1812,8 @@ export default function PDFEditor(_props: PDFEditorProps) {
                 value={sigTab}
                 onChange={setSigTab}
                 items={[
-                  { value: 'draw', label: 'Draw' },
-                  { value: 'type', label: 'Type' },
+                  { value: 'draw', label: '绘制' },
+                  { value: 'type', label: '输入' },
                 ]}
               />
 
@@ -1825,7 +1825,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                       id="sig-hint"
                       className="absolute inset-0 flex items-center justify-center text-ink-faint text-sm font-serif italic pointer-events-none"
                     >
-                      Sign with your mouse or touch
+                      请用鼠标或触屏签名
                     </div>
                   </div>
                   <div className="flex justify-end mt-2">
@@ -1838,7 +1838,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                         if (el) el.style.opacity = 1 as unknown as string
                       }}
                     >
-                      Clear
+                      清除
                     </Button>
                   </div>
                 </div>
@@ -1846,7 +1846,7 @@ export default function PDFEditor(_props: PDFEditorProps) {
                 <div className="bg-bg-elev2 border border-line rounded-md p-5">
                   <input
                     type="text"
-                    placeholder="Type your name…"
+                    placeholder="请输入姓名…"
                     value={typedName}
                     onChange={e => setTypedName(e.target.value)}
                     maxLength={60}
@@ -1889,13 +1889,13 @@ export default function PDFEditor(_props: PDFEditorProps) {
                   onChange={e => setSaveToLib(e.target.checked)}
                   style={{ accentColor: 'var(--accent)' }}
                 />
-                Save this signature for future use
+                保存此签名以备后用
               </label>
             </div>
 
             <div className="px-5 py-3 border-t border-line bg-bg-elev2 flex items-center justify-end gap-2">
-              <Button variant="secondary" size="sm" onClick={closeSigModal}>Cancel</Button>
-              <Button variant="primary" size="sm" onClick={() => void applySig()}>Apply signature</Button>
+              <Button variant="secondary" size="sm" onClick={closeSigModal}>取消</Button>
+              <Button variant="primary" size="sm" onClick={() => void applySig()}>应用签名</Button>
             </div>
           </div>
         </div>
@@ -2050,7 +2050,7 @@ function AnnotationElement({ ann, selected, activeTool, onMouseDown, onDelete, o
             <button
               type="button"
               onClick={e => { e.stopPropagation(); onDelete() }}
-              aria-label="Delete"
+              aria-label="删除"
               className="absolute -top-2.5 -right-2.5 w-5 h-5 bg-danger border-2 border-paper rounded-full flex items-center justify-center text-white shadow-e1 z-20"
             >
               <X size={11} />
@@ -2080,7 +2080,7 @@ function AnnotationElement({ ann, selected, activeTool, onMouseDown, onDelete, o
         >
           <img
             src={ann.imageData}
-            alt="signature"
+            alt="签名"
             draggable={false}
             className="w-full h-full object-contain block"
           />
@@ -2089,7 +2089,7 @@ function AnnotationElement({ ann, selected, activeTool, onMouseDown, onDelete, o
               <button
                 type="button"
                 onClick={e => { e.stopPropagation(); onDelete() }}
-                aria-label="Delete"
+                aria-label="删除"
                 className="absolute -top-2.5 -right-2.5 w-5 h-5 bg-danger border-2 border-paper rounded-full flex items-center justify-center text-white shadow-e1 z-20"
               >
                 <X size={11} />

@@ -65,8 +65,8 @@ export class ImportError extends Error {
 export function assertFileSize(byteLength: number, filename = 'file'): void {
   if (typeof byteLength === 'number' && byteLength > MAX_FILE_BYTES) {
     throw new ImportError(
-      `${filename} is too large (${Math.round(byteLength / 1048576)} MB). ` +
-      `The import limit is ${Math.round(MAX_FILE_BYTES / 1048576)} MB.`
+      `${filename} 文件过大（${Math.round(byteLength / 1048576)} MB）。` +
+      `导入上限为 ${Math.round(MAX_FILE_BYTES / 1048576)} MB。`
     )
   }
 }
@@ -102,17 +102,17 @@ export async function safeLoadZip(arrayBuffer: ArrayBuffer | Uint8Array, filenam
   try {
     zip = await JSZip.loadAsync(arrayBuffer, { createFolders: false }) as JSZipInternal
   } catch (e) {
-    throw new ImportError(`${filename} is not a readable archive: ${e instanceof Error ? e.message : String(e)}`)
+    throw new ImportError(`${filename} 不是可读取的压缩包：${e instanceof Error ? e.message : String(e)}`)
   }
   const names = Object.keys(zip.files)
   if (names.length > MAX_ZIP_ENTRIES) {
-    throw new ImportError(`${filename} has too many entries (${names.length} > ${MAX_ZIP_ENTRIES}).`)
+    throw new ImportError(`${filename} 条目过多（${names.length} > ${MAX_ZIP_ENTRIES}）。`)
   }
   let total = 0
   for (const name of names) {
     const f = zip.files[name]
     if (isUnsafeEntryName(name)) {
-      throw new ImportError(`${filename} contains an unsafe entry path: ${name}`)
+      throw new ImportError(`${filename} 包含不安全的条目路径：${name}`)
     }
     // Declared uncompressed size from the central directory (present for real
     // zips; JSZip exposes it on the internal _data). Guard both the single-entry
@@ -120,11 +120,11 @@ export async function safeLoadZip(arrayBuffer: ArrayBuffer | Uint8Array, filenam
     const declared = f?._data?.uncompressedSize
     if (typeof declared === 'number') {
       if (declared > MAX_SINGLE_ENTRY) {
-        throw new ImportError(`${filename} entry "${name}" is too large when decompressed.`)
+        throw new ImportError(`${filename} 中的条目 "${name}" 解压后过大。`)
       }
       total += declared
       if (total > MAX_TOTAL_UNCOMPRESSED) {
-        throw new ImportError(`${filename} decompresses to more than the ${Math.round(MAX_TOTAL_UNCOMPRESSED / 1048576)} MB limit (possible zip-bomb).`)
+        throw new ImportError(`${filename} 解压后超过 ${Math.round(MAX_TOTAL_UNCOMPRESSED / 1048576)} MB 上限（可能是压缩炸弹）。`)
       }
     }
   }
@@ -172,7 +172,7 @@ function inflateEntryBounded(
     try {
       stream = f.internalStream('uint8array')
     } catch (e) {
-      reject(new ImportError(`entry "${name}" could not be read: ${e instanceof Error ? e.message : String(e)}`))
+      reject(new ImportError(`条目 "${name}" 无法读取：${e instanceof Error ? e.message : String(e)}`))
       return
     }
     // `discard` mode (validation-only, used by assertArchiveBounds): enforce the
@@ -192,12 +192,12 @@ function inflateEntryBounded(
       total += chunk.length
       if (total > cap) {
         // Abort mid-inflate: over the (per-entry ∩ per-archive) budget.
-        fail(`entry "${name}" exceeds the decompressed-size limit (possible zip-bomb).`)
+        fail(`条目 "${name}" 超出解压大小上限（可能是压缩炸弹）。`)
         return
       }
       if (!discard) chunks.push(chunk)
     })
-    stream.on('error', (e: unknown) => fail(`entry "${name}" could not be decompressed: ${e instanceof Error ? e.message : String(e)}`))
+    stream.on('error', (e: unknown) => fail(`条目 "${name}" 无法解压：${e instanceof Error ? e.message : String(e)}`))
     stream.on('end', () => {
       if (settled) return
       settled = true
@@ -299,12 +299,12 @@ export function stripDoctype(xml: unknown): string {
  */
 export function parseXmlSafe(xml: string, label = 'xml'): Document {
   if (typeof DOMParser === 'undefined') {
-    throw new ImportError('XML parsing is unavailable in this environment.')
+    throw new ImportError('当前环境不支持 XML 解析。')
   }
   const cleaned = stripDoctype(xml)
   const doc = new DOMParser().parseFromString(cleaned, 'application/xml')
   const err = doc.querySelector('parsererror')
-  if (err) throw new ImportError(`Could not parse ${label}.`)
+  if (err) throw new ImportError(`无法解析 ${label}。`)
   return doc
 }
 

@@ -55,10 +55,10 @@ interface NavApp {
 // Office is documents-only: chat/video and calendar/contacts are third-party and
 // are NOT launched from here.
 const NAV_APPS: NavApp[] = [
-  { label: 'Docs',        icon: FileText,      route: '/docs',        tint: 'text-app-docs'   },
-  { label: 'Sheets',      icon: Table2,        route: '/sheets',      tint: 'text-app-sheets' },
-  { label: 'Slides',      icon: Presentation,  route: '/slides',      tint: 'text-app-slides' },
-  { label: 'Whiteboards', icon: PenTool,       route: '/whiteboards', tint: 'text-app-board'  },
+  { label: '文档',        icon: FileText,      route: '/docs',        tint: 'text-app-docs'   },
+  { label: '表格',        icon: Table2,        route: '/sheets',      tint: 'text-app-sheets' },
+  { label: '幻灯片',      icon: Presentation,  route: '/slides',      tint: 'text-app-slides' },
+  { label: '白板',        icon: PenTool,       route: '/whiteboards', tint: 'text-app-board'  },
   { label: 'PDF',         icon: FileSearch,    route: '/pdf',         tint: 'text-app-pdf'    },
 ]
 
@@ -107,7 +107,7 @@ function SidebarContent({ collapsed, onNavigate, onNewFile, onSetMode }: Sidebar
         {/* "New" is the only emphatic button in the rail — primary accent. */}
         <button
           onClick={() => { onNewFile(); onNavigate?.() }}
-          title="New file"
+          title="新建文件"
           className={[
             'relative flex items-center gap-2 h-9 mt-2 rounded-lg',
             'bg-accent text-white border border-accent shadow-e1',
@@ -118,14 +118,14 @@ function SidebarContent({ collapsed, onNavigate, onNewFile, onSetMode }: Sidebar
           ].join(' ')}
         >
           <Plus size={16} strokeWidth={2.2} className="flex-shrink-0" />
-          {!collapsed && <span>New file</span>}
+          {!collapsed && <span>新建文件</span>}
         </button>
         <div className="mt-1.5">
-          <Sidebar.Item to="/" end icon={HomeIcon} title="Home" onClick={onNavigate}>Home</Sidebar.Item>
+          <Sidebar.Item to="/" end icon={HomeIcon} title="首页" onClick={onNavigate}>首页</Sidebar.Item>
         </div>
       </Sidebar.Section>
 
-      <Sidebar.Section label="Apps">
+      <Sidebar.Section label="应用">
         {NAV_APPS.map(({ label, icon, route, beta, tint }) => (
           <Sidebar.Item
             key={route}
@@ -146,7 +146,7 @@ function SidebarContent({ collapsed, onNavigate, onNewFile, onSetMode }: Sidebar
       </Sidebar.Section>
 
       {recentFiles.length > 0 && !collapsed && (
-        <Sidebar.Section label="Recent">
+        <Sidebar.Section label="最近">
           {recentFiles.map((f) => (
             <Sidebar.Item
               key={f.id}
@@ -167,7 +167,7 @@ function SidebarContent({ collapsed, onNavigate, onNewFile, onSetMode }: Sidebar
         <div className="relative">
           <button
             onClick={() => setNotifOpen((v) => !v)}
-            title="Notifications"
+            title="通知"
             className={[
               'relative w-full flex items-center gap-2 h-8 rounded-lg text-[13px] tracking-tightish transition-colors',
               collapsed ? 'justify-center px-0' : 'px-2.5',
@@ -182,7 +182,7 @@ function SidebarContent({ collapsed, onNavigate, onNewFile, onSetMode }: Sidebar
                 </span>
               )}
             </span>
-            {!collapsed && <span>Notifications</span>}
+            {!collapsed && <span>通知</span>}
           </button>
           {notifOpen && (
             <>
@@ -193,17 +193,17 @@ function SidebarContent({ collapsed, onNavigate, onNewFile, onSetMode }: Sidebar
             </>
           )}
         </div>
-        <Sidebar.Item to="/settings" icon={SettingsIcon} title="Settings" onClick={onNavigate}>
-          Settings
+        <Sidebar.Item to="/settings" icon={SettingsIcon} title="设置" onClick={onNavigate}>
+          设置
         </Sidebar.Item>
         {status?.enabled && (
           <Sidebar.Item
             onClick={() => { void logout(); onNavigate?.() }}
             icon={LogOut}
-            title="Sign out"
+            title="退出登录"
             variant="danger"
           >
-            Sign out
+            退出登录
           </Sidebar.Item>
         )}
       </Sidebar.Footer>
@@ -260,8 +260,8 @@ function Shell({ children }: { children?: ReactNode }) {
       {/* When fully hidden (≥lg), a slim floating control brings the rail back. */}
       {mode === 'hidden' && (
         <div className="hidden lg:block absolute left-3 top-3 z-30">
-          <Tooltip label="Show sidebar" side="right">
-            <IconButton size="md" onClick={() => applyMode('expanded')} title="Show sidebar"
+          <Tooltip label="显示侧边栏" side="right">
+            <IconButton size="md" onClick={() => applyMode('expanded')} title="显示侧边栏"
               className="bg-bg-elev1 border border-line shadow-e2">
               <PanelLeftOpen size={17} />
             </IconButton>
@@ -271,7 +271,7 @@ function Shell({ children }: { children?: ReactNode }) {
 
       {/* Mobile drawer — <lg: off-canvas overlay with scrim (backdrop + Esc close) */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="导航">
           <div
             className="absolute inset-0 bg-black/40 animate-fade-in"
             onClick={closeMobile}
@@ -291,11 +291,11 @@ function Shell({ children }: { children?: ReactNode }) {
       <main className="relative flex-1 flex flex-col min-w-0 overflow-hidden bg-bg">
         {/* Mobile header — only below lg, where the rail is off-canvas */}
         <header className="lg:hidden flex items-center gap-2.5 h-12 px-2 border-b border-line bg-bg-elev2 flex-shrink-0">
-          <IconButton size="md" onClick={() => setMobileOpen(true)} title="Open navigation">
+          <IconButton size="md" onClick={() => setMobileOpen(true)} title="打开导航">
             <Menu size={18} />
           </IconButton>
           <LiwanMark size={26} />
-          <span className="font-display text-[18px] font-bold tracking-display text-ink leading-none">Liwan</span>
+          <span className="font-display text-[18px] font-bold tracking-display text-ink leading-none">Liwan 议事厅</span>
         </header>
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">{children}</div>
       </main>

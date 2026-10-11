@@ -146,12 +146,12 @@ export default function DocumentOutline({ editor, scrollContainerRef, onClose }:
   return (
     <aside
       className="w-60 flex-shrink-0 border-r border-line bg-bg-elev2 flex flex-col overflow-hidden animate-slide-in-left"
-      aria-label="Document outline"
+      aria-label="文档大纲"
     >
       <div className="flex items-center justify-between px-3 h-11 border-b border-line bg-paper flex-shrink-0">
         <div className="flex items-center gap-2">
           <ListTree size={14} className="text-ink-muted" aria-hidden="true" />
-          <span className="text-sm font-semibold text-ink tracking-tightish">Outline</span>
+          <span className="text-sm font-semibold text-ink tracking-tightish">大纲</span>
           {headings.length > 0 && (
             <span className="text-2xs bg-bg-elev2 text-ink-faint rounded-pill px-1.5 py-0.5 font-medium tabular-nums">
               {headings.length}
@@ -161,7 +161,7 @@ export default function DocumentOutline({ editor, scrollContainerRef, onClose }:
         <button
           onClick={onClose}
           className="text-ink-faint hover:text-ink transition-colors"
-          aria-label="Close outline"
+          aria-label="关闭大纲"
         >
           <X size={14} />
         </button>
@@ -171,10 +171,10 @@ export default function DocumentOutline({ editor, scrollContainerRef, onClose }:
         {headings.length === 0 ? (
           <div className="px-4 py-8 text-center">
             <p className="text-xs text-ink-faint font-serif italic leading-relaxed">
-              Headings you add will appear here.
+              添加的标题将显示在这里。
             </p>
             <p className="text-2xs text-ink-faint mt-2">
-              Use the styles menu to add a Heading 1–6.
+              使用样式菜单添加标题 1–6。
             </p>
           </div>
         ) : (
@@ -184,7 +184,7 @@ export default function DocumentOutline({ editor, scrollContainerRef, onClose }:
                 <button
                   onClick={() => goToHeading(h)}
                   aria-current={i === activeIdx ? 'true' : undefined}
-                  title={h.text || 'Untitled heading'}
+                  title={h.text || '未命名标题'}
                   className={[
                     'w-full text-left truncate rounded-sm py-1 pr-2 transition-colors',
                     'text-xs leading-snug',
@@ -194,7 +194,7 @@ export default function DocumentOutline({ editor, scrollContainerRef, onClose }:
                   ].join(' ')}
                   style={{ paddingLeft: `${8 + (h.level - 1) * 12}px` }}
                 >
-                  {h.text || <span className="italic text-ink-faint">Untitled</span>}
+                  {h.text || <span className="italic text-ink-faint">未命名</span>}
                 </button>
               </li>
             ))}

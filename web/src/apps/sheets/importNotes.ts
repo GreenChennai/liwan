@@ -70,7 +70,7 @@ export function makeImportNotes(partial: ImportNotesInput | null | undefined): I
   const charts = Array.isArray(partial.charts)
     ? partial.charts.slice(0, MAX_LISTED).map((c: { title?: unknown; reason?: unknown }) => ({
         title: clampText(c?.title),
-        reason: clampText(c?.reason) || 'it could not be represented',
+        reason: clampText(c?.reason) || '无法以此方式表示',
       }))
     : []
   if (!pivots && !charts.length) return null
@@ -139,10 +139,10 @@ export function importLossSummary(notes: ImportNotes | null | undefined): string
   if (!hasImportLoss(notes) || !notes) return ''
   const bits: string[] = []
   if (notes.charts.length) {
-    bits.push(`${notes.charts.length} chart${notes.charts.length === 1 ? '' : 's'} could not be imported`)
+    bits.push(`${notes.charts.length} 个图表无法导入`)
   }
   if (notes.pivots) {
-    bits.push(`${notes.pivots} pivot table${notes.pivots === 1 ? '' : 's'} came in as plain cells, not as ${notes.pivots === 1 ? 'a live pivot' : 'live pivots'}`)
+    bits.push(`${notes.pivots} 个数据透视表已作为普通单元格导入，而非实时数据透视表`)
   }
-  return `${bits.join('; ')} — an export from here will not contain them.`
+  return `${bits.join('；')}——从此处导出将不包含这些内容。`
 }

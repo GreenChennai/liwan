@@ -69,7 +69,7 @@ export default function NamedRangesPanel({ data, onClose, onChange }: NamedRange
     setTimeout(() => setCopiedIdx((c) => (c === i ? null : c)), 1200)
   }
 
-  const sheetNames = (data || []).map((s) => s.name || 'Sheet')
+  const sheetNames = (data || []).map((s) => s.name || '工作表')
 
   function startNew() {
     setForm({ name: '', range: '', sheetName: data?.[0]?.name || 'Sheet1' })
@@ -86,13 +86,13 @@ export default function NamedRangesPanel({ data, onClose, onChange }: NamedRange
   }
 
   function validate(f: NamedRangeEntry): string | null {
-    if (!f.name.trim()) return 'Name is required'
-    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(f.name)) return 'Name must start with a letter and contain only letters, digits, underscores'
-    if (!f.range.trim()) return 'Range is required'
+    if (!f.name.trim()) return '请输入名称'
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(f.name)) return '名称必须以字母开头，且只能包含字母、数字和下划线'
+    if (!f.range.trim()) return '请输入区域'
     // Check uniqueness (excluding current edit).
     for (let i = 0; i < ranges.length; i++) {
       if (editIdx !== null && i === editIdx) continue
-      if (ranges[i].name.toLowerCase() === f.name.toLowerCase()) return `Name "${f.name}" is already used`
+      if (ranges[i].name.toLowerCase() === f.name.toLowerCase()) return `名称“${f.name}”已被使用`
     }
     return null
   }
@@ -131,15 +131,15 @@ export default function NamedRangesPanel({ data, onClose, onChange }: NamedRange
   return (
     <div className="flex flex-col w-full sm:w-72 flex-shrink-0 h-full border-l border-line bg-paper overflow-y-auto">
       <div className="flex items-center justify-between px-3 py-2 border-b border-line">
-        <span className="text-xs font-semibold text-ink tracking-tightish">Named ranges</span>
-        <IconButton size="sm" title="Close" onClick={onClose}><X size={13} /></IconButton>
+        <span className="text-xs font-semibold text-ink tracking-tightish">命名区域</span>
+        <IconButton size="sm" title="关闭" onClick={onClose}><X size={13} /></IconButton>
       </div>
 
       <div className="flex-1 px-3 py-3 space-y-3 text-xs overflow-y-auto">
         {!editing && (
           <>
             {ranges.length === 0 && (
-              <p className="text-ink-faint">No named ranges. Add one to use in formulas like <code className="font-mono bg-bg px-1 rounded">SUM(myRange)</code>.</p>
+              <p className="text-ink-faint">暂无命名区域。添加后可在公式中使用，例如 <code className="font-mono bg-bg px-1 rounded">SUM(myRange)</code>.</p>
             )}
 
             {ranges.map((r, i) => (
@@ -148,20 +148,20 @@ export default function NamedRangesPanel({ data, onClose, onChange }: NamedRange
                   <p className="font-semibold text-ink truncate">{r.name}</p>
                   <p className="text-ink-faint text-[10px] truncate">{r.sheetName}!{r.range}</p>
                 </div>
-                <button onClick={() => copyRef(i)} aria-label={`Copy formula reference for ${r.name}`} title="Copy reference to use in a formula" className="text-ink-faint hover:text-ink mt-0.5 rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
+                <button onClick={() => copyRef(i)} aria-label={`复制 ${r.name} 的公式引用`} title="复制引用以在公式中使用" className="text-ink-faint hover:text-ink mt-0.5 rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
                   {copiedIdx === i ? <Check size={11} className="text-success" /> : <Copy size={11} />}
                 </button>
-                <button onClick={() => startEdit(i)} aria-label={`Edit named range ${r.name}`} className="text-ink-faint hover:text-ink mt-0.5 rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
+                <button onClick={() => startEdit(i)} aria-label={`编辑命名区域 ${r.name}`} className="text-ink-faint hover:text-ink mt-0.5 rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
                   <Edit2 size={11} />
                 </button>
-                <button onClick={() => remove(i)} aria-label={`Delete named range ${r.name}`} className="text-ink-faint hover:text-danger mt-0.5 rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
+                <button onClick={() => remove(i)} aria-label={`删除命名区域 ${r.name}`} className="text-ink-faint hover:text-danger mt-0.5 rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
                   <Trash2 size={11} />
                 </button>
               </div>
             ))}
 
             <Button variant="secondary" size="sm" onClick={startNew} className="w-full">
-              <Plus size={11} className="mr-1" /> New named range
+              <Plus size={11} className="mr-1" /> 新建命名区域
             </Button>
           </>
         )}
@@ -169,18 +169,18 @@ export default function NamedRangesPanel({ data, onClose, onChange }: NamedRange
         {editing && (
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium">Name</label>
+              <label className="block text-ink-muted font-medium">名称</label>
               <input
                 value={form.name}
                 onChange={(e) => { setForm((f) => ({ ...f, name: e.target.value })); setError('') }}
                 className={inputCls}
-                placeholder="e.g. myRange"
+                placeholder="例如 myRange"
                 autoFocus
               />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium">Sheet</label>
+              <label className="block text-ink-muted font-medium">表格</label>
               <select
                 value={form.sheetName}
                 onChange={(e) => setForm((f) => ({ ...f, sheetName: e.target.value }))}
@@ -191,20 +191,20 @@ export default function NamedRangesPanel({ data, onClose, onChange }: NamedRange
             </div>
 
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium">Range</label>
+              <label className="block text-ink-muted font-medium">区域</label>
               <input
                 value={form.range}
                 onChange={(e) => { setForm((f) => ({ ...f, range: e.target.value })); setError('') }}
                 className={inputCls}
-                placeholder="e.g. A1:B10"
+                placeholder="例如 A1:B10"
               />
             </div>
 
             {error && <p className="text-danger text-[11px]">{error}</p>}
 
             <div className="flex gap-2">
-              <Button variant="primary"   size="sm" onClick={save}              className="flex-1">Save</Button>
-              <Button variant="secondary" size="sm" onClick={() => setEditing(false)} className="flex-1">Cancel</Button>
+              <Button variant="primary"   size="sm" onClick={save}              className="flex-1">保存</Button>
+              <Button variant="secondary" size="sm" onClick={() => setEditing(false)} className="flex-1">取消</Button>
             </div>
           </div>
         )}

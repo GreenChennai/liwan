@@ -15,6 +15,13 @@ import { PAGE_SIZES, normalizePageSetup, type Margins, type PageSetup, type Page
 // input) before normalizePageSetup coerces it back to a number on apply.
 type EditableCfg = Omit<PageSetup, 'margins'> & { margins: { [K in keyof Margins]: number | '' } }
 
+const SIDE_LABELS: Record<keyof Margins, string> = {
+  top: '上',
+  right: '右',
+  bottom: '下',
+  left: '左',
+}
+
 export interface PageSetupDialogProps {
   open: boolean
   value: unknown
@@ -35,15 +42,15 @@ export default function PageSetupDialog({ open, value, onApply, onClose }: PageS
   const apply = () => { onApply?.(normalizePageSetup(cfg)); onClose?.() }
 
   return (
-    <Modal open={open} onClose={onClose} title="Page setup" size="md">
+    <Modal open={open} onClose={onClose} title="页面设置" size="md">
       <Modal.Body className="space-y-4">
         {/* Size */}
         <label className="block">
-          <span className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Paper size</span>
+          <span className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">纸张大小</span>
           <select
             value={cfg.size}
             onChange={(e) => setCfg((c) => ({ ...c, size: e.target.value as PageSizeKey }))}
-            aria-label="Paper size"
+            aria-label="纸张大小"
             className="mt-1 w-full text-sm px-3 py-2 rounded-md border border-line bg-paper text-ink focus:outline-none focus:border-accent"
           >
             {Object.entries(PAGE_SIZES).map(([key, s]) => (
@@ -54,7 +61,7 @@ export default function PageSetupDialog({ open, value, onApply, onClose }: PageS
 
         {/* Orientation */}
         <fieldset>
-          <legend className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Orientation</legend>
+          <legend className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">方向</legend>
           <div className="mt-1 flex gap-2">
             {(['portrait', 'landscape'] as const).map((o) => (
               <label
@@ -69,7 +76,7 @@ export default function PageSetupDialog({ open, value, onApply, onClose }: PageS
                   onChange={() => setCfg((c) => ({ ...c, orientation: o }))}
                   className="sr-only"
                 />
-                {o}
+                {o === 'portrait' ? '纵向' : '横向'}
               </label>
             ))}
           </div>
@@ -77,11 +84,11 @@ export default function PageSetupDialog({ open, value, onApply, onClose }: PageS
 
         {/* Margins */}
         <fieldset>
-          <legend className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Margins (inches)</legend>
+          <legend className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">页边距（英寸）</legend>
           <div className="mt-1 grid grid-cols-2 gap-2">
             {(['top', 'right', 'bottom', 'left'] as const).map((side) => (
               <label key={side} className="flex items-center gap-2 text-sm text-ink-muted">
-                <span className="capitalize w-14">{side}</span>
+                <span className="w-14">{SIDE_LABELS[side]}</span>
                 <input
                   type="number"
                   min="0"
@@ -89,7 +96,7 @@ export default function PageSetupDialog({ open, value, onApply, onClose }: PageS
                   step="0.25"
                   value={cfg.margins[side]}
                   onChange={(e) => setMargin(side, e.target.value)}
-                  aria-label={`${side} margin`}
+                  aria-label={`${SIDE_LABELS[side]}页边距`}
                   className="flex-1 text-sm px-2 py-1 rounded border border-line bg-paper text-ink tabular-nums focus:outline-none focus:border-accent"
                 />
               </label>
@@ -98,8 +105,8 @@ export default function PageSetupDialog({ open, value, onApply, onClose }: PageS
         </fieldset>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
-        <Button variant="primary" size="sm" onClick={apply}>Apply</Button>
+        <Button variant="secondary" size="sm" onClick={onClose}>取消</Button>
+        <Button variant="primary" size="sm" onClick={apply}>应用</Button>
       </Modal.Footer>
     </Modal>
   )

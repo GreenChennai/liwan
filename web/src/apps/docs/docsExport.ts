@@ -101,7 +101,7 @@ export function exportToHtml(editor: Editor, filename: string, opts: ExportOptio
   const { headerCss, footerCss } = hfToPrintCss(hf, filename)
 
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -148,7 +148,7 @@ function renderTocInHtml(html: string, headings: HeadingOutlineEntry[]): string 
       shell.textContent = ''
       const title = doc.createElement('p')
       title.className = 'toc-title'
-      title.textContent = 'Table of Contents'
+      title.textContent = '目录'
       shell.appendChild(title)
       for (const h of headings) {
         const a = doc.createElement('a')
@@ -156,7 +156,7 @@ function renderTocInHtml(html: string, headings: HeadingOutlineEntry[]): string 
         a.className = 'toc-entry'
         a.style.marginLeft = `${(h.level - 1) * 16}px`
         a.style.display = 'block'
-        a.textContent = h.text || '(untitled heading)'
+        a.textContent = h.text || '（未命名标题）'
         shell.appendChild(a)
       }
     }
@@ -169,7 +169,7 @@ function renderTocInHtml(html: string, headings: HeadingOutlineEntry[]): string 
 // Read headings from doc JSON (export doesn't have a live editor state).
 function readHeadingsForExport(json: JSONContent): HeadingOutlineEntry[] {
   const out: HeadingOutlineEntry[] = []
-  const slugify = (t: string) => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const slugify = (t: string) => String(t || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '-').replace(/^-|-$/g, '')
   const textOf = (node: JSONContent): string => {
     let s = ''
     const walk = (n: JSONContent) => {
@@ -535,11 +535,11 @@ async function nodeToDocx(node: JSONContent, fnOrder?: FootnoteOrderMap): Promis
       // paragraphs (indented by level). Word users can regenerate a field-based
       // ToC; this gives a readable static outline that matches the editor.
       const headings = fnOrder?._tocHeadings || []
-      const out: FileChild[] = [new Paragraph({ children: [xr({ text: 'Table of Contents', bold: true })] })]
+      const out: FileChild[] = [new Paragraph({ children: [xr({ text: '目录', bold: true })] })]
       for (const h of headings) {
         out.push(new Paragraph({
           indent: { left: (h.level - 1) * 360 },
-          children: [xr({ text: h.text || '(untitled heading)' })],
+          children: [xr({ text: h.text || '（未命名标题）' })],
         }))
       }
       return out

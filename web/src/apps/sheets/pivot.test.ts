@@ -85,20 +85,20 @@ describe('computePivot — aggregation', () => {
     const pivot = makePivot({ range: 'A1:C5', rowField: 'Region', colField: 'Product', valueField: 'Sales', agg: 'SUM' })
     const res = computePivot(pivot, sheet)!
     // header: Region | Apple | Banana | Total
-    expect(res[0]).toEqual(['Region', 'Apple', 'Banana', 'Total'])
+    expect(res[0]).toEqual(['Region', 'Apple', 'Banana', '总计'])
     const east = res.find((r) => r[0] === 'East')
     const west = res.find((r) => r[0] === 'West')
     expect(east).toEqual(['East', 10, 5, 15])
     expect(west).toEqual(['West', 20, 15, 35])
     const total = res[res.length - 1]
-    expect(total).toEqual(['Total', 30, 20, 50])
+    expect(total).toEqual(['总计', 30, 20, 50])
   })
 
   it('supports no column field (single value column)', () => {
     const sheet = sheetFrom(GRID)
     const pivot = makePivot({ range: 'A1:C5', rowField: 'Region', valueField: 'Sales', agg: 'SUM' })
     const res = computePivot(pivot, sheet)!
-    expect(res[0]).toEqual(['Region', 'Sales', 'Total'])
+    expect(res[0]).toEqual(['Region', 'Sales', '总计'])
     expect(res.find((r) => r[0] === 'East')).toEqual(['East', 15, 15])
     expect(res.find((r) => r[0] === 'West')).toEqual(['West', 35, 35])
   })
@@ -280,10 +280,10 @@ describe('WAVE-64 multiple value fields', () => {
       ],
     })
     const res = computePivot(p, sheet)!
-    expect(res[0]).toEqual(['Region', 'Sales (SUM)', 'Units (AVG)', 'Total · Sales (SUM)', 'Total · Units (AVG)'])
+    expect(res[0]).toEqual(['Region', 'Sales (SUM)', 'Units (AVG)', '总计 · Sales (SUM)', '总计 · Units (AVG)'])
     expect(res.find((r) => r[0] === 'East')).toEqual(['East', 15, 2, 15, 2])   // 10+5 ; (1+3)/2
     expect(res.find((r) => r[0] === 'West')).toEqual(['West', 35, 3, 35, 3])
-    expect(res.at(-1)).toEqual(['Total', 50, 2.5, 50, 2.5])
+    expect(res.at(-1)).toEqual(['总计', 50, 2.5, 50, 2.5])
   })
 
   it('crosses multiple values with a column field', () => {
@@ -296,7 +296,7 @@ describe('WAVE-64 multiple value fields', () => {
       'Region',
       'Apple · Sales (SUM)', 'Apple · Units (SUM)',
       'Banana · Sales (SUM)', 'Banana · Units (SUM)',
-      'Total · Sales (SUM)', 'Total · Units (SUM)',
+      '总计 · Sales (SUM)', '总计 · Units (SUM)',
     ])
     expect(res.find((r) => r[0] === 'East')).toEqual(['East', 10, 1, 5, 3, 15, 4])
   })
@@ -305,7 +305,7 @@ describe('WAVE-64 multiple value fields', () => {
     const legacy = makePivot({ range: 'A1:D5', rowField: 'Region', valueField: 'Sales', agg: 'SUM' })
     expect(legacy.values).toEqual([{ field: 'Sales', agg: 'SUM', display: 'raw' }])
     const res = computePivot(legacy, sheet)!
-    expect(res[0]).toEqual(['Region', 'Sales', 'Total'])    // unchanged header shape
+    expect(res[0]).toEqual(['Region', 'Sales', '总计'])    // unchanged header shape
     expect(res.find((r) => r[0] === 'East')).toEqual(['East', 15, 15])
   })
 
@@ -365,7 +365,7 @@ describe('WAVE-64 percentage displays', () => {
     const res = computePivot(pivot('pct_col'), sheet)!
     // Apple column = 30 → East 10/30, West 20/30. Banana = 20 → 5/20, 15/20.
     expect(res.find((r) => r[0] === 'East')).toEqual(['East', 33.333333, 25, 30])
-    expect(res.at(-1)).toEqual(['Total', 100, 100, 100])
+    expect(res.at(-1)).toEqual(['总计', 100, 100, 100])
   })
 
   it('a zero denominator yields 0%, never NaN or Infinity', () => {
@@ -395,7 +395,7 @@ describe('WAVE-64 percentage displays', () => {
       range: 'A1:C5', rowField: 'Region',
       values: [{ field: 'Sales', agg: 'SUM', display: 'pct_total' }],
     }), sheet)!
-    expect(res[0][1]).toBe('Sales (% of total)')
+    expect(res[0][1]).toBe('Sales (占总计 %)')
   })
 
   it('percentages export with a percent number format, not a bare number', () => {
@@ -481,7 +481,7 @@ describe('WAVE-64 date grouping', () => {
       range: 'A1:C4', rowField: 'R', colField: 'D', colGroup: 'month',
       values: [{ field: 'V', agg: 'SUM', display: 'raw' }],
     }), g)!
-    expect(res[0]).toEqual(['R', '2024-01', '2024-02', 'Total'])
+    expect(res[0]).toEqual(['R', '2024-01', '2024-02', '总计'])
     expect(res.find((r) => r[0] === 'x')).toEqual(['x', 1, 2, 3])
   })
 

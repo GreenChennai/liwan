@@ -1,3 +1,4 @@
+
 /**
  * AdminApp — minimal admin console for the office backend.
  *
@@ -42,14 +43,14 @@ interface AuditEntry {
 }
 
 const ACTION_LABELS: Record<string, string> = {
-  'acl.grant': 'ACL granted',
-  'acl.revoke': 'ACL revoked',
-  'acl.set_owner': 'Owner set',
-  'auth.register': 'Registered',
-  'invite.mint': 'Invite minted',
-  'invite.consume': 'Invite consumed',
-  'invite.revoke': 'Invite revoked',
-  'role.change': 'Role changed',
+  'acl.grant': '已授予 ACL 权限',
+  'acl.revoke': '已撤销 ACL 权限',
+  'acl.set_owner': '已设置所有者',
+  'auth.register': '已注册',
+  'invite.mint': '已生成邀请码',
+  'invite.consume': '邀请码已使用',
+  'invite.revoke': '邀请码已撤销',
+  'role.change': '角色已变更',
 }
 
 function fmtTime(unixNanos: number | undefined): string {
@@ -59,7 +60,7 @@ function fmtTime(unixNanos: number | undefined): string {
 }
 
 function fmtExpiry(unixSeconds: number | undefined): string {
-  if (!unixSeconds) return 'never'
+  if (!unixSeconds) return '永不过期'
   return new Date(unixSeconds * 1000).toLocaleString()
 }
 
@@ -70,13 +71,13 @@ export default function AdminApp() {
   return (
     <div className="flex flex-col h-full bg-bg text-ink">
       <header className="flex items-center gap-4 px-6 py-4 border-b border-line bg-bg-elev2">
-        <h1 className="text-lg font-semibold tracking-tight">Admin Console</h1>
+        <h1 className="text-lg font-semibold tracking-tight">管理后台</h1>
         <nav className="flex gap-2">
           <TabButton active={tab === 'invites'} onClick={() => setTab('invites')}>
-            Invites
+            邀请码
           </TabButton>
           <TabButton active={tab === 'audit'} onClick={() => setTab('audit')}>
-            Audit log
+            审计日志
           </TabButton>
         </nav>
       </header>
@@ -124,7 +125,7 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
       const list = await api.adminListInvites() as Invite[]
       setInvites(Array.isArray(list) ? list : [])
     } catch (e) {
-      onError(e instanceof Error ? e.message : 'Failed to load invites')
+      onError(e instanceof Error ? e.message : '加载邀请码失败')
     }
   }, [onError])
 
@@ -146,7 +147,7 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
       setNote('')
       await refresh()
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Failed to mint invite')
+      onError(err instanceof Error ? err.message : '生成邀请码失败')
     } finally {
       setLoading(false)
     }
@@ -158,7 +159,7 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
       await api.adminRevokeInvite(id)
       await refresh()
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Failed to revoke invite')
+      onError(err instanceof Error ? err.message : '撤销邀请码失败')
     }
   }
 
@@ -166,7 +167,7 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
     <div className="space-y-6">
       <form onSubmit={(e) => void mint(e)} className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-paper p-4">
         <label className="flex flex-col text-sm">
-          <span className="text-ink-muted mb-1.5">Note (e.g. invitee email)</span>
+          <span className="text-ink-muted mb-1.5">备注（如受邀人邮箱）</span>
           <input
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -175,7 +176,7 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
           />
         </label>
         <label className="flex flex-col text-sm">
-          <span className="text-ink-muted mb-1.5">Max uses</span>
+          <span className="text-ink-muted mb-1.5">最大使用次数</span>
           <input
             type="number"
             min="1"
@@ -185,7 +186,7 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
           />
         </label>
         <label className="flex flex-col text-sm">
-          <span className="text-ink-muted mb-1.5">Expires in (hours, 0 = never)</span>
+          <span className="text-ink-muted mb-1.5">有效期（小时，0 表示永不过期）</span>
           <input
             type="number"
             min="0"
@@ -199,14 +200,14 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
           disabled={loading}
           className="bg-accent text-white rounded-md px-4 py-1.5 text-sm font-medium hover:bg-accent-hover disabled:opacity-50 transition-colors"
         >
-          Mint invite
+          生成邀请码
         </button>
       </form>
 
       {minted && (
         <div className="rounded-lg border border-accent-tint-2 bg-accent-tint p-4">
           <p className="text-sm text-accent-press font-medium mb-2">
-            Invite created — copy this token now. It will not be shown again.
+            邀请码已生成，请立即复制此令牌，之后将不再显示。
           </p>
           <code className="block bg-bg border border-line rounded-md px-2.5 py-1.5 text-sm break-all font-mono text-ink">
             {minted.token}
@@ -217,10 +218,10 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
       <table className="w-full text-sm border border-line rounded-lg overflow-hidden">
         <thead className="bg-bg-elev2 text-ink-muted">
           <tr>
-            <th className="text-left px-3 py-2">Note</th>
-            <th className="text-left px-3 py-2">Uses</th>
-            <th className="text-left px-3 py-2">Expires</th>
-            <th className="text-left px-3 py-2">Status</th>
+            <th className="text-left px-3 py-2">备注</th>
+            <th className="text-left px-3 py-2">使用次数</th>
+            <th className="text-left px-3 py-2">过期时间</th>
+            <th className="text-left px-3 py-2">状态</th>
             <th className="px-3 py-2"></th>
           </tr>
         </thead>
@@ -228,13 +229,13 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
           {invites.length === 0 && (
             <tr>
               <td colSpan={5} className="px-3 py-4 text-center text-ink-faint">
-                No invites yet.
+                暂无邀请码。
               </td>
             </tr>
           )}
           {invites.map((inv) => {
             const spent = inv.max_uses > 0 && inv.used_count >= inv.max_uses
-            const status = inv.revoked ? 'revoked' : spent ? 'used up' : 'active'
+            const status = inv.revoked ? '已撤销' : spent ? '已用完' : '有效'
             return (
               <tr key={inv.id} className="border-t border-line">
                 <td className="px-3 py-2">{inv.note || '—'}</td>
@@ -250,7 +251,7 @@ export function InvitesPanel({ onError }: { onError: (msg: string) => void }) {
                       onClick={() => void revoke(inv.id)}
                       className="text-danger hover:underline"
                     >
-                      Revoke
+                      撤销
                     </button>
                   )}
                 </td>
@@ -271,7 +272,7 @@ export function AuditPanel({ onError }: { onError: (msg: string) => void }) {
       const list = await api.adminListAudit(500) as AuditEntry[]
       setEntries(Array.isArray(list) ? list : [])
     } catch (e) {
-      onError(e instanceof Error ? e.message : 'Failed to load audit log')
+      onError(e instanceof Error ? e.message : '加载审计日志失败')
     }
   }, [onError])
 
@@ -282,30 +283,30 @@ export function AuditPanel({ onError }: { onError: (msg: string) => void }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-ink-faint">Append-only — newest first.</p>
+        <p className="text-sm text-ink-faint">只追加记录，按时间倒序排列。</p>
         <button
           type="button"
           onClick={() => void refresh()}
           className="text-sm text-accent hover:underline"
         >
-          Refresh
+          刷新
         </button>
       </div>
       <table className="w-full text-sm border border-line rounded-lg overflow-hidden">
         <thead className="bg-bg-elev2 text-ink-muted">
           <tr>
-            <th className="text-left px-3 py-2">Time</th>
-            <th className="text-left px-3 py-2">Actor</th>
-            <th className="text-left px-3 py-2">Action</th>
-            <th className="text-left px-3 py-2">Target</th>
-            <th className="text-left px-3 py-2">Detail</th>
+            <th className="text-left px-3 py-2">时间</th>
+            <th className="text-left px-3 py-2">操作人</th>
+            <th className="text-left px-3 py-2">操作</th>
+            <th className="text-left px-3 py-2">目标</th>
+            <th className="text-left px-3 py-2">详情</th>
           </tr>
         </thead>
         <tbody>
           {entries.length === 0 && (
             <tr>
               <td colSpan={5} className="px-3 py-4 text-center text-ink-faint">
-                No audit events yet.
+                暂无审计事件。
               </td>
             </tr>
           )}

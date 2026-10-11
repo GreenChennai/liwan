@@ -346,12 +346,12 @@ describe('makeColorScale — WAVE-64 ingress clamp (hostile descriptors)', () =>
 
 describe('colorScaleError — the panel’s save gate', () => {
   it('rejects an unusable range or operand, accepts a complete rule', () => {
-    expect(colorScaleError(makeColorScale({ kind: 'greaterThan', range: 'nope', value1: '1' }))).toMatch(/range/i)
-    expect(colorScaleError(makeColorScale({ kind: 'greaterThan', range: 'A1', value1: '' }))).toMatch(/number/i)
-    expect(colorScaleError(makeColorScale({ kind: 'between', range: 'A1', value1: '1', value2: '' }))).toMatch(/both/i)
-    expect(colorScaleError(makeColorScale({ kind: 'textContains', range: 'A1', value1: '' }))).toMatch(/text/i)
-    expect(colorScaleError(makeColorScale({ kind: 'dateBefore', range: 'A1', value1: 'soon' }))).toMatch(/date/i)
-    expect(colorScaleError(makeColorScale({ kind: 'formula', range: 'A1', formula: '' }))).toMatch(/formula/i)
+    expect(colorScaleError(makeColorScale({ kind: 'greaterThan', range: 'nope', value1: '1' }))).toMatch(/区域/)
+    expect(colorScaleError(makeColorScale({ kind: 'greaterThan', range: 'A1', value1: '' }))).toMatch(/数值/)
+    expect(colorScaleError(makeColorScale({ kind: 'between', range: 'A1', value1: '1', value2: '' }))).toMatch(/两个/)
+    expect(colorScaleError(makeColorScale({ kind: 'textContains', range: 'A1', value1: '' }))).toMatch(/文本/)
+    expect(colorScaleError(makeColorScale({ kind: 'dateBefore', range: 'A1', value1: 'soon' }))).toMatch(/日期/)
+    expect(colorScaleError(makeColorScale({ kind: 'formula', range: 'A1', formula: '' }))).toMatch(/公式/)
     expect(colorScaleError(makeColorScale({ kind: 'greaterThan', range: 'A1:A9', value1: '10' }))).toBeNull()
     expect(colorScaleError(makeColorScale({ kind: 'isEmpty', range: 'A1:A9' }))).toBeNull()
     expect(colorScaleError(makeColorScale({ kind: 'colorScale3', range: 'A1:A9' }))).toBeNull()

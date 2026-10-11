@@ -98,7 +98,7 @@ function VersionRow({ v, isLatest, restoring, onRestoreClick, onCompareClick }: 
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
           <span className="text-2xs text-ink-faint tracking-tightish">{formatRelative(v.created_at)}</span>
           {v.author && (
-            <span className="text-2xs text-ink-faint tracking-tightish flex items-center gap-0.5" title={`Edited by ${v.author}`}>
+            <span className="text-2xs text-ink-faint tracking-tightish flex items-center gap-0.5" title={`编辑者：${v.author}`}>
               <User size={9} className="flex-shrink-0" />
               <span className="truncate max-w-[7rem]">{v.author}</span>
             </span>
@@ -121,7 +121,7 @@ function VersionRow({ v, isLatest, restoring, onRestoreClick, onCompareClick }: 
       >
         <button
           onClick={() => onCompareClick(v)}
-          title="Compare with current version"
+          title="与当前版本比较"
           className="flex items-center gap-1 h-6 px-2 text-2xs font-medium rounded-sm text-ink-muted hover:bg-accent-tint-2 focus:outline-none focus-visible:shadow-focus"
         >
           <GitCompare size={11} /> Diff
@@ -129,7 +129,7 @@ function VersionRow({ v, isLatest, restoring, onRestoreClick, onCompareClick }: 
         <button
           onClick={() => onRestoreClick(v)}
           disabled={restoring === v.id}
-          title="Restore this version"
+          title="恢复此版本"
           className={[
             'flex items-center gap-1 h-6 px-2 text-2xs font-medium rounded-sm',
             'text-accent-press hover:bg-accent-tint-2 focus:outline-none focus-visible:shadow-focus',
@@ -140,7 +140,7 @@ function VersionRow({ v, isLatest, restoring, onRestoreClick, onCompareClick }: 
             ? <Loader2 size={11} className="animate-spin" />
             : <RotateCcw size={11} />
           }
-          Restore
+          恢复
         </button>
       </div>
     </li>
@@ -167,21 +167,21 @@ function DiffModal({ fileId, version, onClose }: DiffModalProps) {
     setError(null)
     api.diffVersion(fileId, version.id, 'current')
       .then((d) => { if (live) setDiff(d as DiffResult) })
-      .catch((e) => { if (live) setError(e instanceof Error ? e.message : 'Could not load diff') })
+      .catch((e) => { if (live) setError(e instanceof Error ? e.message : '无法加载差异') })
       .finally(() => { if (live) setLoading(false) })
     return () => { live = false }
   }, [fileId, version])
 
   const body = diff?.diff
   return (
-    <Modal open={!!version} onClose={onClose} title="Compare version" size="lg">
+    <Modal open={!!version} onClose={onClose} title="版本比较" size="lg">
       <Modal.Body>
         <p className="text-2xs text-ink-faint mb-3">
           <span className="font-medium text-ink-muted">{diff?.old_label || (version ? formatRelative(version.created_at) : '')}</span>
           {' → '}
           <span className="font-medium text-ink-muted">{diff?.new_label || 'current'}</span>
         </p>
-        {loading && <LoadingState size="sm" label="Computing diff…" className="py-8" />}
+        {loading && <LoadingState size="sm" label="正在计算差异…" className="py-8" />}
         {error && !loading && (
           <p className="text-xs text-danger" role="alert">{error}</p>
         )}
@@ -213,14 +213,14 @@ function DiffModal({ fileId, version, onClose }: DiffModalProps) {
               </div>
             ) : (
               <p className="text-xs text-ink-muted bg-bg-elev2 border border-line rounded-md px-3 py-3">
-                {body.summary || 'No textual changes.'}
+                {body.summary || '没有文字变更。'}
               </p>
             )}
           </>
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" size="md" onClick={onClose}>Close</Button>
+        <Button variant="secondary" size="md" onClick={onClose}>关闭</Button>
       </Modal.Footer>
     </Modal>
   )
@@ -255,7 +255,7 @@ export default function HistoryPanel({ fileId, onRestore, onClose }: HistoryPane
       const data = await api.listVersions(fileId) as Version[]
       setVersions(data)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load history')
+      setError(e instanceof Error ? e.message : '加载历史失败')
     } finally {
       setLoading(false)
     }
@@ -269,11 +269,11 @@ export default function HistoryPanel({ fileId, onRestore, onClose }: HistoryPane
     setRestoring(v.id)
     try {
       const updated = await api.restoreVersion(fileId, v.id)
-      showToast('Version restored')
+      showToast('版本已恢复')
       onRestore?.(updated)
       await load()
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Restore failed', false)
+      showToast(e instanceof Error ? e.message : '恢复失败', false)
     } finally {
       setRestoring(null)
     }
@@ -286,10 +286,10 @@ export default function HistoryPanel({ fileId, onRestore, onClose }: HistoryPane
         <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-bg-elev2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <History size={13} className="text-ink-faint" />
-            <span className="text-sm font-semibold text-ink tracking-tightish">Version History</span>
+            <span className="text-sm font-semibold text-ink tracking-tightish">版本历史</span>
           </div>
           {onClose && (
-            <IconButton size="sm" onClick={onClose} title="Close">
+            <IconButton size="sm" onClick={onClose} title="关闭">
               <X size={14} />
             </IconButton>
           )}
@@ -298,7 +298,7 @@ export default function HistoryPanel({ fileId, onRestore, onClose }: HistoryPane
         {/* ── Body ── */}
         <div className="flex-1 overflow-y-auto">
           {loading && (
-            <LoadingState size="sm" label="Loading history…" className="py-12" />
+            <LoadingState size="sm" label="正在加载历史…" className="py-12" />
           )}
 
           {error && !loading && (
@@ -309,8 +309,8 @@ export default function HistoryPanel({ fileId, onRestore, onClose }: HistoryPane
             <EmptyState
               size="sm"
               icon={History}
-              title="No saved versions yet."
-              hint="Versions are created automatically on each save."
+              title="暂无已保存的版本。"
+              hint="每次保存时都会自动创建版本。"
             />
           )}
 
@@ -352,7 +352,7 @@ export default function HistoryPanel({ fileId, onRestore, onClose }: HistoryPane
       <Modal
         open={!!confirmVersion}
         onClose={() => setConfirmVersion(null)}
-        title="Restore this version?"
+        title="恢复此版本？"
         size="sm"
       >
         <Modal.Body>
@@ -369,14 +369,14 @@ export default function HistoryPanel({ fileId, onRestore, onClose }: HistoryPane
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" size="md" onClick={() => setConfirmVersion(null)}>
-            Cancel
+            取消
           </Button>
           <Button
             variant="primary"
             size="md"
             onClick={() => void doRestore(confirmVersion)}
           >
-            <RotateCcw size={13} /> Restore
+            <RotateCcw size={13} /> 恢复
           </Button>
         </Modal.Footer>
       </Modal>

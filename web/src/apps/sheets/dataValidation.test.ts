@@ -75,14 +75,14 @@ describe('buildRegulation', () => {
 describe('validationSummary', () => {
   it('dropdown summary counts items', () => {
     const reg = buildRegulation({ kind: 'dropdown', items: 'a,b,c' })
-    expect(validationSummary(reg)).toBe('Dropdown · 3 items')
+    expect(validationSummary(reg)).toBe('下拉列表 · 3 个选项')
   })
   it('single-item dropdown is singular', () => {
-    expect(validationSummary(buildRegulation({ kind: 'dropdown', items: 'a' }))).toBe('Dropdown · 1 item')
+    expect(validationSummary(buildRegulation({ kind: 'dropdown', items: 'a' }))).toBe('下拉列表 · 1 个选项')
   })
   it('number between summary', () => {
     const reg = buildRegulation({ kind: 'number', condition: 'between', value1: '1', value2: '10' })
-    expect(validationSummary(reg)).toBe('Number between 1 and 10')
+    expect(validationSummary(reg)).toBe('数字 介于 1 与 10')
   })
 })
 
@@ -126,7 +126,7 @@ describe('applyValidation / listValidationRules', () => {
     const rules = listValidationRules(next[0])
     expect(rules.length).toBe(1)
     expect(rules[0].count).toBe(5)
-    expect(rules[0].summary).toBe('Dropdown · 2 items')
+    expect(rules[0].summary).toBe('下拉列表 · 2 个选项')
   })
 
   it('listValidationRules separates distinct rules', () => {

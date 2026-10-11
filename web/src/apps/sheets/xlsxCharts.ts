@@ -90,9 +90,9 @@ const NATIVE_TYPES = new Set([
  * in the export dialog for a type that embeds with a caveat.
  */
 export function nativeXlsxSupport(type: unknown): NativeXlsxSupport {
-  if (typeof type !== 'string' || !NATIVE_TYPES.has(type)) return { native: false, note: 'no Excel equivalent' }
+  if (typeof type !== 'string' || !NATIVE_TYPES.has(type)) return { native: false, note: '无对应的 Excel 图表类型' }
   if (type === 'histogram') {
-    return { native: true, note: 'histogram bins are embedded as fixed values — Excel will not re-bin them if the data changes' }
+    return { native: true, note: '直方图分箱以固定值嵌入——数据变化后 Excel 不会重新分箱' }
   }
   return { native: true }
 }
@@ -232,23 +232,23 @@ function valXml(ref: string): string {
 }
 
 function barSer(s: SeriesRefBuild, i: number, refs: ChartRefs, color: string): string {
-  return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${serTx(s.nameRef, `Series ${i + 1}`)}` +
+  return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${serTx(s.nameRef, `系列 ${i + 1}`)}` +
     `${solidFill(color)}<c:invertIfNegative val="0"/>${catXml(refs)}${valXml(s.valRef)}</c:ser>`
 }
 function lineSer(s: SeriesRefBuild, i: number, refs: ChartRefs, color: string): string {
-  return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${serTx(s.nameRef, `Series ${i + 1}`)}` +
+  return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${serTx(s.nameRef, `系列 ${i + 1}`)}` +
     `${lineFill(color)}<c:marker><c:symbol val="circle"/><c:size val="5"/>${solidFill(color)}</c:marker>` +
     `${catXml(refs)}${valXml(s.valRef)}<c:smooth val="0"/></c:ser>`
 }
 function areaSer(s: SeriesRefBuild, i: number, refs: ChartRefs, color: string): string {
-  return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${serTx(s.nameRef, `Series ${i + 1}`)}` +
+  return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${serTx(s.nameRef, `系列 ${i + 1}`)}` +
     `${solidFill(color)}${catXml(refs)}${valXml(s.valRef)}</c:ser>`
 }
 function pieSer(s: SeriesRefBuild, i: number, refs: ChartRefs, nCatColors: number): string {
   const dPts = Array.from({ length: nCatColors }, (_, k) =>
     `<c:dPt><c:idx val="${k}"/><c:bubble3D val="0"/>${solidFill(CHART_PALETTE[k % CHART_PALETTE.length])}</c:dPt>`
   ).join('')
-  return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${serTx(s.nameRef, `Series ${i + 1}`)}` +
+  return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${serTx(s.nameRef, `系列 ${i + 1}`)}` +
     `${dPts}${catXml(refs)}${valXml(s.valRef)}</c:ser>`
 }
 
@@ -315,14 +315,14 @@ export function chartPartXml(chart: Chart, sheet: ChartSheet, sheetName: string 
     const { bins } = histogramBins(histogramValues(extracted), opt.bins)
     if (!bins.length) return null
     const ser = `<c:ser><c:idx val="0"/><c:order val="0"/>` +
-      `<c:tx><c:v>${safeText(extracted.series[0]?.name || 'Frequency')}</c:v></c:tx>` +
+      `<c:tx><c:v>${safeText(extracted.series[0]?.name || '频次')}</c:v></c:tx>` +
       `${solidFill(color(0))}<c:invertIfNegative val="0"/>` +
       `<c:cat>${strLit(bins.map((b) => b.label))}</c:cat>` +
       `<c:val>${numLit(bins.map((b) => b.count))}</c:val></c:ser>`
     plot = '<c:barChart><c:barDir val="col"/><c:grouping val="clustered"/><c:varyColors val="0"/>' +
       `${ser}<c:gapWidth val="0"/><c:axId val="10"/><c:axId val="20"/></c:barChart>` +
       catAx(10, 20, { label: xLabel }) +
-      valAx(20, 10, { label: yLabel || 'Frequency' })
+      valAx(20, 10, { label: yLabel || '频次' })
   } else if (type === 'pie' || type === 'donut') {
     const s = refs.series[0]
     const ser = pieSer(s, 0, refs, Math.max(1, refs.nCat))
@@ -333,7 +333,7 @@ export function chartPartXml(chart: Chart, sheet: ChartSheet, sheetName: string 
     const [sx, sy, ss] = refs.series
     if (!sx || !sy) return null
     if (type === 'scatter') {
-      const ser = `<c:ser><c:idx val="0"/><c:order val="0"/>${serTx(sy.nameRef, 'Series 1')}` +
+      const ser = `<c:ser><c:idx val="0"/><c:order val="0"/>${serTx(sy.nameRef, '系列 1')}` +
         `<c:spPr><a:ln w="28575"><a:noFill/></a:ln></c:spPr>` +
         `<c:marker><c:symbol val="circle"/><c:size val="6"/>${solidFill(color(0))}</c:marker>` +
         `<c:xVal><c:numRef><c:f>${sx.valRef}</c:f></c:numRef></c:xVal>` +
@@ -342,7 +342,7 @@ export function chartPartXml(chart: Chart, sheet: ChartSheet, sheetName: string 
         `${ser}<c:axId val="10"/><c:axId val="20"/></c:scatterChart>` + xyAxes(xLabel, yLabel)
     } else {
       if (!ss) return null   // bubble needs a size column; without it we do not fake one
-      const ser = `<c:ser><c:idx val="0"/><c:order val="0"/>${serTx(sy.nameRef, 'Series 1')}` +
+      const ser = `<c:ser><c:idx val="0"/><c:order val="0"/>${serTx(sy.nameRef, '系列 1')}` +
         `${solidFill(color(0))}<c:invertIfNegative val="0"/>` +
         `<c:xVal><c:numRef><c:f>${sx.valRef}</c:f></c:numRef></c:xVal>` +
         `<c:yVal><c:numRef><c:f>${sy.valRef}</c:f></c:numRef></c:yVal>` +
@@ -430,7 +430,7 @@ export function drawingXml(anchors: ChartAnchor[]): string {
       `<xdr:row>${row}</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:from>` +
       `<xdr:ext cx="${cx}" cy="${cy}"/>` +
       '<xdr:graphicFrame macro="">' +
-      `<xdr:nvGraphicFramePr><xdr:cNvPr id="${i + 2}" name="Chart ${i + 1}"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr>` +
+      `<xdr:nvGraphicFramePr><xdr:cNvPr id="${i + 2}" name="图表 ${i + 1}"/><xdr:cNvGraphicFramePr/></xdr:nvGraphicFramePr>` +
       '<xdr:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></xdr:xfrm>' +
       '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">' +
       `<c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" r:id="${xmlEscape(a.rId)}"/>` +
@@ -533,7 +533,7 @@ export async function injectChartsIntoXlsx(
   try {
     zip = await JSZip.loadAsync(buffer)
   } catch {
-    return skipAll('the exported workbook could not be re-opened for chart injection')
+    return skipAll('无法重新打开导出的工作簿以写入图表')
   }
 
   const workbookXml = await zip.file('xl/workbook.xml')?.async('string')
@@ -541,17 +541,17 @@ export async function injectChartsIntoXlsx(
   const ctPath = '[Content_Types].xml'
   const ctXml = await zip.file(ctPath)?.async('string')
   if (!workbookXml || !wbRelsXml || !ctXml) {
-    return skipAll('unexpected workbook structure')
+    return skipAll('工作簿结构异常')
   }
   // A package that ALREADY has drawings is not one we understand; do not fight it.
   if (Object.keys(zip.files).some((f) => f.startsWith('xl/drawings/'))) {
-    return skipAll('the workbook already contains drawings')
+    return skipAll('工作簿已包含绘图对象')
   }
 
   const first = firstSheetPart(workbookXml, wbRelsXml)
-  if (!first) return skipAll('could not locate the first worksheet')
+  if (!first) return skipAll('无法定位第一个工作表')
   const sheetXml = await zip.file(first.path)?.async('string')
-  if (!sheetXml) return skipAll('could not read the first worksheet')
+  if (!sheetXml) return skipAll('无法读取第一个工作表')
 
   // Build the chart parts.
   const embedded: string[] = []
@@ -561,12 +561,12 @@ export async function injectChartsIntoXlsx(
   for (const chart of list) {
     const support = nativeXlsxSupport(chart?.type)
     if (!support.native) {
-      skipped.push({ id: chart.id, type: chart.type, reason: support.note || 'unsupported chart type' })
+      skipped.push({ id: chart.id, type: chart.type, reason: support.note || '不支持的图表类型' })
       continue
     }
     const xml = chartPartXml(chart, sheet, first.name)
     if (!xml) {
-      skipped.push({ id: chart.id, type: chart.type, reason: 'its data range could not be resolved' })
+      skipped.push({ id: chart.id, type: chart.type, reason: '无法解析其数据区域' })
       continue
     }
     n++
@@ -597,7 +597,7 @@ export async function injectChartsIntoXlsx(
       '</Relationships>',
       `<Relationship Id="${drawingRid}" Type="${REL_DRAWING}" Target="../drawings/drawing1.xml"/></Relationships>`
     )
-    if (merged === existingRels) return skipAll('worksheet relationships could not be extended')
+    if (merged === existingRels) return skipAll('无法扩展工作表关系')
     zip.file(sheetRelsPath, merged)
   } else {
     drawingRid = 'rId1'
@@ -610,7 +610,7 @@ export async function injectChartsIntoXlsx(
 
   // <drawing r:id="…"/> on the worksheet.
   const nextSheetXml = insertDrawingElement(sheetXml, drawingRid)
-  if (!nextSheetXml) return skipAll('the worksheet XML could not be extended')
+  if (!nextSheetXml) return skipAll('无法扩展工作表 XML')
   zip.file(first.path, nextSheetXml)
 
   // Content types for the new parts.
@@ -620,7 +620,7 @@ export async function injectChartsIntoXlsx(
       `<Override PartName="/xl/charts/chart${i + 1}.xml" ContentType="${CT_CHART}"/>`
     ).join('')
   const nextCt = ctXml.replace('</Types>', overrides + '</Types>')
-  if (nextCt === ctXml) return skipAll('content types could not be extended')
+  if (nextCt === ctXml) return skipAll('无法扩展内容类型')
   zip.file(ctPath, nextCt)
 
   const out = await zip.generateAsync({ type: 'arraybuffer', compression: 'DEFLATE' })

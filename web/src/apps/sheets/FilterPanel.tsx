@@ -105,12 +105,12 @@ function computeHiddenRows(rows: string[][], filterRules: FilterRule[]): number[
 // ── Saved views store (in-component state; would be persisted to sheet metadata in production) ──
 
 const CONDITION_TYPES = [
-  { value: 'contains',     label: 'Text contains' },
-  { value: 'equals',       label: 'Equals' },
-  { value: 'not-empty',    label: 'Not empty' },
-  { value: 'number-gte',   label: 'Number ≥' },
-  { value: 'number-lte',   label: 'Number ≤' },
-  { value: 'number-range', label: 'Number between' },
+  { value: 'contains',     label: '文本包含' },
+  { value: 'equals',       label: '等于' },
+  { value: 'not-empty',    label: '非空' },
+  { value: 'number-gte',   label: '数字 ≥' },
+  { value: 'number-lte',   label: '数字 ≤' },
+  { value: 'number-range', label: '数字介于' },
 ]
 
 export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps) {
@@ -127,7 +127,7 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
 
   const startNew = () => {
     setEditing(true)
-    setViewName('Filter view ' + (savedViews.length + 1))
+    setViewName('筛选视图 ' + (savedViews.length + 1))
     setEditRules([])
     setActiveView(null)
   }
@@ -150,7 +150,7 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
   }
 
   const saveView = () => {
-    const view: FilterView = { name: viewName || 'Filter view', rules: editRules }
+    const view: FilterView = { name: viewName || '筛选视图', rules: editRules }
     if (activeView !== null) {
       setSavedViews((v) => v.map((sv, i) => i === activeView ? view : sv))
     } else {
@@ -181,9 +181,9 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
     <div className="flex flex-col w-full sm:w-72 flex-shrink-0 h-full border-l border-line bg-paper overflow-y-auto">
       <div className="flex items-center justify-between px-3 py-2 border-b border-line">
         <span className="text-xs font-semibold text-ink tracking-tightish flex items-center gap-1.5">
-          <Filter size={12} /> Filter views
+          <Filter size={12} /> 筛选视图
         </span>
-        <IconButton size="sm" title="Close" onClick={onClose}><X size={13} /></IconButton>
+        <IconButton size="sm" title="关闭" onClick={onClose}><X size={13} /></IconButton>
       </div>
 
       <div className="flex-1 px-3 py-3 space-y-3 text-xs overflow-y-auto">
@@ -191,7 +191,7 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
         {!editing && (
           <>
             {savedViews.length === 0 && (
-              <p className="text-ink-faint">No filter views saved yet.</p>
+              <p className="text-ink-faint">尚未保存任何筛选视图。</p>
             )}
             {savedViews.map((sv, i) => (
               <div key={i} className={[
@@ -203,13 +203,13 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
                 <button
                   onClick={() => applyView(i)}
                   className="text-accent hover:underline rounded-sm focus-visible:outline-none focus-visible:shadow-focus"
-                  aria-label="Apply filter"
-                  title="Apply filter"
+                  aria-label="应用筛选"
+                  title="应用筛选"
                 >
                   <CheckCircle size={12} />
                 </button>
-                <button onClick={() => editExisting(i)} aria-label="Edit filter view" className="text-ink-faint hover:text-ink rounded-sm focus-visible:outline-none focus-visible:shadow-focus" title="Edit"><Pencil size={11} /></button>
-                <button onClick={() => deleteView(i)} aria-label="Delete filter view" className="text-ink-faint hover:text-danger rounded-sm focus-visible:outline-none focus-visible:shadow-focus" title="Delete">
+                <button onClick={() => editExisting(i)} aria-label="编辑筛选视图" className="text-ink-faint hover:text-ink rounded-sm focus-visible:outline-none focus-visible:shadow-focus" title="编辑"><Pencil size={11} /></button>
+                <button onClick={() => deleteView(i)} aria-label="删除筛选视图" className="text-ink-faint hover:text-danger rounded-sm focus-visible:outline-none focus-visible:shadow-focus" title="删除">
                   <Trash2 size={11} />
                 </button>
               </div>
@@ -217,11 +217,11 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
 
             <div className="flex gap-2">
               <Button variant="secondary" size="sm" onClick={startNew} className="flex-1">
-                <Plus size={11} className="mr-1" /> New filter
+                <Plus size={11} className="mr-1" /> 新建筛选
               </Button>
               {activeView !== null && (
                 <Button variant="secondary" size="sm" onClick={clearFilter}>
-                  Clear
+                  清除
                 </Button>
               )}
             </div>
@@ -232,12 +232,12 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
         {editing && (
           <div className="space-y-3">
             <div className="space-y-1">
-              <label className="block text-ink-muted font-medium">Name</label>
+              <label className="block text-ink-muted font-medium">名称</label>
               <input
                 value={viewName}
                 onChange={(e) => setViewName(e.target.value)}
                 className={inputCls}
-                placeholder="Filter view name"
+                placeholder="筛选视图名称"
               />
             </div>
 
@@ -251,20 +251,20 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
                 </button>
 
                 <div className="space-y-1">
-                  <label className="text-ink-muted">Column</label>
+                  <label className="text-ink-muted">列</label>
                   <select
                     value={rule.colIndex}
                     onChange={(e) => updateRule(i, 'colIndex', Number(e.target.value))}
                     className={selCls}
                   >
                     {headers.map((h, ci) => (
-                      <option key={ci} value={ci}>{h || `Col ${ci + 1}`}</option>
+                      <option key={ci} value={ci}>{h || `第 ${ci + 1} 列`}</option>
                     ))}
                   </select>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-ink-muted">Condition</label>
+                  <label className="text-ink-muted">条件</label>
                   <select
                     value={rule.type}
                     onChange={(e) => updateRule(i, 'type', e.target.value)}
@@ -281,7 +281,7 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
                     value={rule.value}
                     onChange={(e) => updateRule(i, 'value', e.target.value)}
                     className={inputCls}
-                    placeholder="Value"
+                    placeholder="值"
                   />
                 )}
 
@@ -291,13 +291,13 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
                       value={rule.min}
                       onChange={(e) => updateRule(i, 'min', e.target.value)}
                       className={inputCls}
-                      placeholder="Min"
+                      placeholder="最小值"
                     />
                     <input
                       value={rule.max}
                       onChange={(e) => updateRule(i, 'max', e.target.value)}
                       className={inputCls}
-                      placeholder="Max"
+                      placeholder="最大值"
                     />
                   </div>
                 )}
@@ -305,15 +305,15 @@ export default function FilterPanel({ data, onClose, onApply }: FilterPanelProps
             ))}
 
             <Button variant="secondary" size="sm" onClick={addRule} className="w-full">
-              <Plus size={11} className="mr-1" /> Add rule
+              <Plus size={11} className="mr-1" /> 添加规则
             </Button>
 
             <div className="flex gap-2">
               <Button variant="primary" size="sm" onClick={saveView} className="flex-1">
-                Save
+                保存
               </Button>
               <Button variant="secondary" size="sm" onClick={() => setEditing(false)} className="flex-1">
-                Cancel
+                取消
               </Button>
             </div>
           </div>

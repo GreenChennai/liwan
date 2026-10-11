@@ -81,7 +81,7 @@ describe('Share links + transfer ownership (MSW integration)', () => {
   it('mints a read-only link and lists it', async () => {
     openShare()
     // Wait for the owner-only link section to appear.
-    const createBtn = await screen.findByRole('button', { name: /Create link/i })
+    const createBtn = await screen.findByRole('button', { name: /创建链接/ })
     fireEvent.click(createBtn)
     await waitFor(() =>
       expect(mockState.calls).toContain('POST /files/doc1/share-links'))
@@ -112,19 +112,19 @@ describe('Share links + transfer ownership (MSW integration)', () => {
     }]
     openShare()
 
-    expect(await screen.findByText(/URL shown only when created/i)).toBeInTheDocument()
+    expect(await screen.findByText(/仅在创建时显示 URL/)).toBeInTheDocument()
     // Nothing that looks like a share URL is rendered…
     expect(screen.queryByText(/\/view\//)).not.toBeInTheDocument()
     // …and there is no copy affordance to paste an empty one from.
-    expect(screen.queryByRole('button', { name: /Copy link URL/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /复制链接 URL/ })).not.toBeInTheDocument()
     // Revoke still works without the token — the owner can always kill a leak.
-    expect(screen.getByRole('button', { name: /Revoke link/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /撤销链接/ })).toBeInTheDocument()
   })
 
   it('copies the minted URL from the mint response, not from the list', async () => {
     openShare()
-    fireEvent.click(await screen.findByRole('button', { name: /Create link/i }))
-    const copyBtn = await screen.findByRole('button', { name: /Copy link URL/i })
+    fireEvent.click(await screen.findByRole('button', { name: /创建链接/ }))
+    const copyBtn = await screen.findByRole('button', { name: /复制链接 URL/ })
 
     // The list response carries no token, so a copy that worked off the list
     // would copy `/view/undefined`. It must copy the minted URL instead.
@@ -137,33 +137,33 @@ describe('Share links + transfer ownership (MSW integration)', () => {
 
   it('mints a password + expiring link (flags surface in the list)', async () => {
     openShare()
-    const pwInput = await screen.findByLabelText(/Optional link password/i)
+    const pwInput = await screen.findByLabelText(/链接密码（可选）/)
     fireEvent.change(pwInput, { target: { value: 's3cret' } })
-    fireEvent.change(screen.getByLabelText(/Link expiry/i), { target: { value: String(24 * 60 * 60) } })
-    fireEvent.click(screen.getByRole('button', { name: /Create link/i }))
+    fireEvent.change(screen.getByLabelText(/链接有效期/), { target: { value: String(24 * 60 * 60) } })
+    fireEvent.click(screen.getByRole('button', { name: /创建链接/ }))
 
-    await waitFor(() => expect(screen.getByText(/password/i)).toBeInTheDocument())
-    expect(screen.getByText(/expires/i)).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText(/需要密码/)).toBeInTheDocument())
+    expect(screen.getByText(/有效期至/)).toBeInTheDocument()
   })
 
   it('revokes a link', async () => {
     openShare()
-    fireEvent.click(await screen.findByRole('button', { name: /Create link/i }))
-    const revokeBtn = await screen.findByRole('button', { name: /Revoke link/i })
+    fireEvent.click(await screen.findByRole('button', { name: /创建链接/ }))
+    const revokeBtn = await screen.findByRole('button', { name: /撤销链接/ })
     fireEvent.click(revokeBtn)
     await waitFor(() =>
       expect(mockState.calls.some((c) => /DELETE \/files\/doc1\/share-links\//.test(c))).toBe(true))
     // No active links remain.
-    await waitFor(() => expect(screen.getByText(/No active links/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/没有有效的链接/)).toBeInTheDocument())
   })
 
   it('transfers ownership after confirm', async () => {
     openShare()
-    const target = await screen.findByLabelText(/New owner account/i)
+    const target = await screen.findByLabelText(/新所有者账号/)
     fireEvent.change(target, { target: { value: 'newowner@vulos.test' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Transfer$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^转移$/ }))
     // Confirm modal — click the "Transfer ownership" confirm button.
-    const confirmBtn = await screen.findByRole('button', { name: /Transfer ownership/i })
+    const confirmBtn = await screen.findByRole('button', { name: /转移所有权/ })
     fireEvent.click(confirmBtn)
     await waitFor(() =>
       expect(mockState.calls).toContain('POST /files/doc1/transfer-owner'))
@@ -183,8 +183,8 @@ describe('Share links + transfer ownership (MSW integration)', () => {
       />,
     )
     // The link-mint control must NOT be present for a non-owner.
-    await waitFor(() => expect(screen.getByText(/People with access/i)).toBeInTheDocument())
-    expect(screen.queryByRole('button', { name: /Create link/i })).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText(/有访问权限的人员/)).toBeInTheDocument())
+    expect(screen.queryByRole('button', { name: /创建链接/ })).not.toBeInTheDocument()
   })
 })
 
@@ -228,18 +228,18 @@ describe('Anonymous read-only view (MSW integration)', () => {
     const token = seedLink({ password: 'open-sesame' })
     renderView(token)
     // Password prompt appears; content is NOT shown yet.
-    const pw = await screen.findByLabelText(/Document password/i)
+    const pw = await screen.findByLabelText(/文档密码/)
     expect(screen.queryByText('Shared body text')).not.toBeInTheDocument()
 
     // Wrong password → error, still no content.
     fireEvent.change(pw, { target: { value: 'wrong' } })
-    fireEvent.click(screen.getByRole('button', { name: /View document/i }))
+    fireEvent.click(screen.getByRole('button', { name: /查看文档/ }))
     await waitFor(() => expect(screen.getByText(/incorrect password/i)).toBeInTheDocument())
     expect(screen.queryByText('Shared body text')).not.toBeInTheDocument()
 
     // Correct password → content revealed.
     fireEvent.change(pw, { target: { value: 'open-sesame' } })
-    fireEvent.click(screen.getByRole('button', { name: /View document/i }))
+    fireEvent.click(screen.getByRole('button', { name: /查看文档/ }))
     expect(await screen.findByText('Shared body text')).toBeInTheDocument()
   })
 

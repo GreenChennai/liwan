@@ -37,13 +37,13 @@ describe('AccountShareModal (MSW integration)', () => {
 
     // The owner row is shown, and the add form (owner-only) is present.
     await waitFor(() => expect(screen.getByText(/you@vulos.test/)).toBeInTheDocument())
-    const input = screen.getByPlaceholderText(/name@example.com or account id/i)
+    const input = screen.getByPlaceholderText(/name@example.com 或账号 ID/)
 
     // Pick the "commenter" role in the add-form select, then share with bob.
-    const roleSelect = screen.getByLabelText('Role')
+    const roleSelect = screen.getByLabelText('角色')
     await userEvent.type(input, 'bob@vulos.test')
     fireEvent.change(roleSelect, { target: { value: 'commenter' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Share$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^分享$/ }))
 
     // The grant hit the server with the commenter role and bob shows up.
     await waitFor(() => expect(screen.getByText('bob@vulos.test')).toBeInTheDocument())
@@ -61,13 +61,13 @@ describe('AccountShareModal (MSW integration)', () => {
     await waitFor(() => expect(screen.getByText('bob@vulos.test')).toBeInTheDocument())
 
     // Change bob's role to editor via his per-row select.
-    const rowSelect = screen.getByLabelText(/Role for bob@vulos.test/i)
+    const rowSelect = screen.getByLabelText(/bob@vulos.test 的角色/)
     fireEvent.change(rowSelect, { target: { value: 'editor' } })
     await waitFor(() =>
       expect(mockState.collaborators.doc1[0].role).toBe('editor'))
 
     // Revoke bob.
-    fireEvent.click(screen.getByRole('button', { name: /Remove bob@vulos.test/i }))
+    fireEvent.click(screen.getByRole('button', { name: /移除 bob@vulos.test/ }))
     await waitFor(() =>
       expect(mockState.collaborators.doc1.find((c) => c.account_id === 'bob@vulos.test')).toBeFalsy())
     // The revoke call was made.
@@ -83,10 +83,10 @@ describe('AccountShareModal (MSW integration)', () => {
     await waitFor(() => expect(screen.getByText('bob@vulos.test')).toBeInTheDocument())
 
     // No add form for a non-owner.
-    expect(screen.queryByPlaceholderText(/name@example.com or account id/i)).toBeNull()
+    expect(screen.queryByPlaceholderText(/name@example.com 或账号 ID/)).toBeNull()
     // No per-collaborator role select / remove button either.
-    expect(screen.queryByLabelText(/Role for bob@vulos.test/i)).toBeNull()
-    expect(screen.queryByRole('button', { name: /Remove bob@vulos.test/i })).toBeNull()
+    expect(screen.queryByLabelText(/bob@vulos.test 的角色/)).toBeNull()
+    expect(screen.queryByRole('button', { name: /移除 bob@vulos.test/ })).toBeNull()
   })
 
   it('surfaces a server rejection (e.g. 403) without granting locally', async () => {
@@ -97,9 +97,9 @@ describe('AccountShareModal (MSW integration)', () => {
     // The dialog still renders the form because ownership is inferred from the
     // roster (owner === me here), but the SERVER refuses the write.
     await waitFor(() => expect(screen.getByText(/you@vulos.test/)).toBeInTheDocument())
-    const input = screen.getByPlaceholderText(/name@example.com or account id/i)
+    const input = screen.getByPlaceholderText(/name@example.com 或账号 ID/)
     await userEvent.type(input, 'mallory@evil.test')
-    fireEvent.click(screen.getByRole('button', { name: /^Share$/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^分享$/ }))
 
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent(/owner may perform/i))

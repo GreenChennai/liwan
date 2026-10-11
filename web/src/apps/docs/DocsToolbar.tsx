@@ -43,13 +43,13 @@ interface HeadingOption {
 }
 
 const HEADINGS: HeadingOption[] = [
-  { label: 'Normal',    value: 0, style: 'text-sm' },
-  { label: 'Heading 1', value: 1, style: 'text-xl font-bold' },
-  { label: 'Heading 2', value: 2, style: 'text-lg font-bold' },
-  { label: 'Heading 3', value: 3, style: 'text-base font-semibold' },
-  { label: 'Heading 4', value: 4, style: 'text-sm font-medium' },
-  { label: 'Heading 5', value: 5, style: 'text-xs font-medium' },
-  { label: 'Heading 6', value: 6, style: 'text-xs font-normal' },
+  { label: '正文',    value: 0, style: 'text-sm' },
+  { label: '标题 1', value: 1, style: 'text-xl font-bold' },
+  { label: '标题 2', value: 2, style: 'text-lg font-bold' },
+  { label: '标题 3', value: 3, style: 'text-base font-semibold' },
+  { label: '标题 4', value: 4, style: 'text-sm font-medium' },
+  { label: '标题 5', value: 5, style: 'text-xs font-medium' },
+  { label: '标题 6', value: 6, style: 'text-xs font-normal' },
 ]
 
 interface FontFamilyOption {
@@ -58,7 +58,7 @@ interface FontFamilyOption {
 }
 
 const FONT_FAMILIES: FontFamilyOption[] = [
-  { label: 'Default',        value: '' },
+  { label: '默认',           value: '' },
   { label: 'Arial',          value: 'Arial, sans-serif' },
   { label: 'Georgia',        value: 'Georgia, serif' },
   { label: 'Times New Roman',value: '"Times New Roman", serif' },
@@ -76,10 +76,10 @@ interface LineSpacingOption {
 }
 
 const LINE_SPACINGS: LineSpacingOption[] = [
-  { label: 'Single',  value: '1' },
+  { label: '单倍',    value: '1' },
   { label: '1.15',    value: '1.15' },
   { label: '1.5',     value: '1.5' },
-  { label: 'Double',  value: '2' },
+  { label: '双倍',    value: '2' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -131,7 +131,7 @@ function HeadingSelector({ editor }: EditorProp) {
       trigger={
         <button
           className="toolbar-btn flex items-center gap-1 px-2 min-w-[96px] text-xs"
-          aria-label={`Text style: ${current.label}`}
+          aria-label={`文本样式：${current.label}`}
           aria-haspopup="menu"
         >
           <span className="flex-1 text-left truncate">{current.label}</span>
@@ -164,14 +164,14 @@ function HeadingSelector({ editor }: EditorProp) {
 function FontFamilySelector({ editor }: EditorProp) {
   const currentFamilyRaw: unknown = editor.getAttributes('textStyle').fontFamily
   const currentFamily = typeof currentFamilyRaw === 'string' ? currentFamilyRaw : ''
-  const currentLabel = FONT_FAMILIES.find((f) => f.value === currentFamily)?.label || 'Font'
+  const currentLabel = FONT_FAMILIES.find((f) => f.value === currentFamily)?.label || '字体'
 
   return (
     <Dropdown
       trigger={
         <button
           className="toolbar-btn flex items-center gap-1 px-2 min-w-[80px] text-xs"
-          aria-label={`Font family: ${currentLabel}`}
+          aria-label={`字体：${currentLabel}`}
           aria-haspopup="menu"
         >
           <span className="flex-1 text-left truncate" style={{ fontFamily: currentFamily || undefined }}>
@@ -226,7 +226,7 @@ function FontSizeSelector({ editor }: EditorProp) {
       trigger={
         <button
           className="toolbar-btn flex items-center gap-1 px-1 w-12 text-xs"
-          aria-label={`Font size: ${numericSize || 'default'}`}
+          aria-label={`字号：${numericSize || '默认'}`}
           aria-haspopup="menu"
         >
           <span className="flex-1 text-center tabular-nums">{numericSize || '—'}</span>
@@ -243,8 +243,8 @@ function FontSizeSelector({ editor }: EditorProp) {
           value={customVal}
           onChange={(e) => setCustomVal(e.target.value)}
           onKeyDown={handleCustomKeyDown}
-          placeholder="Custom…"
-          aria-label="Custom font size"
+          placeholder="自定义…"
+          aria-label="自定义字号"
           className={[
             'w-full text-xs px-2 py-0.5 rounded-xs border border-line',
             'bg-bg text-ink placeholder:text-ink-faint',
@@ -275,9 +275,9 @@ function LineSpacingSelector({ editor }: EditorProp) {
       trigger={
         <button
           className="toolbar-btn flex items-center gap-0.5 px-1.5 text-xs"
-          aria-label="Line spacing"
+          aria-label="行距"
           aria-haspopup="menu"
-          title="Line spacing"
+          title="行距"
         >
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
             <path d="M2 4h11M2 7h8M2 10h11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
@@ -329,8 +329,8 @@ function OverflowMenu({ editor, title: _title, onInsertToc, onPageSetup, onHeade
       trigger={
         <button
           className="toolbar-btn"
-          title="More options"
-          aria-label="More formatting options"
+          title="更多选项"
+          aria-label="更多格式选项"
           aria-haspopup="menu"
         >
           <MoreHorizontal size={15} />
@@ -340,7 +340,7 @@ function OverflowMenu({ editor, title: _title, onInsertToc, onPageSetup, onHeade
       wide
     >
       {/* Headings H5-H6 (H1-H4 are in the styles selector) */}
-      <p className="px-3 py-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Headings</p>
+      <p className="px-3 py-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">标题</p>
       {[5, 6].map((level) => (
         <MenuItem
           key={level}
@@ -348,28 +348,28 @@ function OverflowMenu({ editor, title: _title, onInsertToc, onPageSetup, onHeade
           onClick={() => editor.chain().focus().toggleHeading({ level: level as 5 | 6 }).run()}
         >
           {level === 5 ? <Heading5 size={13} /> : <Heading6 size={13} />}
-          Heading {level}
+          标题 {level}
         </MenuItem>
       ))}
       <div className="my-1 border-t border-line" />
-      <p className="px-3 py-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Blocks</p>
+      <p className="px-3 py-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">块</p>
       <MenuItem
         active={editor.isActive('codeBlock')}
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
       >
-        <Code size={13} /> Code block
+        <Code size={13} /> 代码块
       </MenuItem>
       <MenuItem
         active={editor.isActive('blockquote')}
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
       >
-        <Quote size={13} /> Blockquote
+        <Quote size={13} /> 引用
       </MenuItem>
       <MenuItem onClick={() => editor.chain().focus().setHorizontalRule().run()}>
-        <Minus size={13} /> Horizontal rule
+        <Minus size={13} /> 分隔线
       </MenuItem>
       <div className="my-1 border-t border-line" />
-      <p className="px-3 py-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Insert</p>
+      <p className="px-3 py-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">插入</p>
       <MenuItem
         onClick={() => {
           // P5: insert the LIVE table-of-contents node (auto-refreshes from
@@ -390,7 +390,7 @@ function OverflowMenu({ editor, title: _title, onInsertToc, onPageSetup, onHeade
           }
         }}
       >
-        <ListTree size={13} /> Table of contents
+        <ListTree size={13} /> 目录
       </MenuItem>
       <MenuItem
         onClick={() => {
@@ -407,7 +407,7 @@ function OverflowMenu({ editor, title: _title, onInsertToc, onPageSetup, onHeade
           }
         }}
       >
-        <Type size={13} /> Footnote
+        <Type size={13} /> 脚注
       </MenuItem>
       <MenuItem
         onClick={() => {
@@ -417,26 +417,26 @@ function OverflowMenu({ editor, title: _title, onInsertToc, onPageSetup, onHeade
           editor.chain().focus().insertContent('@').run()
         }}
       >
-        <AtSign size={13} /> Smart chip
+        <AtSign size={13} /> 智能标记
       </MenuItem>
       <MenuItem
         onClick={() => editor.chain().focus().insertContent(
           '<p style="page-break-after:always;border-top:2px dashed var(--line);margin:16px 0;padding-bottom:16px;" data-page-break="true"><br/></p>'
         ).run()}
       >
-        <Minus size={13} /> Page break
+        <Minus size={13} /> 分页符
       </MenuItem>
       <div className="my-1 border-t border-line" />
-      <p className="px-3 py-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">Page</p>
+      <p className="px-3 py-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">页面</p>
       <MenuItem onClick={onPageSetup}>
-        <FileText size={13} /> Page setup…
+        <FileText size={13} /> 页面设置…
       </MenuItem>
       <MenuItem onClick={onHeaderFooter}>
-        <PanelTop size={13} /> Headers &amp; footers…
+        <PanelTop size={13} /> 页眉和页脚…
       </MenuItem>
       <MenuItem active={spellcheck} onClick={onToggleSpellcheck}>
         <span className="inline-block w-[13px] text-center">{spellcheck ? '✓' : ''}</span>
-        Spell check
+        拼写检查
       </MenuItem>
     </Dropdown>
   )
@@ -464,9 +464,9 @@ function TableSubMenu({ editor }: EditorProp) {
       trigger={
         <button
           className="toolbar-btn text-xs px-2 gap-0.5 flex items-center"
-          aria-label="Table options"
+          aria-label="表格选项"
           aria-haspopup="menu"
-          title="Table options"
+          title="表格选项"
         >
           <Table size={13} aria-hidden="true" />
           <ChevronDown size={10} aria-hidden="true" />
@@ -474,26 +474,26 @@ function TableSubMenu({ editor }: EditorProp) {
       }
       wide
     >
-      <Group label="Rows" />
-      <MenuItem onClick={() => editor.chain().focus().addRowBefore().run()}>Insert row above</MenuItem>
-      <MenuItem onClick={() => editor.chain().focus().addRowAfter().run()}>Insert row below</MenuItem>
-      <MenuItem onClick={() => editor.chain().focus().deleteRow().run()}>Delete row</MenuItem>
+      <Group label="行" />
+      <MenuItem onClick={() => editor.chain().focus().addRowBefore().run()}>在上方插入行</MenuItem>
+      <MenuItem onClick={() => editor.chain().focus().addRowAfter().run()}>在下方插入行</MenuItem>
+      <MenuItem onClick={() => editor.chain().focus().deleteRow().run()}>删除行</MenuItem>
 
       <div className="my-1 border-t border-line" />
-      <Group label="Columns" />
-      <MenuItem onClick={() => editor.chain().focus().addColumnBefore().run()}>Insert column left</MenuItem>
-      <MenuItem onClick={() => editor.chain().focus().addColumnAfter().run()}>Insert column right</MenuItem>
-      <MenuItem onClick={() => editor.chain().focus().deleteColumn().run()}>Delete column</MenuItem>
+      <Group label="列" />
+      <MenuItem onClick={() => editor.chain().focus().addColumnBefore().run()}>在左侧插入列</MenuItem>
+      <MenuItem onClick={() => editor.chain().focus().addColumnAfter().run()}>在右侧插入列</MenuItem>
+      <MenuItem onClick={() => editor.chain().focus().deleteColumn().run()}>删除列</MenuItem>
 
       <div className="my-1 border-t border-line" />
-      <Group label="Cells" />
-      <MenuItem onClick={() => editor.chain().focus().toggleHeaderRow().run()}>Toggle header row</MenuItem>
-      <MenuItem onClick={() => editor.chain().focus().toggleHeaderColumn().run()}>Toggle header column</MenuItem>
-      <MenuItem disabled={!canMerge} onClick={() => editor.chain().focus().mergeCells().run()}>Merge cells</MenuItem>
-      <MenuItem disabled={!canSplit} onClick={() => editor.chain().focus().splitCell().run()}>Split cell</MenuItem>
+      <Group label="单元格" />
+      <MenuItem onClick={() => editor.chain().focus().toggleHeaderRow().run()}>切换标题行</MenuItem>
+      <MenuItem onClick={() => editor.chain().focus().toggleHeaderColumn().run()}>切换标题列</MenuItem>
+      <MenuItem disabled={!canMerge} onClick={() => editor.chain().focus().mergeCells().run()}>合并单元格</MenuItem>
+      <MenuItem disabled={!canSplit} onClick={() => editor.chain().focus().splitCell().run()}>拆分单元格</MenuItem>
 
       <div className="my-1 border-t border-line" />
-      <MenuItem onClick={() => editor.chain().focus().deleteTable().run()}>Delete table</MenuItem>
+      <MenuItem onClick={() => editor.chain().focus().deleteTable().run()}>删除表格</MenuItem>
     </Dropdown>
   )
 }
@@ -520,14 +520,14 @@ function InsertTableMenu({ editor }: EditorProp) {
   return (
     <Dropdown
       trigger={
-        <Btn title="Insert table">
+        <Btn title="插入表格">
           <Table size={15} />
         </Btn>
       }
     >
       <div className="p-2">
         <p className="text-2xs text-ink-faint mb-1 text-center">
-          {hover ? `${hover.row} × ${hover.col}` : 'Insert table'}
+          {hover ? `${hover.row} × ${hover.col}` : '插入表格'}
         </p>
         <div
           className="grid gap-0.5"
@@ -537,7 +537,7 @@ function InsertTableMenu({ editor }: EditorProp) {
             <button
               key={`${r}-${c}`}
               type="button"
-              aria-label={`Insert ${r} by ${c} table`}
+              aria-label={`插入 ${r} × ${c} 表格`}
               onMouseEnter={() => setHover({ row: r, col: c })}
               onMouseLeave={() => setHover(null)}
               onFocus={() => setHover({ row: r, col: c })}
@@ -625,7 +625,7 @@ export default function DocsToolbar({
     <div
       className="toolbar-surface relative"
       role="toolbar"
-      aria-label="Document formatting"
+      aria-label="文档格式"
       aria-orientation="horizontal"
     >
       {/* Single overflow strategy: scroll horizontally (no flex-wrap) so the
@@ -635,14 +635,14 @@ export default function DocsToolbar({
         {/* ── Undo / Redo ──────────────────────────────────────────────── */}
         <div className="flex items-center gap-0 mr-1">
           <Btn
-            title="Undo (Cmd+Z)"
+            title="撤销 (Cmd+Z)"
             onClick={() => editor.chain().focus().undo().run()}
             disabled={!editor.can().undo()}
           >
             <Undo size={15} />
           </Btn>
           <Btn
-            title="Redo (Cmd+Shift+Z)"
+            title="重做 (Cmd+Shift+Z)"
             onClick={() => editor.chain().focus().redo().run()}
             disabled={!editor.can().redo()}
           >
@@ -665,35 +665,35 @@ export default function DocsToolbar({
 
         {/* ── Character formatting ─────────────────────────────────────── */}
         <Btn
-          title="Bold (Cmd+B)"
+          title="粗体 (Cmd+B)"
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}
         >
           <Bold size={15} />
         </Btn>
         <Btn
-          title="Italic (Cmd+I)"
+          title="斜体 (Cmd+I)"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           active={editor.isActive('italic')}
         >
           <Italic size={15} />
         </Btn>
         <Btn
-          title="Underline (Cmd+U)"
+          title="下划线 (Cmd+U)"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           active={editor.isActive('underline')}
         >
           <Underline size={15} />
         </Btn>
         <Btn
-          title="Strikethrough"
+          title="删除线"
           onClick={() => editor.chain().focus().toggleStrike().run()}
           active={editor.isActive('strike')}
         >
           <Strikethrough size={15} />
         </Btn>
         <Btn
-          title="Subscript"
+          title="下标"
           onClick={() => editor.chain().focus().toggleMark('subscript').run()}
           active={editor.isActive('subscript')}
           className="text-xs font-bold"
@@ -701,7 +701,7 @@ export default function DocsToolbar({
           X<sub style={{ fontSize: '0.6em', lineHeight: 1 }}>2</sub>
         </Btn>
         <Btn
-          title="Superscript"
+          title="上标"
           onClick={() => editor.chain().focus().toggleMark('superscript').run()}
           active={editor.isActive('superscript')}
           className="text-xs font-bold"
@@ -710,31 +710,31 @@ export default function DocsToolbar({
         </Btn>
 
         {/* Text color */}
-        <label className="toolbar-btn relative cursor-pointer" title="Font color" aria-label="Font color">
+        <label className="toolbar-btn relative cursor-pointer" title="字体颜色" aria-label="字体颜色">
           <Palette size={15} aria-hidden="true" />
           <input
             type="color"
             className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
             onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
-            aria-label="Choose font color"
+            aria-label="选择字体颜色"
           />
         </label>
 
         {/* Highlight */}
-        <label className="toolbar-btn relative cursor-pointer" title="Highlight" aria-label="Highlight color">
+        <label className="toolbar-btn relative cursor-pointer" title="高亮" aria-label="高亮颜色">
           <Highlighter size={15} aria-hidden="true" />
           <input
             type="color"
             className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
             onChange={(e) => editor.chain().focus().toggleHighlight({ color: e.target.value }).run()}
-            aria-label="Choose highlight color"
+            aria-label="选择高亮颜色"
           />
         </label>
 
         {/* Link (Cmd+K) — inline anchored popover (no native prompt) */}
         <div className="relative">
           <Btn
-            title="Insert link (Cmd+K)"
+            title="插入链接 (Cmd+K)"
             onClick={() => setLinkOpen((v) => !v)}
             active={editor.isActive('link')}
           >
@@ -742,8 +742,8 @@ export default function DocsToolbar({
           </Btn>
           {linkOpen && (
             <UrlPopover
-              label="Link URL"
-              submitLabel="Apply"
+              label="链接地址"
+              submitLabel="应用"
               initialValue={(() => {
                 const href: unknown = editor.getAttributes('link').href
                 return typeof href === 'string' ? href : ''
@@ -762,7 +762,7 @@ export default function DocsToolbar({
 
         {/* Clear formatting */}
         <Btn
-          title="Clear formatting"
+          title="清除格式"
           onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
         >
           <RemoveFormatting size={15} />
@@ -772,21 +772,21 @@ export default function DocsToolbar({
 
         {/* ── Lists ────────────────────────────────────────────────────── */}
         <Btn
-          title="Bullet list"
+          title="无序列表"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive('bulletList')}
         >
           <List size={15} />
         </Btn>
         <Btn
-          title="Numbered list"
+          title="有序列表"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           active={editor.isActive('orderedList')}
         >
           <ListOrdered size={15} />
         </Btn>
         <Btn
-          title="Checklist"
+          title="待办列表"
           onClick={() => editor.chain().focus().toggleTaskList().run()}
           active={editor.isActive('taskList')}
         >
@@ -795,7 +795,7 @@ export default function DocsToolbar({
 
         {/* Indent / Outdent */}
         <Btn
-          title="Decrease indent (Shift+Tab)"
+          title="减少缩进 (Shift+Tab)"
           onClick={() => {
             if (editor.isActive('listItem') || editor.isActive('taskItem')) {
               editor.chain().focus().liftListItem('listItem').run()
@@ -805,7 +805,7 @@ export default function DocsToolbar({
           <Outdent size={15} />
         </Btn>
         <Btn
-          title="Increase indent (Tab)"
+          title="增加缩进 (Tab)"
           onClick={() => {
             if (editor.isActive('listItem') || editor.isActive('taskItem')) {
               editor.chain().focus().sinkListItem('listItem').run()
@@ -819,28 +819,28 @@ export default function DocsToolbar({
 
         {/* ── Alignment ──────────────────────────────────────────────── */}
         <Btn
-          title="Align left"
+          title="左对齐"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           active={editor.isActive({ textAlign: 'left' })}
         >
           <AlignLeft size={15} />
         </Btn>
         <Btn
-          title="Align center"
+          title="居中对齐"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
           active={editor.isActive({ textAlign: 'center' })}
         >
           <AlignCenter size={15} />
         </Btn>
         <Btn
-          title="Align right"
+          title="右对齐"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
           active={editor.isActive({ textAlign: 'right' })}
         >
           <AlignRight size={15} />
         </Btn>
         <Btn
-          title="Justify"
+          title="两端对齐"
           onClick={() => editor.chain().focus().setTextAlign('justify').run()}
           active={editor.isActive({ textAlign: 'justify' })}
         >
@@ -853,26 +853,26 @@ export default function DocsToolbar({
 
         {/* ── Insert ─────────────────────────────────────────────────── */}
         {/* Image: file upload */}
-        <Btn title="Insert image (upload)" onClick={() => imgInput.current?.click()}>
+        <Btn title="插入图片（上传）" onClick={() => imgInput.current?.click()}>
           <Image size={15} />
         </Btn>
         {/* Image: from URL — inline anchored popover (no native prompt) */}
         <div className="relative">
-          <Btn title="Insert image from URL" onClick={() => setImgUrlOpen((v) => !v)}>
+          <Btn title="从链接插入图片" onClick={() => setImgUrlOpen((v) => !v)}>
             <span className="text-2xs font-bold">URL</span>
           </Btn>
           {imgUrlOpen && (
             <UrlPopover
-              label="Image URL"
+              label="图片链接"
               placeholder="https://…/image.png"
-              submitLabel="Insert"
+              submitLabel="插入"
               onSubmit={(url) => {
                 // Accept only http(s) and raster data: URIs at entry (the
                 // sanitiser is the authoritative boundary, but rejecting here
                 // gives immediate feedback and never inserts a dead/unsafe src).
                 const safe = /^https?:\/\//i.test(url) ||
                   /^data:image\/(?:png|jpe?g|gif|webp);/i.test(url)
-                if (!safe) { setImgErr('Only https: URLs or raster data: images are allowed'); return }
+                if (!safe) { setImgErr('仅允许 https 链接或光栅 data: 图片'); return }
                 editor.chain().focus().setImage({ src: url }).run()
                 setImgUrlOpen(false)
               }}
@@ -889,7 +889,7 @@ export default function DocsToolbar({
 
         {/* P4: Equation (KaTeX). Opens the LaTeX editor with live preview. */}
         <Btn
-          title="Insert equation (KaTeX)"
+          title="插入公式 (KaTeX)"
           onClick={onInsertEquation}
           active={editor.isActive('mathInline') || editor.isActive('mathBlock')}
         >
@@ -917,9 +917,9 @@ export default function DocsToolbar({
               <button
                 className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-paper border border-line rounded-md text-xs font-medium text-ink-muted hover:border-line-strong hover:text-ink transition-colors"
                 aria-haspopup="menu"
-                aria-label="Export document"
+                aria-label="导出文档"
               >
-                <Download size={12} aria-hidden="true" /> Export
+                <Download size={12} aria-hidden="true" /> 导出
                 <ChevronDown size={11} className="opacity-60" aria-hidden="true" />
               </button>
             }
@@ -936,7 +936,7 @@ export default function DocsToolbar({
               })
             }}>
               <span className="text-2xs font-bold tracking-eyebrow text-accent w-9">DOCX</span>
-              Word document
+              Word 文档
             </MenuItem>
             <MenuItem onClick={() => {
               exportToOdt(editor, title).catch((err: unknown) => {
@@ -944,11 +944,11 @@ export default function DocsToolbar({
               })
             }}>
               <span className="text-2xs font-bold tracking-eyebrow text-success w-9">ODT</span>
-              OpenDocument text
+              OpenDocument 文本
             </MenuItem>
             <MenuItem onClick={() => exportToPdf(title)}>
               <span className="text-2xs font-bold tracking-eyebrow text-danger w-9">PDF</span>
-              PDF document
+              PDF 文档
             </MenuItem>
             <MenuItem onClick={() => exportToMarkdown(editor, title)}>
               <span className="text-2xs font-bold tracking-eyebrow text-ink-faint w-9">MD</span>
@@ -956,12 +956,12 @@ export default function DocsToolbar({
             </MenuItem>
             <MenuItem onClick={() => exportToHtml(editor, title, { pageSetup, headerFooter })}>
               <span className="text-2xs font-bold tracking-eyebrow text-warning w-9">HTML</span>
-              HTML file
+              HTML 文件
             </MenuItem>
             <div className="my-1 border-t border-line" />
             <MenuItem onClick={() => exportToPdf(title)}>
               <Printer size={13} className="text-ink-faint" />
-              Print (Ctrl+P)
+              打印 (Ctrl+P)
             </MenuItem>
           </Dropdown>
         </div>
@@ -984,7 +984,7 @@ export default function DocsToolbar({
         <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-danger bg-danger-bg border-t border-line animate-slide-in-left" role="alert">
           <AlertCircle size={13} className="flex-shrink-0" aria-hidden />
           <span className="flex-1">{imgErr}</span>
-          <button className="underline hover:no-underline text-ink-muted" onClick={() => setImgErr('')}>dismiss</button>
+          <button className="underline hover:no-underline text-ink-muted" onClick={() => setImgErr('')}>关闭</button>
         </div>
       )}
 
@@ -1009,51 +1009,51 @@ function ImageSubMenu({ editor }: EditorProp) {
   const alt = typeof attrs.alt === 'string' ? attrs.alt : ''
   return (
     <div className="flex items-center gap-1 px-3 py-1.5 border-t border-line bg-bg-elev2 text-xs animate-slide-in-left">
-      <span className="mono-label mr-1.5">Image</span>
+      <span className="mono-label mr-1.5">图片</span>
       {/* Width presets + custom */}
       {['25%', '50%', '75%', '100%'].map((w) => (
         <button
           key={w}
           className={`h-6 px-2 rounded-sm border tabular-nums transition-colors duration-fast ${attrs.width === w ? 'bg-accent-tint-2 text-accent-press border-accent' : 'border-line text-ink-muted hover:border-line-strong hover:text-ink'}`}
           onClick={() => setAttr({ width: w })}
-          title={`Set width ${w}`}
+          title={`设置宽度 ${w}`}
           aria-pressed={attrs.width === w}
         >{w}</button>
       ))}
       <button
         className="h-6 px-2 rounded-sm border border-line text-ink-muted hover:border-line-strong hover:text-ink transition-colors duration-fast"
         onClick={() => setAttr({ width: null })}
-        title="Reset width (original size)"
-      >Auto</button>
+        title="重置宽度（原始尺寸）"
+      >自动</button>
 
       <Sep />
 
       {/* Alignment */}
       <button
         className={`h-6 w-6 grid place-items-center rounded-sm border transition-colors duration-fast ${align === 'left' ? 'bg-accent-tint-2 text-accent-press border-accent' : 'border-line text-ink-muted hover:border-line-strong hover:text-ink'}`}
-        onClick={() => setAttr({ align: 'left' })} title="Align left" aria-pressed={align === 'left'}
+        onClick={() => setAttr({ align: 'left' })} title="左对齐" aria-pressed={align === 'left'}
       ><AlignLeft size={13} /></button>
       <button
         className={`h-6 w-6 grid place-items-center rounded-sm border transition-colors duration-fast ${align === 'center' ? 'bg-accent-tint-2 text-accent-press border-accent' : 'border-line text-ink-muted hover:border-line-strong hover:text-ink'}`}
-        onClick={() => setAttr({ align: 'center' })} title="Align center" aria-pressed={align === 'center'}
+        onClick={() => setAttr({ align: 'center' })} title="居中对齐" aria-pressed={align === 'center'}
       ><AlignCenter size={13} /></button>
       <button
         className={`h-6 w-6 grid place-items-center rounded-sm border transition-colors duration-fast ${align === 'right' ? 'bg-accent-tint-2 text-accent-press border-accent' : 'border-line text-ink-muted hover:border-line-strong hover:text-ink'}`}
-        onClick={() => setAttr({ align: 'right' })} title="Align right" aria-pressed={align === 'right'}
+        onClick={() => setAttr({ align: 'right' })} title="右对齐" aria-pressed={align === 'right'}
       ><AlignRight size={13} /></button>
 
       <Sep />
 
       {/* Alt text (a11y) */}
       <label className="flex items-center gap-1">
-        <span className="text-ink-faint">Alt</span>
+        <span className="text-ink-faint">替代文本</span>
         <input
           type="text"
           className="h-6 px-2 w-40 rounded border border-line bg-paper text-xs"
-          placeholder="Describe image"
+          placeholder="描述图片"
           value={alt}
           onChange={(e) => setAttr({ alt: e.target.value })}
-          aria-label="Image alt text"
+          aria-label="图片替代文本"
         />
       </label>
     </div>

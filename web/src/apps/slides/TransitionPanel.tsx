@@ -28,16 +28,20 @@ interface TransitionPanelProps {
 }
 
 export const SLIDE_TRANSITIONS = [
-  { id: 'none',    label: 'None' },
-  { id: 'fade',    label: 'Fade' },
-  { id: 'slide',   label: 'Slide' },
-  { id: 'convex',  label: 'Push' },
-  { id: 'concave', label: 'Reveal' },
-  { id: 'zoom',    label: 'Zoom' },
+  { id: 'none',    label: '无' },
+  { id: 'fade',    label: '淡入淡出' },
+  { id: 'slide',   label: '滑动' },
+  { id: 'convex',  label: '推入' },
+  { id: 'concave', label: '显现' },
+  { id: 'zoom',    label: '缩放' },
 ]
 
 const ANIMATION_TYPES: AnimationType[] = ['entrance', 'exit', 'emphasis']
+const ANIMATION_TYPE_LABELS: Record<string, string> = { entrance: '进入', exit: '退出', emphasis: '强调' }
 const ANIMATION_EFFECTS: AnimationEffect[] = ['fade-in', 'fly-in', 'bounce', 'zoom-in', 'spin', 'custom']
+const ANIMATION_EFFECT_LABELS: Record<string, string> = {
+  'fade-in': '淡入', 'fly-in': '飞入', bounce: '弹跳', 'zoom-in': '放大进入', spin: '旋转', custom: '自定义',
+}
 
 export default function TransitionPanel({ slide, onChange }: TransitionPanelProps) {
   const transition = slide.transition || 'none'
@@ -50,7 +54,7 @@ export default function TransitionPanel({ slide, onChange }: TransitionPanelProp
   const addAnimation = () => {
     const anim: SlideAnimation = {
       id: crypto.randomUUID(),
-      label: 'New animation',
+      label: '新建动画',
       type: 'entrance',
       effect: 'fade-in',
       order: animations.length,
@@ -89,7 +93,7 @@ export default function TransitionPanel({ slide, onChange }: TransitionPanelProp
       {/* Transition picker */}
       <div>
         <p className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow mb-2">
-          Slide Transition
+          幻灯片切换效果
         </p>
         <div className="grid grid-cols-3 gap-1.5">
           {SLIDE_TRANSITIONS.map((t) => (
@@ -115,19 +119,19 @@ export default function TransitionPanel({ slide, onChange }: TransitionPanelProp
       <div>
         <div className="flex items-center justify-between mb-2">
           <p className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow">
-            Animations
+            动画
           </p>
           <button
             type="button"
             onClick={addAnimation}
             className="inline-flex items-center gap-1 text-2xs text-accent hover:text-accent/80 transition-colors"
           >
-            <Plus size={10} /> Add
+            <Plus size={10} /> 添加
           </button>
         </div>
 
         {animations.length === 0 && (
-          <p className="text-2xs text-ink-faint italic">No animations. Click Add to create one.</p>
+          <p className="text-2xs text-ink-faint italic">暂无动画。点击“添加”新建一个。</p>
         )}
 
         <div className="space-y-1.5">
@@ -152,27 +156,27 @@ export default function TransitionPanel({ slide, onChange }: TransitionPanelProp
                 value={anim.label}
                 onChange={(e) => updateAnimation(anim.id, 'label', e.target.value)}
                 className="flex-1 min-w-0 bg-transparent text-xs text-ink outline-none border-b border-transparent hover:border-line focus:border-accent"
-                placeholder="Element label"
+                placeholder="元素名称"
               />
               <select
                 value={anim.type}
                 onChange={(e) => updateAnimation(anim.id, 'type', e.target.value)}
                 className="text-2xs bg-bg text-ink border border-line rounded-sm px-1 h-6"
               >
-                {ANIMATION_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                {ANIMATION_TYPES.map((t) => <option key={t} value={t}>{ANIMATION_TYPE_LABELS[t]}</option>)}
               </select>
               <select
                 value={anim.effect}
                 onChange={(e) => updateAnimation(anim.id, 'effect', e.target.value)}
                 className="text-2xs bg-bg text-ink border border-line rounded-sm px-1 h-6"
               >
-                {ANIMATION_EFFECTS.map((e) => <option key={e} value={e}>{e}</option>)}
+                {ANIMATION_EFFECTS.map((e) => <option key={e} value={e}>{ANIMATION_EFFECT_LABELS[e]}</option>)}
               </select>
               <button
                 type="button"
                 onClick={() => removeAnimation(anim.id)}
                 className="text-ink-faint hover:text-danger transition-colors flex-shrink-0"
-                aria-label="Remove animation"
+                aria-label="删除动画"
               >
                 <Trash2 size={11} />
               </button>

@@ -39,72 +39,72 @@ export default function ArrangeToolbar({
     <div
       className="toolbar-surface flex items-center gap-0.5 px-2 sm:px-3 h-auto min-h-10 py-1 flex-wrap"
       role="toolbar"
-      aria-label="Arrange objects"
+      aria-label="排列对象"
       aria-orientation="horizontal"
     >
       <span className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow pr-1">
-        {count} selected
+        已选 {count} 项
       </span>
       <Sep />
       {/* z-order */}
-      <Tooltip label="Bring to front">
-        <IconButton size="sm" onClick={() => onArrange('bringToFront')} aria-label="Bring to front">
+      <Tooltip label="置于顶层">
+        <IconButton size="sm" onClick={() => onArrange('bringToFront')} aria-label="置于顶层">
           <BringToFront size={14} />
         </IconButton>
       </Tooltip>
-      <Tooltip label="Bring forward">
-        <IconButton size="sm" onClick={() => onArrange('bringForward')} aria-label="Bring forward">
+      <Tooltip label="上移一层">
+        <IconButton size="sm" onClick={() => onArrange('bringForward')} aria-label="上移一层">
           <ChevronUp size={14} />
         </IconButton>
       </Tooltip>
-      <Tooltip label="Send backward">
-        <IconButton size="sm" onClick={() => onArrange('sendBackward')} aria-label="Send backward">
+      <Tooltip label="下移一层">
+        <IconButton size="sm" onClick={() => onArrange('sendBackward')} aria-label="下移一层">
           <ChevronDown size={14} />
         </IconButton>
       </Tooltip>
-      <Tooltip label="Send to back">
-        <IconButton size="sm" onClick={() => onArrange('sendToBack')} aria-label="Send to back">
+      <Tooltip label="置于底层">
+        <IconButton size="sm" onClick={() => onArrange('sendToBack')} aria-label="置于底层">
           <SendToBack size={14} />
         </IconButton>
       </Tooltip>
 
       <Sep />
       {/* group / ungroup */}
-      <Tooltip label="Group (⌘G)">
-        <IconButton size="sm" disabled={!canGroup} onClick={() => onArrange('group')} aria-label="Group">
+      <Tooltip label="组合 (⌘G)">
+        <IconButton size="sm" disabled={!canGroup} onClick={() => onArrange('group')} aria-label="组合">
           <Group size={14} />
         </IconButton>
       </Tooltip>
-      <Tooltip label="Ungroup (⌘⇧G)">
-        <IconButton size="sm" disabled={!canUngroup} onClick={() => onArrange('ungroup')} aria-label="Ungroup">
+      <Tooltip label="取消组合 (⌘⇧G)">
+        <IconButton size="sm" disabled={!canUngroup} onClick={() => onArrange('ungroup')} aria-label="取消组合">
           <Ungroup size={14} />
         </IconButton>
       </Tooltip>
 
       <Sep />
       {/* align */}
-      <Tooltip label="Align left"><IconButton size="sm" onClick={() => onArrange('align', 'left')} aria-label="Align left"><AlignStartVertical size={14} /></IconButton></Tooltip>
-      <Tooltip label="Align center"><IconButton size="sm" onClick={() => onArrange('align', 'center')} aria-label="Align center"><AlignCenterVertical size={14} /></IconButton></Tooltip>
-      <Tooltip label="Align right"><IconButton size="sm" onClick={() => onArrange('align', 'right')} aria-label="Align right"><AlignEndVertical size={14} /></IconButton></Tooltip>
-      <Tooltip label="Align top"><IconButton size="sm" onClick={() => onArrange('align', 'top')} aria-label="Align top"><AlignStartHorizontal size={14} /></IconButton></Tooltip>
-      <Tooltip label="Align middle"><IconButton size="sm" onClick={() => onArrange('align', 'middle')} aria-label="Align middle"><AlignCenterHorizontal size={14} /></IconButton></Tooltip>
-      <Tooltip label="Align bottom"><IconButton size="sm" onClick={() => onArrange('align', 'bottom')} aria-label="Align bottom"><AlignEndHorizontal size={14} /></IconButton></Tooltip>
+      <Tooltip label="左对齐"><IconButton size="sm" onClick={() => onArrange('align', 'left')} aria-label="左对齐"><AlignStartVertical size={14} /></IconButton></Tooltip>
+      <Tooltip label="水平居中"><IconButton size="sm" onClick={() => onArrange('align', 'center')} aria-label="水平居中"><AlignCenterVertical size={14} /></IconButton></Tooltip>
+      <Tooltip label="右对齐"><IconButton size="sm" onClick={() => onArrange('align', 'right')} aria-label="右对齐"><AlignEndVertical size={14} /></IconButton></Tooltip>
+      <Tooltip label="顶对齐"><IconButton size="sm" onClick={() => onArrange('align', 'top')} aria-label="顶对齐"><AlignStartHorizontal size={14} /></IconButton></Tooltip>
+      <Tooltip label="垂直居中"><IconButton size="sm" onClick={() => onArrange('align', 'middle')} aria-label="垂直居中"><AlignCenterHorizontal size={14} /></IconButton></Tooltip>
+      <Tooltip label="底对齐"><IconButton size="sm" onClick={() => onArrange('align', 'bottom')} aria-label="底对齐"><AlignEndHorizontal size={14} /></IconButton></Tooltip>
 
       {canDistribute && (
         <>
           <Sep />
-          <Tooltip label="Distribute horizontally"><IconButton size="sm" onClick={() => onArrange('distribute', 'horizontal')} aria-label="Distribute horizontally"><AlignHorizontalDistributeCenter size={14} /></IconButton></Tooltip>
-          <Tooltip label="Distribute vertically"><IconButton size="sm" onClick={() => onArrange('distribute', 'vertical')} aria-label="Distribute vertically"><AlignVerticalDistributeCenter size={14} /></IconButton></Tooltip>
+          <Tooltip label="水平分布"><IconButton size="sm" onClick={() => onArrange('distribute', 'horizontal')} aria-label="水平分布"><AlignHorizontalDistributeCenter size={14} /></IconButton></Tooltip>
+          <Tooltip label="垂直分布"><IconButton size="sm" onClick={() => onArrange('distribute', 'vertical')} aria-label="垂直分布"><AlignVerticalDistributeCenter size={14} /></IconButton></Tooltip>
         </>
       )}
 
       <Sep />
-      <Tooltip label="Delete (⌫)">
-        <IconButton size="sm" className="hover:text-danger" onClick={onDelete} aria-label="Delete object">
+      <Tooltip label="删除 (⌫)">
+        <IconButton size="sm" className="hover:text-danger" onClick={onDelete} aria-label="删除对象">
           <Trash2 size={14} />
         </IconButton>
       </Tooltip>
-      {multi && <span className="sr-only">Multiple objects selected</span>}
+      {multi && <span className="sr-only">已选择多个对象</span>}
     </div>
   )
 }

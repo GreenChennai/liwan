@@ -222,22 +222,22 @@ describe('exportFidelity — the user gets told BEFORE anything is lost', () => 
     expect(r.lost).toHaveLength(0)
     expect(r.degraded).toHaveLength(1)
     expect(r.degraded[0].type).toBe('histogram')
-    expect(r.degraded[0].note).toMatch(/fixed values/i)
-    expect(r.notes.join(' ')).toMatch(/real Excel charts/i)
+    expect(r.degraded[0].note).toMatch(/固定值/)
+    expect(r.notes.join(' ')).toMatch(/真实 Excel 图表/)
   })
 
   it('ods: charts CANNOT be embedded — every one is reported as a loss, with the recovery path', () => {
     const r = exportFidelity(withCharts(), 'ods')
     expect(r.lost).toHaveLength(2)
-    expect(r.lost.every((l) => /cannot embed/i.test(l.note))).toBe(true)
-    expect(r.notes.join(' ')).toMatch(/data sheet/i)
-    expect(r.notes.join(' ')).toMatch(/restores them/i)
+    expect(r.lost.every((l) => /无法嵌入/.test(l.note))).toBe(true)
+    expect(r.notes.join(' ')).toMatch(/数据工作表/)
+    expect(r.notes.join(' ')).toMatch(/恢复图表/)
   })
 
   it('csv: charts are dropped and it says so', () => {
     const r = exportFidelity(withCharts(), 'csv')
     expect(r.lost).toHaveLength(2)
-    expect(r.notes.join(' ')).toMatch(/CSV holds values only/i)
+    expect(r.notes.join(' ')).toMatch(/CSV 仅保存数值/)
   })
 
   it('an unsupported chart type is reported as LOST, not silently swallowed', () => {
@@ -245,15 +245,15 @@ describe('exportFidelity — the user gets told BEFORE anything is lost', () => 
     const r = exportFidelity(cast<ExportSheet[]>(data), 'xlsx')
     expect(r.native).toBe(0)
     expect(r.lost).toHaveLength(1)
-    expect(r.lost[0].note).toMatch(/no Excel equivalent/i)
+    expect(r.lost[0].note).toMatch(/无对应的 Excel 图表类型/)
   })
 
   it('live pivots are reported as not-exported, with the workaround', () => {
     const data = insertPivot(cast<PivotSheet[]>(wb(DATA_CELLS)), { range: 'A1:C4', rowField: 'Quarter', valueField: 'Revenue' })
     const r = exportFidelity(cast<ExportSheet[]>(data), 'xlsx')
     expect(r.pivots).toBe(1)
-    expect(r.notes.join(' ')).toMatch(/not exported/i)
-    expect(r.notes.join(' ')).toMatch(/static sheet/i)
+    expect(r.notes.join(' ')).toMatch(/不会被导出/)
+    expect(r.notes.join(' ')).toMatch(/静态表格/)
   })
 
   // The Go server exporter has no chart writer, and it is reachable from the SAME
@@ -261,9 +261,9 @@ describe('exportFidelity — the user gets told BEFORE anything is lost', () => 
   it('xlsx-server: says the server path writes cells only, and points at the lossless one', () => {
     const r = exportFidelity(withCharts(), 'xlsx-server')
     expect(r.lost).toHaveLength(2)
-    expect(r.lost[0].note).toMatch(/cells only/i)
-    expect(r.notes.join(' ')).toMatch(/Excel workbook.*instead.*keep your charts/i)
-    expect(r.notes.join(' ')).toMatch(/LAST SAVED/i)
+    expect(r.lost[0].note).toMatch(/仅写入单元格/)
+    expect(r.notes.join(' ')).toMatch(/保留图表.*Excel 工作簿/)
+    expect(r.notes.join(' ')).toMatch(/最后保存版本/)
   })
 
   it('exportNeedsConfirm: silent for a plain workbook, but never when something is at stake', () => {
@@ -291,7 +291,7 @@ describe('exportSheetsToXlsx — reports what it actually did', () => {
     saved.length = 0
     const res = await exportSheetsToXlsx(cast<ExportSheet[]>(data), 'book')
     expect(res.embedded).toEqual(['ok'])
-    expect(res.skipped).toEqual([{ id: 'bad', type: 'evil', reason: 'no Excel equivalent' }])
+    expect(res.skipped).toEqual([{ id: 'bad', type: 'evil', reason: '无对应的 Excel 图表类型' }])
     expect(saved[0].name).toBe('book.xlsx')
   })
 })

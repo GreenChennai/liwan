@@ -42,9 +42,9 @@ const typeInfo: Record<string, TypeInfoEntry> = {
 }
 
 const localTypeInfo: Record<string, LocalTypeInfoEntry> = {
-  doc:   { icon: FileText,     iconCn: 'text-app-docs',   bgCn: 'bg-app-docs-bg',   label: 'Document'     },
-  sheet: { icon: Table2,       iconCn: 'text-app-sheets', bgCn: 'bg-app-sheets-bg', label: 'Spreadsheet'  },
-  slide: { icon: Presentation, iconCn: 'text-app-slides', bgCn: 'bg-app-slides-bg', label: 'Presentation' },
+  doc:   { icon: FileText,     iconCn: 'text-app-docs',   bgCn: 'bg-app-docs-bg',   label: '文档'         },
+  sheet: { icon: Table2,       iconCn: 'text-app-sheets', bgCn: 'bg-app-sheets-bg', label: '表格'         },
+  slide: { icon: Presentation, iconCn: 'text-app-slides', bgCn: 'bg-app-slides-bg', label: '幻灯片'       },
   pdf:   { icon: FileSearch,   iconCn: 'text-app-pdf',    bgCn: 'bg-app-pdf-bg',    label: 'PDF'          },
 }
 
@@ -59,7 +59,7 @@ async function openLocalFile(
     await importFromUrl(file, navigate)
   } catch (e) {
     console.error(e)
-    showToast(`Could not open ${file.name}: ${e instanceof Error ? e.message : String(e)}`, 'error')
+    showToast(`无法打开 ${file.name}：${e instanceof Error ? e.message : String(e)}`, 'error')
   } finally {
     setImporting(null)
   }
@@ -74,10 +74,10 @@ interface QuickStart {
 }
 
 const quickStarts: QuickStart[] = [
-  { label: 'New Document',     shortLabel: 'Document',     icon: FileText,     type: 'doc'   },
-  { label: 'New Spreadsheet',  shortLabel: 'Spreadsheet',  icon: Table2,       type: 'sheet' },
-  { label: 'New Presentation', shortLabel: 'Presentation', icon: Presentation, type: 'slide' },
-  { label: 'New Whiteboard',   shortLabel: 'Whiteboard',   icon: PenTool,      type: 'whiteboard' },
+  { label: '新建文档',         shortLabel: '文档',         icon: FileText,     type: 'doc'   },
+  { label: '新建表格',         shortLabel: '表格',         icon: Table2,       type: 'sheet' },
+  { label: '新建幻灯片',       shortLabel: '幻灯片',       icon: Presentation, type: 'slide' },
+  { label: '新建白板',         shortLabel: '白板',         icon: PenTool,      type: 'whiteboard' },
 ]
 
 export default function Home() {
@@ -104,18 +104,18 @@ export default function Home() {
 
         {/* ── Hero ── */}
         <header>
-          <p className="mono-label mb-3">Workspace</p>
+          <p className="mono-label mb-3">工作区</p>
           <h1 className="font-display text-3xl font-semibold text-ink tracking-display leading-[1.05]">
-            Welcome back
+            欢迎回来
           </h1>
           <p className="text-md text-ink-muted mt-3 leading-relaxed max-w-md">
-            Create something new, or pick up where you left off.
+            新建点什么，或继续上次的工作。
           </p>
         </header>
 
         {/* ── Quick-start cluster ── */}
         <section>
-          <p className="mono-label mb-3.5">Start something new</p>
+          <p className="mono-label mb-3.5">快速开始</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {quickStarts.map(({ label: _label, shortLabel, icon: Icon, type }) => {
               const info = typeInfo[type]
@@ -136,7 +136,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-ink tracking-tightish leading-snug">{shortLabel}</p>
-                    <p className="text-2xs text-ink-faint mt-0.5 tracking-tightish">Blank · ready to edit</p>
+                    <p className="text-2xs text-ink-faint mt-0.5 tracking-tightish">空白 · 可直接编辑</p>
                   </div>
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-fast">
                     <div className="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
@@ -151,8 +151,8 @@ export default function Home() {
 
         {/* ── Recent documents ── */}
         {filesLoading && (
-          <section aria-label="Loading recent documents" role="status">
-            <p className="mono-label mb-3.5">Recent</p>
+          <section aria-label="正在加载最近文档" role="status">
+            <p className="mono-label mb-3.5">最近</p>
             <Card>
               {Array.from({ length: 4 }, (_, i) => (
                 <div key={i} className={`flex items-center gap-3 px-4 py-2.5 ${i < 3 ? 'border-b border-line' : ''}`}>
@@ -167,7 +167,7 @@ export default function Home() {
 
         {!filesLoading && recentFiles.length > 0 && (
           <section>
-            <p className="mono-label mb-3.5">Recent</p>
+            <p className="mono-label mb-3.5">最近</p>
             <Card>
               {recentFiles.map((file, i) => {
                 const info = typeInfo[file.type]
@@ -217,13 +217,13 @@ export default function Home() {
               </div>
             </div>
             <p className="font-serif text-xl text-ink leading-snug mb-2">
-              Your workspace awaits.
+              你的工作区已就绪。
             </p>
             <p className="text-sm text-ink-muted max-w-xs leading-relaxed mb-6">
-              Start with a blank document, spreadsheet, or presentation — or open a file from your computer.
+              从空白文档、表格或幻灯片开始，或打开电脑上的文件。
             </p>
             <Button variant="primary" size="md" onClick={() => setShowNew(true)}>
-              <Plus size={14} /> New file
+              <Plus size={14} /> 新建文件
             </Button>
           </section>
         )}
@@ -233,20 +233,20 @@ export default function Home() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <HardDrive size={12} className="text-ink-faint" />
-              <p className="mono-label">On your computer</p>
+              <p className="mono-label">我的电脑</p>
               {localFiles.length > 0 && (
                 <span className="font-mono text-2xs text-ink-faint bg-bg-elev2 border border-line rounded-pill px-2 py-0.5">
                   {localFiles.length}
                 </span>
               )}
             </div>
-            <Tooltip label={localLoading ? 'Scanning…' : 'Rescan files'} side="left">
+            <Tooltip label={localLoading ? '扫描中…' : '重新扫描文件'} side="left">
               <button
                 onClick={() => void scan()}
                 className="flex items-center gap-1.5 font-mono text-2xs uppercase tracking-wide text-ink-faint hover:text-ink-muted transition-colors rounded-sm px-1 -mx-1 focus:outline-none focus-visible:shadow-focus focus-visible:text-ink-muted"
               >
                 <RefreshCw size={12} className={localLoading ? 'animate-spin' : ''} />
-                {localLoading ? 'Scanning…' : 'Rescan'}
+                {localLoading ? '扫描中…' : '重新扫描'}
               </button>
             </Tooltip>
           </div>
@@ -254,14 +254,14 @@ export default function Home() {
           {localLoading && !scanned && (
             <Card className="p-6 flex items-center gap-3 text-sm text-ink-muted">
               <FolderSearch size={16} className="text-ink-faint animate-pulse flex-shrink-0" />
-              Scanning Documents, Downloads &amp; Desktop…
+              正在扫描“文档”“下载”和“桌面”…
             </Card>
           )}
 
           {scanned && localFiles.length === 0 && (
             <Card className="p-8 text-center">
               <FolderSearch size={26} className="text-ink-faint mx-auto mb-2" />
-              <p className="text-sm text-ink-muted">No supported files found in Documents, Downloads or Desktop</p>
+              <p className="text-sm text-ink-muted">在“文档”“下载”或“桌面”中未找到支持的文件</p>
             </Card>
           )}
 
@@ -315,7 +315,7 @@ export default function Home() {
                   onClick={() => setShowLocalAll(v => !v)}
                   className="mt-3 w-full py-2 text-2xs text-ink-faint hover:text-ink-muted bg-paper border border-line rounded-md hover:bg-bg-elev2 transition-colors tracking-tightish focus:outline-none focus-visible:shadow-focus focus-visible:border-accent"
                 >
-                  {showLocalAll ? 'Show less' : `Show all ${localFiles.length} files`}
+                  {showLocalAll ? '收起' : `显示全部 ${localFiles.length} 个文件`}
                 </button>
               )}
             </>

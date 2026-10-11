@@ -128,11 +128,11 @@ function SidebarBrand({ name = 'Liwan', onSetMode }: SidebarBrandProps) {
         <LiwanMark size={28} className="flex-shrink-0" />
         {onSetMode && (
           <div className="flex flex-col items-center gap-0.5">
-            <button type="button" title="Expand sidebar" aria-label="Expand sidebar"
+            <button type="button" title="展开侧边栏" aria-label="展开侧边栏"
               onClick={() => onSetMode('expanded')} className={`${ctrlBtn} w-7 h-6`}>
               <PanelLeftOpen size={15} />
             </button>
-            <button type="button" title="Hide sidebar" aria-label="Hide sidebar"
+            <button type="button" title="隐藏侧边栏" aria-label="隐藏侧边栏"
               onClick={() => onSetMode('hidden')} className={`${ctrlBtn} w-7 h-6`}>
               <ChevronsLeft size={15} />
             </button>
@@ -150,11 +150,11 @@ function SidebarBrand({ name = 'Liwan', onSetMode }: SidebarBrandProps) {
           {name}
         </span>
         <span className="font-mono text-[8.5px] font-medium uppercase tracking-[0.22em] text-ink-faint leading-none mt-[5px]">
-          Office Suite
+          办公套件
         </span>
       </div>
       {onSetMode && (
-        <button type="button" title="Minimise sidebar" aria-label="Minimise sidebar"
+        <button type="button" title="收起侧边栏" aria-label="收起侧边栏"
           onClick={() => onSetMode('mini')} className={`${ctrlBtn} ml-auto -mr-1 w-7 h-7`}>
           <PanelLeftClose size={17} />
         </button>

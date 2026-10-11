@@ -106,7 +106,7 @@ export default function MentionInput({
   className = '',
   wrapperClassName = '',
   rows = 2,
-  placeholder = 'Add a comment…',
+  placeholder = '添加评论…',
   textareaRef: externalRef,
   ...rest
 }: MentionInputProps) {

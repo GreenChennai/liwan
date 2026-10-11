@@ -175,7 +175,7 @@ function worksheetToSheet(ws: XLSX.WorkSheet | undefined, name: string): ImportS
       const cell = ws[XLSX.utils.encode_cell({ r, c })] as XLSX.CellObject | undefined
       if (!cell) continue
       if (celldata.length >= MAX_CELLS_PER_SHEET) {
-        throw new ImportError(`Sheet "${name}" has more than ${MAX_CELLS_PER_SHEET} cells (import limit).`)
+        throw new ImportError(`工作表“${name}”的单元格超过 ${MAX_CELLS_PER_SHEET} 个（导入上限）。`)
       }
       const v = cell.v ?? ''
       const m = cell.w != null ? String(cell.w) : String(v)
@@ -247,11 +247,11 @@ export function workbookToSheets(arrayBuffer: ArrayBuffer, filename = 'file'): I
   try {
     wb = XLSX.read(arrayBuffer, { type: 'array', cellStyles: true, cellNF: true, dense: false })
   } catch (e) {
-    throw new ImportError(`Could not read ${filename}: ${e instanceof Error ? e.message : String(e)}`)
+    throw new ImportError(`无法读取 ${filename}：${e instanceof Error ? e.message : String(e)}`)
   }
   const names = wb.SheetNames.slice(0, MAX_SHEETS)
   if (wb.SheetNames.length > MAX_SHEETS) {
-    throw new ImportError(`${filename} has more than ${MAX_SHEETS} sheets (import limit).`)
+    throw new ImportError(`${filename} 的工作表超过 ${MAX_SHEETS} 个（导入上限）。`)
   }
   // WAVE-64: lift our chart-definition sheet out of the workbook and turn it back
   // into live charts on the first sheet — it is bookkeeping, not user data, so it
@@ -323,7 +323,7 @@ export async function importWorkbook(arrayBuffer: ArrayBuffer, filename = 'file'
     const notes = makeImportNotes({
       charts: Array.from({ length: found.charts }, () => ({
         title: '',
-        reason: 'Vulos can’t import charts from an .ods (OpenDocument) file',
+        reason: 'Vulos 无法从 .ods（OpenDocument）文件导入图表',
       })),
       pivots: found.pivots,
       filename,

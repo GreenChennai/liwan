@@ -23,7 +23,7 @@ afterAll(() => server.close())
 // dialog specifically (the row also has a "Restore this version" button).
 async function confirmRestore() {
   const dialog = await screen.findByRole('dialog')
-  const btn = within(dialog).getByRole('button', { name: /^Restore$/i })
+  const btn = within(dialog).getByRole('button', { name: /^恢复$/ })
   fireEvent.click(btn)
 }
 
@@ -44,14 +44,14 @@ describe('Version history (MSW integration)', () => {
     await waitFor(() => expect(screen.getByText('First draft')).toBeInTheDocument())
 
     // The restore button is revealed on hover; it exists in the DOM regardless.
-    const restoreButtons = screen.getAllByTitle('Restore this version')
+    const restoreButtons = screen.getAllByTitle('恢复此版本')
     fireEvent.click(restoreButtons[0])
 
     await confirmRestore()
 
     await waitFor(() => expect(onRestore).toHaveBeenCalledTimes(1))
     expect(mockState.calls.some((c) => /POST \/files\/doc1\/versions\/v2\/restore/.test(c))).toBe(true)
-    expect(await screen.findByText('Version restored')).toBeInTheDocument()
+    expect(await screen.findByText('版本已恢复')).toBeInTheDocument()
   })
 
   it('WAVE-14: a viewer is refused restore (403) — onRestore NOT fired, error shown', async () => {
@@ -60,7 +60,7 @@ describe('Version history (MSW integration)', () => {
     render(<HistoryPanel fileId="doc1" onRestore={onRestore} onClose={() => {}} />)
     await waitFor(() => expect(screen.getByText('First draft')).toBeInTheDocument())
 
-    fireEvent.click(screen.getAllByTitle('Restore this version')[0])
+    fireEvent.click(screen.getAllByTitle('恢复此版本')[0])
     await confirmRestore()
 
     // Server refused → the panel shows the error toast and does NOT call onRestore.
@@ -77,7 +77,7 @@ describe('Version history (MSW integration)', () => {
     render(<HistoryPanel fileId="doc1" onRestore={onRestore} onClose={() => {}} />)
     await waitFor(() => expect(screen.getByText('First draft')).toBeInTheDocument())
 
-    fireEvent.click(screen.getAllByTitle('Restore this version')[0])
+    fireEvent.click(screen.getAllByTitle('恢复此版本')[0])
     await confirmRestore()
 
     await waitFor(() =>
@@ -91,7 +91,7 @@ describe('Version history (MSW integration)', () => {
     render(<HistoryPanel fileId="doc1" onRestore={onRestore} onClose={() => {}} />)
     await waitFor(() => expect(screen.getByText('First draft')).toBeInTheDocument())
 
-    fireEvent.click(screen.getAllByTitle('Restore this version')[0])
+    fireEvent.click(screen.getAllByTitle('恢复此版本')[0])
     await confirmRestore()
 
     await waitFor(() => expect(onRestore).toHaveBeenCalledTimes(1))

@@ -28,12 +28,12 @@ describe('PresenceBar', () => {
 
   it('labels the strip with a pluralised online count', () => {
     render(<PresenceBar roster={[peer('1', 'Ada Lovelace'), peer('2', 'Alan Turing')]} />)
-    expect(screen.getByLabelText('2 collaborators online')).toBeInTheDocument()
+    expect(screen.getByLabelText('2 位协作者在线')).toBeInTheDocument()
   })
 
   it('uses the singular form for one collaborator', () => {
     render(<PresenceBar roster={[peer('1', 'Ada Lovelace')]} />)
-    expect(screen.getByLabelText('1 collaborator online')).toBeInTheDocument()
+    expect(screen.getByLabelText('1 位协作者在线')).toBeInTheDocument()
   })
 
   it('folds extra collaborators into a "+N" chip that names them', () => {

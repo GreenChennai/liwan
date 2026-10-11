@@ -61,7 +61,7 @@ async function request<T = unknown>(path: string, options: RequestOptions = {}):
     // Attach the HTTP status so callers can branch (e.g. 409 Conflict → reload +
     // reconcile for optimistic concurrency). `...err` carries any extra payload
     // the server sent, e.g. the current file under `current` on a 409.
-    throw Object.assign(new Error((err.error as string) || 'Request failed'), { status: res.status, ...err })
+    throw Object.assign(new Error((err.error as string) || '请求失败'), { status: res.status, ...err })
   }
   return res.json() as Promise<T>
 }
@@ -301,7 +301,7 @@ export const api = {
     const res = await fetch(`${base}/files/${fileId}/export?format=${encodeURIComponent(format)}`, {
       credentials: 'include',
     })
-    if (!res.ok) throw new Error(`Export failed: ${res.statusText}`)
+    if (!res.ok) throw new Error(`导出失败：${res.statusText}`)
     return res.blob()
   },
 
@@ -311,7 +311,7 @@ export const api = {
     const base = await apiBase()
     // Cookie sent automatically via credentials: 'include'.
     const res = await fetch(base + '/upload', { method: 'POST', body: form, credentials: 'include' })
-    if (!res.ok) throw new Error('Upload failed')
+    if (!res.ok) throw new Error('上传失败')
     return res.json()
   },
 

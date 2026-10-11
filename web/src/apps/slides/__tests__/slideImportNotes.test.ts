@@ -36,8 +36,8 @@ describe('slide importNotes helpers', () => {
 
   it('itemises + summarises with correct pluralisation', () => {
     const n = makeSlideImportNotes({ tables: 1, charts: 3 })
-    expect(slideImportLossItems(n)).toEqual(['1 table', '3 charts'])
-    expect(slideImportLossSummary(n)).toMatch(/1 table, 3 charts could not be imported/)
+    expect(slideImportLossItems(n)).toEqual(['表格（1）', '图表（3）'])
+    expect(slideImportLossSummary(n)).toMatch(/表格（1）、图表（3）无法导入/)
     expect(slideImportLossSummary(null)).toBe('')
   })
 })
@@ -100,8 +100,8 @@ describe('pptxToSlides — import honesty', () => {
     expect(notes!.filename).toBe('lossy.pptx')
 
     const items = slideImportLossItems(notes)
-    expect(items).toContain('1 table')
-    expect(items).toContain('1 chart')
+    expect(items).toContain('表格（1）')
+    expect(items).toContain('图表（1）')
   })
 
   it('a clean deck records NO import notes', async () => {

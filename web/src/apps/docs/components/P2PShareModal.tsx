@@ -66,41 +66,37 @@ export default function P2PShareModal({ open, onClose, links, onRotate, roomId, 
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Collaborate via link (P2P)" size="lg">
+    <Modal open={open} onClose={onClose} title="通过链接协作（P2P）" size="lg">
       <Modal.Body className="space-y-4">
         <p className="text-xs text-ink-muted leading-relaxed">
-          Share a link to co-edit this document peer-to-peer — no cloud account or
-          server needed. Edits sync directly between browsers and are{' '}
-          <strong className="text-ink">end-to-end encrypted</strong>: the relay
-          only ever routes ciphertext and can never read the document.
+          分享链接即可以点对点方式共同编辑此文档——无需云账号或服务器。编辑内容直接在浏览器之间同步，
+          并且<strong className="text-ink">端到端加密</strong>：中继只转发密文，无法读取文档内容。
         </p>
 
         {unavailable ? (
           <div className="flex items-start gap-2 rounded-md border border-danger/40 bg-danger/5 px-3 py-2.5">
             <AlertTriangle size={13} className="text-danger mt-0.5 flex-shrink-0" />
             <div className="text-2xs text-ink leading-relaxed space-y-1">
-              <p className="font-medium">P2P collaboration isn't available on this server.</p>
+              <p className="font-medium">本服务器不支持 P2P 协同。</p>
               <p className="text-ink-faint">
-                This is a standalone Office deployment — it doesn't serve the peering
-                fabric (<code>/api/peering/*</code>) that invite links need to connect
-                peers, and no rendezvous URL is configured either. Use account-based
-                sharing instead, run Office behind a Vulos OS / Pier host, or
-                (no OS or account needed) point this deployment at any self-hosted
-                relayd's rendezvous URL — see docs/CONFIGURATION.md.
+                这是独立部署的 Office——它不提供邀请链接连接节点所需的对等网络组件
+                (<code>/api/peering/*</code>)，也未配置会合服务地址。请改用基于账号的分享，
+                或将 Office 部署在 Vulos OS / Pier 主机之后；也可以（无需操作系统或账号）将本部署指向任意自建
+                relayd 的会合服务地址——参见 docs/CONFIGURATION.md。
               </p>
             </div>
           </div>
         ) : !links ? (
           <div className="flex items-center gap-2 text-xs text-ink-faint py-6 justify-center">
             <RefreshCw size={14} className="animate-spin" />
-            Preparing room…
+            正在准备房间…
           </div>
         ) : (
           <>
             <LinkRow
               icon={<Pencil size={13} />}
-              label="Editor link"
-              hint="Can read and edit"
+              label="编辑链接"
+              hint="可阅读和编辑"
               value={links.rwLink}
               copied={copied === 'rw'}
               onCopy={() => void copy('rw', links.rwLink)}
@@ -108,8 +104,8 @@ export default function P2PShareModal({ open, onClose, links, onRotate, roomId, 
             />
             <LinkRow
               icon={<Eye size={13} />}
-              label="View-only link"
-              hint="Can read live edits, cannot change the document"
+              label="仅查看链接"
+              hint="可阅读实时编辑内容，但无法修改文档"
               value={links.roLink}
               copied={copied === 'ro'}
               onCopy={() => void copy('ro', links.roLink)}
@@ -120,12 +116,11 @@ export default function P2PShareModal({ open, onClose, links, onRotate, roomId, 
               <Shield size={13} className="text-ink-faint mt-0.5 flex-shrink-0" />
               <div className="text-2xs text-ink-faint leading-relaxed space-y-1">
                 <p>
-                  Anyone with a link can join with that capability — treat links
-                  like the key they are. To revoke access, start a new room; old
-                  links then stop working.
+                  任何拿到链接的人都可以凭此加入，请像对待密钥一样妥善保管链接。
+                  如需撤销访问权限，请新建房间，旧链接将随即失效。
                 </p>
                 {roomId && (
-                  <p className="font-mono opacity-70">room {roomId.slice(0, 12)}…</p>
+                  <p className="font-mono opacity-70">房间 {roomId.slice(0, 12)}…</p>
                 )}
               </div>
             </div>
@@ -135,10 +130,10 @@ export default function P2PShareModal({ open, onClose, links, onRotate, roomId, 
       <Modal.Footer>
         {links && onRotate && (
           <Button variant="ghost" size="sm" onClick={onRotate}>
-            <RefreshCw size={13} /> New room
+            <RefreshCw size={13} /> 新建房间
           </Button>
         )}
-        <Button variant="secondary" size="sm" onClick={onClose}>Done</Button>
+        <Button variant="secondary" size="sm" onClick={onClose}>完成</Button>
       </Modal.Footer>
     </Modal>
   )
@@ -174,7 +169,7 @@ function LinkRow({ icon, label, hint, value, copied, onCopy, tone }: LinkRowProp
         </div>
         <Button variant="secondary" size="sm" onClick={onCopy}>
           {copied ? <Check size={13} /> : <Copy size={13} />}
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? '已复制' : '复制'}
         </Button>
       </div>
     </div>

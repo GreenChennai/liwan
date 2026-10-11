@@ -29,13 +29,13 @@ export type SlideImportNotes = Partial<Record<SlideImportNoteKind, number>> & { 
 
 // The feature kinds we detect-and-report as lost/approximated on import.
 const KIND_LABELS: Record<SlideImportNoteKind, string> = Object.freeze({
-  tables: 'table',
-  charts: 'chart',
-  diagrams: 'SmartArt diagram',
-  groups: 'grouped shape',
-  vectorImages: 'vector/EMF image',
-  animations: 'slide with animations',
-  transitions: 'slide transition',
+  tables: '表格',
+  charts: '图表',
+  diagrams: 'SmartArt 图示',
+  groups: '组合形状',
+  vectorImages: '矢量/EMF 图片',
+  animations: '带动画的幻灯片',
+  transitions: '幻灯片切换效果',
 })
 
 const KINDS = Object.keys(KIND_LABELS) as SlideImportNoteKind[]
@@ -85,9 +85,7 @@ export function slideImportLossItems(notes: unknown): string[] {
   if (!clean) return []
   return KINDS.filter((k) => (clean[k] ?? 0) > 0).map((k) => {
     const n = clean[k] ?? 0
-    const label = KIND_LABELS[k]
-    const plural = n === 1 ? label : `${label}s`
-    return `${n} ${plural}`
+    return `${KIND_LABELS[k]}（${n}）`
   })
 }
 
@@ -98,5 +96,5 @@ export function slideImportLossItems(notes: unknown): string[] {
 export function slideImportLossSummary(notes: unknown): string {
   const items = slideImportLossItems(notes)
   if (!items.length) return ''
-  return `${items.join(', ')} could not be imported — an export from here will not contain them.`
+  return `${items.join('、')}无法导入——从此处导出将不包含这些内容。`
 }

@@ -35,7 +35,7 @@ const PDFEditor    = lazy(() => import('../apps/pdf/PDFEditor.jsx'))
 function Loading() {
   return (
     <div className="flex-1 flex items-center justify-center bg-bg">
-      <LoadingState label="Loading…" />
+      <LoadingState label="加载中…" />
     </div>
   )
 }

@@ -271,20 +271,20 @@ describe('FindReplace component', () => {
     })
     const onClose = vi.fn()
     render(<FindReplace editor={asEditor(editor)} mode="find" onClose={onClose} />)
-    expect(screen.getByPlaceholderText('Find…')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('查找…')).toBeInTheDocument()
   })
 
   it('shows replace input in replace mode', () => {
     const editor = makeEditor()
     render(<FindReplace editor={asEditor(editor)} mode="replace" onClose={vi.fn()} />)
-    expect(screen.getByPlaceholderText('Replace with…')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('替换为…')).toBeInTheDocument()
   })
 
   it('calls onClose when Escape is pressed', () => {
     const editor = makeEditor()
     const onClose = vi.fn()
     render(<FindReplace editor={asEditor(editor)} mode="find" onClose={onClose} />)
-    const input = screen.getByPlaceholderText('Find…')
+    const input = screen.getByPlaceholderText('查找…')
     fireEvent.keyDown(input, { key: 'Escape' })
     expect(onClose).toHaveBeenCalled()
   })
@@ -293,7 +293,7 @@ describe('FindReplace component', () => {
     const editor = makeEditor()
     const onClose = vi.fn()
     render(<FindReplace editor={asEditor(editor)} mode="find" onClose={onClose} />)
-    const closeBtn = screen.getByLabelText('Close find bar')
+    const closeBtn = screen.getByLabelText('关闭查找栏')
     fireEvent.click(closeBtn)
     expect(onClose).toHaveBeenCalled()
   })
@@ -305,10 +305,10 @@ describe('WordCountModal', () => {
   it('renders word and character counts', () => {
     const editor = makeEditor()
     render(<WordCountModal editor={asEditor(editor)} onClose={vi.fn()} />)
-    // Use getAllByText since "Words" may appear in multiple sections
-    const wordLabels = screen.getAllByText('Words')
+    // Use getAllByText since "字数" may appear in multiple sections
+    const wordLabels = screen.getAllByText('字数')
     expect(wordLabels.length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('Characters (with spaces)')).toBeInTheDocument()
+    expect(screen.getByText('字符数（含空格）')).toBeInTheDocument()
   })
 
   it('renders page count', () => {
@@ -316,7 +316,7 @@ describe('WordCountModal', () => {
       getText: vi.fn().mockReturnValue('word '.repeat(260)), // 260 words → 2 pages
     })
     render(<WordCountModal editor={asEditor(editor)} onClose={vi.fn()} />)
-    expect(screen.getByText('Pages (est.)')).toBeInTheDocument()
+    expect(screen.getByText('页数（估算）')).toBeInTheDocument()
   })
 
   it('calls onClose when clicking outside', () => {
@@ -336,7 +336,7 @@ describe('WordCountModal', () => {
     const editor = makeEditor()
     const onClose = vi.fn()
     render(<WordCountModal editor={asEditor(editor)} onClose={onClose} />)
-    fireEvent.click(screen.getByLabelText('Close'))
+    fireEvent.click(screen.getByLabelText('关闭'))
     expect(onClose).toHaveBeenCalled()
   })
 })
@@ -392,7 +392,7 @@ describe('TableOfContents helpers', () => {
 
   it('buildTocHtml returns empty message for no headings', () => {
     const html = buildTocHtml([])
-    expect(html).toContain('No headings found')
+    expect(html).toContain('未找到标题')
   })
 })
 
@@ -464,7 +464,7 @@ describe('Responsive layout classes', () => {
 // ─── 10. Find/Replace: match count display ────────────────────────────────────
 
 describe('FindReplace match count', () => {
-  it('shows No results when term has no matches', async () => {
+  it('shows 无结果 when term has no matches', async () => {
     const editor = makeEditor({
       state: {
         selection: { from: 1, to: 1 },
@@ -477,9 +477,9 @@ describe('FindReplace match count', () => {
       },
     })
     render(<FindReplace editor={asEditor(editor)} mode="find" onClose={vi.fn()} />)
-    const input = screen.getByPlaceholderText<HTMLInputElement>('Find…')
+    const input = screen.getByPlaceholderText<HTMLInputElement>('查找…')
     await userEvent.type(input, 'zzznomatch')
-    // The count label should eventually show "No results" or be empty
+    // The count label should eventually show "无结果" or be empty
     // (actual match logic uses doc.textContent which is a property on our mock)
     // We just verify the component doesn't crash
     expect(input.value).toBe('zzznomatch')

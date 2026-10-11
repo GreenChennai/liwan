@@ -92,7 +92,7 @@ export function parseCSV(text: string, delimiter = ','): string[][] {
 /**
  * csvToSheet(text, sheetName, delimiter) → Fortune Sheet Sheet object.
  */
-export function csvToSheet(text: string, sheetName = 'Imported', delimiter = ','): CsvSheet {
+export function csvToSheet(text: string, sheetName = '导入', delimiter = ','): CsvSheet {
   const rows = parseCSV(text, delimiter)
   const celldata: CsvCellEntry[] = []
   for (let r = 0; r < rows.length; r++) {
@@ -132,7 +132,7 @@ export function importCSVFile(file: File, delimiter = ','): Promise<CsvSheet> {
         reject(err instanceof Error ? err : new Error(String(err)))
       }
     }
-    reader.onerror = () => reject(new Error('Failed to read file'))
+    reader.onerror = () => reject(new Error('读取文件失败'))
     reader.readAsText(file, 'UTF-8')
   })
 }

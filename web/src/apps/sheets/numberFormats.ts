@@ -57,18 +57,18 @@ export interface SheetData {
 
 // Preset id → { label, sample fmt code, ct.t type }. `General` clears any format.
 export const NUMBER_FORMAT_PRESETS: NumberFormatPreset[] = [
-  { id: 'general',    label: 'Automatic',       fa: 'General',            t: 'g' },
-  { id: 'number',     label: 'Number',          fa: '#,##0.00',           t: 'n' },
-  { id: 'number_int', label: 'Number (no dec.)',fa: '#,##0',              t: 'n' },
-  { id: 'percent',    label: 'Percent',         fa: '0.00%',              t: 'n' },
-  { id: 'currency',   label: 'Currency ($)',    fa: '"$"#,##0.00',        t: 'n' },
-  { id: 'currency_eur', label: 'Currency (€)',  fa: '"€"#,##0.00',        t: 'n' },
-  { id: 'accounting', label: 'Accounting',      fa: '_("$"* #,##0.00_)',  t: 'n' },
-  { id: 'scientific', label: 'Scientific',      fa: '0.00E+00',           t: 'n' },
-  { id: 'date',       label: 'Date',            fa: 'yyyy-mm-dd',         t: 'd' },
-  { id: 'datetime',   label: 'Date time',       fa: 'yyyy-mm-dd hh:mm:ss',t: 'd' },
-  { id: 'time',       label: 'Time',            fa: 'hh:mm:ss',           t: 'd' },
-  { id: 'text',       label: 'Plain text',      fa: '@',                  t: 's' },
+  { id: 'general',    label: '自动',            fa: 'General',            t: 'g' },
+  { id: 'number',     label: '数字',            fa: '#,##0.00',           t: 'n' },
+  { id: 'number_int', label: '数字（无小数）',  fa: '#,##0',              t: 'n' },
+  { id: 'percent',    label: '百分比',          fa: '0.00%',              t: 'n' },
+  { id: 'currency',   label: '货币 ($)',        fa: '"$"#,##0.00',        t: 'n' },
+  { id: 'currency_eur', label: '货币 (€)',      fa: '"€"#,##0.00',        t: 'n' },
+  { id: 'accounting', label: '会计',            fa: '_("$"* #,##0.00_)',  t: 'n' },
+  { id: 'scientific', label: '科学计数',        fa: '0.00E+00',           t: 'n' },
+  { id: 'date',       label: '日期',            fa: 'yyyy-mm-dd',         t: 'd' },
+  { id: 'datetime',   label: '日期时间',        fa: 'yyyy-mm-dd hh:mm:ss',t: 'd' },
+  { id: 'time',       label: '时间',            fa: 'hh:mm:ss',           t: 'd' },
+  { id: 'text',       label: '纯文本',          fa: '@',                  t: 's' },
 ]
 
 export function presetById(id: string): NumberFormatPreset | null {

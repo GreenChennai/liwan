@@ -151,7 +151,7 @@ function Modal({ open, onClose, title, size = 'md', children, className = '' }: 
         {title && (
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-line">
             <h3 className="text-md font-semibold tracking-tightish">{title}</h3>
-            <IconButton size="sm" title="Close" onClick={onClose}>
+            <IconButton size="sm" title="关闭" onClick={onClose}>
               <X size={15} />
             </IconButton>
           </div>

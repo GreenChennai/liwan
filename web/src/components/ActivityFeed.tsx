@@ -94,7 +94,7 @@ function ActivityList({ fileId }: { fileId: string }) {
       const data = await api.getActivity(fileId) as ActivityEvent[]
       setEvents([...data].reverse())
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load activity')
+      setError(e instanceof Error ? e.message : '加载动态失败')
     } finally {
       setLoading(false)
     }
@@ -108,8 +108,8 @@ function ActivityList({ fileId }: { fileId: string }) {
     <EmptyState
       icon={Activity}
       size="sm"
-      title="No activity yet."
-      hint="Edits, comments, and signings appear here."
+      title="暂无动态。"
+      hint="编辑、评论和签署记录会显示在这里。"
     />
   )
 
@@ -198,7 +198,7 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
       const data = await api.listVersions(fileId) as Version[]
       setVersions(data)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load snapshots')
+      setError(e instanceof Error ? e.message : '加载快照失败')
     } finally {
       setLoading(false)
     }
@@ -213,10 +213,10 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
     try {
       await api.createNamedSnapshot(fileId, label)
       setLabelInput('')
-      showToast('Snapshot created')
+      showToast('快照已创建')
       await load()
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Failed to create snapshot', false)
+      showToast(e instanceof Error ? e.message : '创建快照失败', false)
     } finally {
       setCreating(false)
     }
@@ -228,11 +228,11 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
     setRestoring(v.id)
     try {
       const updated = await api.restoreVersion(fileId, v.id)
-      showToast('Version restored')
+      showToast('版本已恢复')
       onRestore?.(updated)
       await load()
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Restore failed', false)
+      showToast(e instanceof Error ? e.message : '恢复失败', false)
     } finally {
       setRestoring(null)
     }
@@ -247,14 +247,14 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
         {/* Create named snapshot — Input + Button primitives */}
         <div className="px-4 py-3 border-b border-line bg-bg-elev2 flex-shrink-0">
           <p className="text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase mb-2">
-            Pin this state
+            固定此状态
           </p>
           <div className="flex gap-2">
             <Input
               value={labelInput}
               onChange={e => setLabelInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') void handleCreate() }}
-              placeholder="e.g. v1 final draft"
+              placeholder="例如：v1 终稿"
               size="sm"
               className="flex-1"
             />
@@ -265,14 +265,14 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
               disabled={creating || !labelInput.trim()}
             >
               {creating ? <Loader2 size={11} className="animate-spin" /> : <Plus size={11} />}
-              Save
+              保存
             </Button>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {loading && (
-            <LoadingState size="sm" label="Loading snapshots…" className="py-8" />
+            <LoadingState size="sm" label="正在加载快照…" className="py-8" />
           )}
 
           {error && !loading && (
@@ -285,7 +285,7 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
               {named.length > 0 && (
                 <div>
                   <p className="px-4 pt-3 pb-1 text-2xs font-semibold text-ink-faint tracking-eyebrow uppercase">
-                    Named
+                    命名
                   </p>
                   <ul className="divide-y divide-line">
                     {named.map((v, idx) => (
@@ -306,8 +306,8 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
                 <EmptyState
                   icon={Bookmark}
                   size="sm"
-                  title="No named snapshots yet."
-                  hint="Give a name above to pin this state."
+                  title="暂无命名快照。"
+                  hint="在上方输入名称即可固定此状态。"
                 />
               )}
 
@@ -352,7 +352,7 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
       <Modal
         open={!!confirmVersion}
         onClose={() => setConfirmVersion(null)}
-        title="Restore this version?"
+        title="恢复此版本？"
         size="sm"
       >
         <Modal.Body>
@@ -369,10 +369,10 @@ function SnapshotsTab({ fileId, onRestore }: SnapshotsTabProps) {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" size="md" onClick={() => setConfirmVersion(null)}>
-            Cancel
+            取消
           </Button>
           <Button variant="primary" size="md" onClick={() => void doRestore(confirmVersion)}>
-            <RotateCcw size={13} /> Restore
+            <RotateCcw size={13} /> 恢复
           </Button>
         </Modal.Footer>
       </Modal>
@@ -424,7 +424,7 @@ function VersionRow({ v, idx, restoring, onRestoreClick, isNamed = false }: Vers
         ].join(' ')}
       >
         {restoring === v.id ? <Loader2 size={10} className="animate-spin" /> : <RotateCcw size={10} />}
-        Restore
+        恢复
       </button>
     </li>
   )
@@ -432,8 +432,8 @@ function VersionRow({ v, idx, restoring, onRestoreClick, isNamed = false }: Vers
 
 // ─── ActivityFeed (main export) ───────────────────────────────────────────────
 const PANEL_TABS = [
-  { value: 'activity',  label: 'Activity'  },
-  { value: 'snapshots', label: 'Snapshots' },
+  { value: 'activity',  label: '动态'  },
+  { value: 'snapshots', label: '快照' },
 ]
 
 interface ActivityFeedProps {
@@ -451,10 +451,10 @@ export default function ActivityFeed({ fileId, onRestore, onClose }: ActivityFee
       <div className="flex items-center justify-between px-4 py-3 border-b border-line bg-bg-elev2 flex-shrink-0">
         <div className="flex items-center gap-2">
           <Activity size={13} className="text-ink-faint" />
-          <span className="text-sm font-semibold text-ink tracking-tightish">Activity</span>
+          <span className="text-sm font-semibold text-ink tracking-tightish">动态</span>
         </div>
         {onClose && (
-          <IconButton size="sm" onClick={onClose} title="Close">
+          <IconButton size="sm" onClick={onClose} title="关闭">
             <X size={14} />
           </IconButton>
         )}

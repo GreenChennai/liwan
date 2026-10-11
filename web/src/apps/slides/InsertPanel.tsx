@@ -26,19 +26,19 @@ interface ShapeDef {
 const SHAPES: ShapeDef[] = [
   {
     id: 'rect',
-    label: 'Rectangle',
+    label: '矩形',
     icon: Square,
     html: (fill, stroke) => `<div contenteditable="false" style="display:inline-block;width:120px;height:80px;background:${fill};border:2px solid ${stroke};border-radius:4px;"></div>`,
   },
   {
     id: 'oval',
-    label: 'Oval',
+    label: '椭圆',
     icon: CircleIcon,
     html: (fill, stroke) => `<div contenteditable="false" style="display:inline-block;width:120px;height:80px;background:${fill};border:2px solid ${stroke};border-radius:50%;"></div>`,
   },
   {
     id: 'arrow',
-    label: 'Arrow',
+    label: '箭头',
     icon: ArrowRight,
     html: (fill, _stroke) => `<div contenteditable="false" style="display:inline-block;font-size:48px;color:${fill};line-height:1;">&#8594;</div>`,
   },
@@ -122,14 +122,14 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
     if (!file) return
     try {
       const { url } = await apiProp.uploadImage(file) as { url: string }
-      insertHtml(`<img src="${url}" alt="slide image" style="max-width:100%;" />`)
+      insertHtml(`<img src="${url}" alt="幻灯片图片" style="max-width:100%;" />`)
     } catch {
       const reader = new FileReader()
       reader.onload = (ev) => {
         // readAsDataURL always yields a string (never ArrayBuffer).
         const result = ev.target?.result
         if (typeof result === 'string') {
-          insertHtml(`<img src="${result}" alt="slide image" style="max-width:100%;" />`)
+          insertHtml(`<img src="${result}" alt="幻灯片图片" style="max-width:100%;" />`)
         }
       }
       reader.readAsDataURL(file)
@@ -139,9 +139,9 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
 
   const handleVideoInsert = () => {
     const trimmed = videoUrl.trim()
-    if (!trimmed) { setVideoErr('Please enter a URL.'); return }
+    if (!trimmed) { setVideoErr('请输入链接。'); return }
     const html = parseVideoUrl(trimmed)
-    if (!html) { setVideoErr('Unrecognised URL. Paste a YouTube, Vimeo, or MP4 URL.'); return }
+    if (!html) { setVideoErr('无法识别该链接，请粘贴 YouTube、Vimeo 或 MP4 链接。'); return }
     insertHtml(html)
     setVideoUrl('')
     setVideoErr('')
@@ -158,11 +158,11 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
       {/* Image */}
       <button
         type="button"
-        title="Insert image"
+        title="插入图片"
         onClick={() => imgInput.current?.click()}
         className="inline-flex items-center gap-1 px-2 h-7 rounded-md border border-line text-xs text-ink-muted hover:text-ink hover:border-line-strong transition-colors"
       >
-        <ImageIcon size={12} /> Image
+        <ImageIcon size={12} /> 图片
       </button>
       <input ref={imgInput} type="file" accept="image/*" className="hidden" onChange={(e) => void handleImageUpload(e)} />
 
@@ -170,7 +170,7 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
       <div className="relative">
         <button
           type="button"
-          title="Insert video"
+          title="插入视频"
           onClick={() => { setShowVideo((v) => !v); setShowShape(false) }}
           className={[
             'inline-flex items-center gap-1 px-2 h-7 rounded-md border text-xs transition-colors',
@@ -179,13 +179,13 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
               : 'border-line text-ink-muted hover:text-ink hover:border-line-strong',
           ].join(' ')}
         >
-          <Video size={12} /> Video
+          <Video size={12} /> 视频
         </button>
         {showVideo && (
-          <div role="dialog" aria-label="Embed video" className="absolute top-full mt-1 left-0 z-20 bg-paper border border-line rounded-lg shadow-e2 p-3 w-72">
+          <div role="dialog" aria-label="嵌入视频" className="absolute top-full mt-1 left-0 z-20 bg-paper border border-line rounded-lg shadow-e2 p-3 w-72">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-ink">Embed video</span>
-              <button type="button" aria-label="Close" onClick={() => setShowVideo(false)} className="text-ink-faint hover:text-ink rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
+              <span className="text-xs font-semibold text-ink">嵌入视频</span>
+              <button type="button" aria-label="关闭" onClick={() => setShowVideo(false)} className="text-ink-faint hover:text-ink rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
                 <X size={12} />
               </button>
             </div>
@@ -194,20 +194,20 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
               value={videoUrl}
               onChange={(e) => { setVideoUrl(e.target.value); setVideoErr('') }}
               onKeyDown={(e) => { if (e.key === 'Enter') handleVideoInsert() }}
-              placeholder="YouTube, Vimeo, or MP4 URL"
+              placeholder="YouTube、Vimeo 或 MP4 链接"
               className="w-full text-xs bg-bg text-ink border border-line rounded-sm px-2 h-7 outline-none focus:border-accent"
               autoFocus
             />
             {videoErr && <p className="text-2xs text-danger mt-1">{videoErr}</p>}
             <p className="text-2xs text-ink-faint mt-1">
-              Supports youtube.com, vimeo.com, and direct .mp4 links.
+              支持 youtube.com、vimeo.com 以及直接的 .mp4 链接。
             </p>
             <button
               type="button"
               onClick={handleVideoInsert}
               className="mt-2 w-full text-xs bg-accent text-white rounded-md py-1.5 hover:bg-accent-hover transition-colors font-semibold focus-visible:outline-none focus-visible:shadow-focus"
             >
-              Insert
+              插入
             </button>
           </div>
         )}
@@ -217,7 +217,7 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
       <div className="relative">
         <button
           type="button"
-          title="Insert shape"
+          title="插入形状"
           onClick={() => { setShowShape((v) => !v); setShowVideo(false) }}
           className={[
             'inline-flex items-center gap-1 px-2 h-7 rounded-md border text-xs transition-colors',
@@ -226,20 +226,20 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
               : 'border-line text-ink-muted hover:text-ink hover:border-line-strong',
           ].join(' ')}
         >
-          <Square size={12} /> Shape
+          <Square size={12} /> 形状
         </button>
         {showShape && (
-          <div role="dialog" aria-label="Insert shape" className="absolute top-full mt-1 left-0 z-20 bg-paper border border-line rounded-lg shadow-e2 p-3 w-56">
+          <div role="dialog" aria-label="插入形状" className="absolute top-full mt-1 left-0 z-20 bg-paper border border-line rounded-lg shadow-e2 p-3 w-56">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-ink">Insert shape</span>
-              <button type="button" aria-label="Close" onClick={() => setShowShape(false)} className="text-ink-faint hover:text-ink rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
+              <span className="text-xs font-semibold text-ink">插入形状</span>
+              <button type="button" aria-label="关闭" onClick={() => setShowShape(false)} className="text-ink-faint hover:text-ink rounded-sm focus-visible:outline-none focus-visible:shadow-focus">
                 <X size={12} />
               </button>
             </div>
             {/* Colour pickers */}
             <div className="flex gap-2 mb-2">
               <label className="flex items-center gap-1 text-2xs text-ink-muted">
-                Fill
+                填充
                 <input
                   type="color"
                   value={shapeFill}
@@ -249,7 +249,7 @@ export default function InsertPanel({ editor, onInsert, api: apiProp }: InsertPa
                 />
               </label>
               <label className="flex items-center gap-1 text-2xs text-ink-muted">
-                Stroke
+                描边
                 <input
                   type="color"
                   value={shapeStroke}

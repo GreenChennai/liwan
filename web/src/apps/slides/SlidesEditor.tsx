@@ -111,19 +111,19 @@ function SlideLinkButton({ editor }: { editor: Editor }) {
   const [open, setOpen] = useState(false)
   return (
     <div className="relative inline-flex">
-      <Tooltip label="Insert link (⌘K)">
+      <Tooltip label="插入链接 (⌘K)">
         <IconButton
           size="sm"
           active={editor.isActive('link')}
           onClick={() => setOpen((v) => !v)}
-          aria-label="Insert link"
+          aria-label="插入链接"
         >
           <LinkIcon size={14} />
         </IconButton>
       </Tooltip>
       {open && (
         <UrlPopover
-          label="Link URL"
+          label="链接地址"
           initialValue={(() => {
             // editor.getAttributes returns tiptap's own Record<string, any>.
             const href: unknown = editor.getAttributes('link').href
@@ -151,7 +151,7 @@ function SlideLinkButton({ editor }: { editor: Editor }) {
 function SlideFontFamilySelector({ editor }: { editor: Editor }) {
   const currentFamilyRaw: unknown = editor.getAttributes('textStyle').fontFamily
   const currentFamily = typeof currentFamilyRaw === 'string' ? currentFamilyRaw : ''
-  const currentLabel = SLIDE_FONT_FAMILIES.find((f) => f.value === currentFamily)?.label || 'Font'
+  const currentLabel = SLIDE_FONT_FAMILIES.find((f) => f.value === currentFamily)?.label || '字体'
   return (
     <Menu
       width="w-40"
@@ -159,7 +159,7 @@ function SlideFontFamilySelector({ editor }: { editor: Editor }) {
         <button
           type="button"
           className="toolbar-btn flex items-center gap-1 px-2 min-w-0 sm:min-w-[76px] text-xs"
-          aria-label={`Font family: ${currentLabel}`}
+          aria-label={`字体：${currentLabel}`}
           aria-haspopup="menu"
         >
           <span className="flex-1 text-left truncate" style={{ fontFamily: currentFamily || undefined }}>
@@ -188,9 +188,9 @@ function SlideFontFamilySelector({ editor }: { editor: Editor }) {
 // ObjectInsertMenu — insert image / shapes as positioned canvas objects (P4).
 function ObjectInsertMenu({ onImage, onShape }: { onImage: () => void; onShape: (kind: ShapeKind) => void }) {
   const SHAPES: [ShapeKind, string][] = [
-    ['rect', 'Rectangle'], ['roundRect', 'Rounded'], ['oval', 'Oval'],
-    ['triangle', 'Triangle'], ['star', 'Star'], ['line', 'Line'],
-    ['arrow', 'Arrow'], ['callout', 'Callout'],
+    ['rect', '矩形'], ['roundRect', '圆角矩形'], ['oval', '椭圆'],
+    ['triangle', '三角形'], ['star', '星形'], ['line', '直线'],
+    ['arrow', '箭头'], ['callout', '标注'],
   ]
   return (
     <Menu
@@ -199,16 +199,16 @@ function ObjectInsertMenu({ onImage, onShape }: { onImage: () => void; onShape: 
         <button
           type="button"
           className="toolbar-btn flex items-center gap-1 px-2 text-xs"
-          aria-label="Insert object"
+          aria-label="插入对象"
           aria-haspopup="menu"
         >
-          <LayoutGrid size={13} aria-hidden="true" /> Insert
+          <LayoutGrid size={13} aria-hidden="true" /> 插入
           <ChevronDownIcon size={10} className="opacity-60" aria-hidden="true" />
         </button>
       }
     >
       <Menu.Item onClick={onImage}>
-        <ImageIcon size={13} /> Image
+        <ImageIcon size={13} /> 图片
       </Menu.Item>
       <Menu.Sep />
       {SHAPES.map(([kind, label]) => (
@@ -222,6 +222,9 @@ function ObjectInsertMenu({ onImage, onShape }: { onImage: () => void; onShape: 
 
 // Reveal.js theme names (kept for backward compatibility with legacy decks).
 const LEGACY_TRANSITIONS = ['none', 'fade', 'slide', 'convex', 'concave', 'zoom']
+const LEGACY_TRANSITION_LABELS: Record<string, string> = {
+  none: '无', fade: '淡入淡出', slide: '滑动', convex: '凸面', concave: '凹面', zoom: '缩放',
+}
 
 function newSlide(master = 'content'): DeckSlide {
   return {
@@ -251,7 +254,7 @@ const SLIDE_FONT_SIZES = [14, 18, 24, 32, 40, 56, 72]
 // toolbar (DocsToolbar FONT_FAMILIES) so decks and docs share the same set and
 // the sanitiser/exporters treat them identically.
 const SLIDE_FONT_FAMILIES = [
-  { label: 'Default',         value: '' },
+  { label: '默认',         value: '' },
   { label: 'Arial',          value: 'Arial, sans-serif' },
   { label: 'Georgia',        value: 'Georgia, serif' },
   { label: 'Times New Roman', value: '"Times New Roman", serif' },
@@ -262,7 +265,7 @@ const SLIDE_FONT_FAMILIES = [
 ]
 
 const SLIDE_HEADINGS = [
-  { label: 'Normal', value: 0 },
+  { label: '正文', value: 0 },
   { label: 'H1',     value: 1 },
   { label: 'H2',     value: 2 },
   { label: 'H3',     value: 3 },
@@ -270,8 +273,8 @@ const SLIDE_HEADINGS = [
 
 // ── Sidebar tabs ────────────────────────────────────────────────────────────
 const SIDEBAR_TABS: { id: 'slides' | 'transitions'; icon: typeof FileText; label: string }[] = [
-  { id: 'slides', icon: FileText, label: 'Slides' },
-  { id: 'transitions', icon: Zap, label: 'Transitions' },
+  { id: 'slides', icon: FileText, label: '幻灯片' },
+  { id: 'transitions', icon: Zap, label: '切换效果' },
 ]
 
 export interface SlidesEditorProps {
@@ -295,7 +298,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
     ? fileContent
     : { themeId: 'obsidian', theme: 'black', transition: 'slide', slides: [newSlide()], masters: null, customTheme: null }
 
-  const [title, setTitle] = useState(file?.name || 'Untitled Presentation')
+  const [title, setTitle] = useState(file?.name || '未命名幻灯片')
   const [slidesData, setSlidesData] = useState<DeckData>(defaultData)
   const [activeIdx, setActiveIdx] = useState(0)
   const [saving, setSaving] = useState(false)
@@ -399,7 +402,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
       // Render font size / family on the textStyle mark (base ext is a shell).
       FontSize,
       FontFamily,
-      Placeholder.configure({ placeholder: 'Slide content…' }),
+      Placeholder.configure({ placeholder: '幻灯片内容…' }),
     ],
     content: activeSlide?.content || '<p></p>',
     // The object model (objects[]) is now the source of truth for slide body;
@@ -720,7 +723,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
   }
 
   const insertTextObject = () => insertObject({
-    type: 'text', x: 0.3, y: 0.4, w: 0.4, h: 0.15, html: '<p>Text</p>', align: 'left', valign: 'top',
+    type: 'text', x: 0.3, y: 0.4, w: 0.4, h: 0.15, html: '<p>文本</p>', align: 'left', valign: 'top',
   })
   const insertShapeObject = (shape: ShapeSlideObject['shape'] = 'rect', fill = '#7c6af7', stroke = '#5b4dd0') => insertObject({
     type: 'shape', shape, x: 0.35, y: 0.35, w: 0.3, h: 0.3, fill, stroke, strokeWidth: 2, opacity: 1,
@@ -896,7 +899,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
     }
     try {
       const res = await fetch(`/api/slides/${id}/export?format=pdf`, { credentials: 'include' })
-      if (!res.ok) throw new Error('Server PDF failed')
+      if (!res.ok) throw new Error('服务端 PDF 导出失败')
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -923,7 +926,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
   if (!editor) {
     return (
       <div className="flex-1 flex items-center justify-center bg-bg">
-        <LoadingState label="Opening presentation…" />
+        <LoadingState label="正在打开幻灯片…" />
       </div>
     )
   }
@@ -941,7 +944,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
       {/* ── Top bar ──────────────────────────────────────────────────────── */}
       <Topbar
         leading={
-          <Tooltip label="Back to Slides">
+          <Tooltip label="返回幻灯片列表">
             <IconButton size="sm" onClick={() => void navigate('/slides')}>
               <ArrowLeft size={15} />
             </IconButton>
@@ -951,8 +954,8 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
           <input
             value={title}
             onChange={(e) => { setTitle(e.target.value); setSaved(false) }}
-            placeholder="Untitled presentation"
-            aria-label="Presentation title"
+            placeholder="未命名幻灯片"
+            aria-label="幻灯片标题"
             className={[
               'flex-1 min-w-0 text-sm font-semibold tracking-tightish',
               'bg-transparent border border-transparent rounded-sm px-2 py-1',
@@ -973,36 +976,36 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
         actions={
           <>
             {/* Share — account-based (named users) + P2P E2E link */}
-            <Tooltip label="Share">
-              <IconButton size="sm" active={showShare} onClick={() => setShowShare(true)} aria-label="Share">
+            <Tooltip label="分享">
+              <IconButton size="sm" active={showShare} onClick={() => setShowShare(true)} aria-label="分享">
                 <Share2 size={14} />
               </IconButton>
             </Tooltip>
             {/* New from Template */}
-            <Tooltip label="New from Template">
-              <IconButton size="sm" onClick={() => setShowTemplateGallery(true)} aria-label="New from template">
+            <Tooltip label="从模板新建">
+              <IconButton size="sm" onClick={() => setShowTemplateGallery(true)} aria-label="从模板新建">
                 <FileText size={14} />
               </IconButton>
             </Tooltip>
             {/* Theme gallery */}
-            <Tooltip label="Theme Gallery">
-              <IconButton size="sm" onClick={() => setShowThemeGallery(true)} aria-label="Theme gallery">
+            <Tooltip label="主题库">
+              <IconButton size="sm" onClick={() => setShowThemeGallery(true)} aria-label="主题库">
                 <Palette size={14} />
               </IconButton>
             </Tooltip>
             {/* Master slide editor */}
-            <Tooltip label="Master Slides (View → Master)">
-              <IconButton size="sm" onClick={() => setShowMasterEditor(true)} aria-label="Master slide editor">
+            <Tooltip label="幻灯片母版（视图 → 母版）">
+              <IconButton size="sm" onClick={() => setShowMasterEditor(true)} aria-label="幻灯片母版编辑器">
                 <Layout size={14} />
               </IconButton>
             </Tooltip>
             {/* Grid / overview mode */}
-            <Tooltip label="Slide overview">
-              <IconButton size="sm" active={showGridView} onClick={() => setShowGridView((v) => !v)} aria-label="Slide overview">
+            <Tooltip label="幻灯片总览">
+              <IconButton size="sm" active={showGridView} onClick={() => setShowGridView((v) => !v)} aria-label="幻灯片总览">
                 <LayoutGrid size={14} />
               </IconButton>
             </Tooltip>
-            <Tooltip label="Comments">
+            <Tooltip label="评论">
               <IconButton size="sm" active={showComments} onClick={() => setShowComments((v) => !v)}>
                 <MessageSquare size={14} />
               </IconButton>
@@ -1014,14 +1017,14 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
               onClick={() => setPresenting(!presenting)}
               aria-pressed={presenting}
             >
-              {presenting ? <><EyeOff size={13} /> Edit</> : <><Play size={13} /> Present</>}
+              {presenting ? <><EyeOff size={13} /> 编辑</> : <><Play size={13} /> 放映</>}
             </Button>
             {/* Presenter view */}
-            <Tooltip label="Presenter view (⌘⇧↵)">
+            <Tooltip label="演讲者视图 (⌘⇧↵)">
               <IconButton
                 size="sm"
                 onClick={() => openPresenter(activeIdx)}
-                aria-label="Open presenter view"
+                aria-label="打开演讲者视图"
               >
                 <Monitor size={14} />
               </IconButton>
@@ -1041,14 +1044,14 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     'focus-visible:outline-none focus-visible:shadow-focus',
                   ].join(' ')}
                 >
-                  <Download size={12} /> Export
+                  <Download size={12} /> 导出
                   <ChevronDownIcon size={11} className="opacity-60" />
                 </button>
               }
             >
               <Menu.Item onClick={() => void handleServerPdfExport()}>
                 <span className="text-2xs font-bold tracking-eyebrow text-danger w-10">PDF</span>
-                Export as PDF
+                导出为 PDF
               </Menu.Item>
               <Menu.Item onClick={() => {
                 // BUG FIX: exportSlidesToPptx had no error handling at its call
@@ -1062,7 +1065,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                 })
               }}>
                 <span className="text-2xs font-bold tracking-eyebrow text-accent w-10">PPTX</span>
-                Export as PowerPoint
+                导出为 PowerPoint
               </Menu.Item>
               {/* Restate the import loss right where it matters: before a PPTX
                   export overwrites the user's original and quietly ships a deck
@@ -1073,13 +1076,13 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                   data-testid="slide-export-loss-note"
                 >
                   <AlertCircle size={11} className="inline mr-1 -mt-0.5" />
-                  This export will not contain {importLoss.join(', ')} — they never imported.
+                  本次导出将不包含 {importLoss.join('、')}——这些内容在导入时未能保留。
                 </div>
               )}
               <Menu.Sep />
               <Menu.Item onClick={handlePrintNotes}>
-                <span className="text-2xs font-bold tracking-eyebrow text-warning w-10">NOTE</span>
-                Print speaker notes
+                <span className="text-2xs font-bold tracking-eyebrow text-warning w-10">备注</span>
+                打印演讲者备注
               </Menu.Item>
             </Menu>
             <Button
@@ -1089,7 +1092,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
               disabled={saving}
             >
               {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-              Save
+              保存
             </Button>
           </>
         }
@@ -1107,15 +1110,14 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
         >
           <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
           <span className="flex-1 text-ink-muted">
-            This presentation was imported, but {importLoss.join(', ')} could not be
-            brought in — our slides can't represent them. They are <strong>not</strong> in
-            this deck, and exporting to PowerPoint will not restore them.
+            本演示文稿为导入的文件，但 {importLoss.join('、')} 无法导入——本应用的幻灯片无法表示这些内容。
+            它们<strong>不在</strong>当前幻灯片中，导出为 PowerPoint 也不会恢复。
           </span>
           <button
             type="button"
             onClick={() => setImportLossDismissed(true)}
             className="flex-shrink-0 text-ink-faint hover:text-ink"
-            aria-label="Dismiss import notice"
+            aria-label="关闭导入提示"
           >
             <X size={13} />
           </button>
@@ -1130,7 +1132,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
         <div className="flex-1 flex flex-col overflow-hidden bg-bg">
           {/* Grid header */}
           <div className="flex items-center justify-between px-3 sm:px-6 py-3 bg-paper border-b border-line">
-            <h2 className="text-sm font-semibold text-ink">Slide Overview</h2>
+            <h2 className="text-sm font-semibold text-ink">幻灯片总览</h2>
             <button
               type="button"
               onClick={() => setShowGridView(false)}
@@ -1139,10 +1141,10 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                 'bg-paper border border-line text-ink-muted hover:border-line-strong hover:text-ink',
                 'transition-colors duration-fast',
               ].join(' ')}
-              aria-label="Exit overview"
+              aria-label="退出总览"
             >
               <X size={12} />
-              Edit
+              编辑
             </button>
           </div>
           {/* Grid of thumbnails */}
@@ -1156,7 +1158,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     role="button"
                     tabIndex={0}
                     aria-current={isActive ? 'true' : undefined}
-                    aria-label={`Slide ${idx + 1}${slide.title ? `: ${slide.title}` : ''}${isActive ? ' (current)' : ''}`}
+                    aria-label={`幻灯片 ${idx + 1}${slide.title ? `：${slide.title}` : ''}${isActive ? '（当前）' : ''}`}
                     draggable
                     onDragStart={() => setDragSlideIdx(idx)}
                     onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx) }}
@@ -1199,7 +1201,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                           slide.background ? 'text-white' : 'text-ink',
                         ].join(' ')}
                       >
-                        {slide.title || `Slide ${idx + 1}`}
+                        {slide.title || `幻灯片 ${idx + 1}`}
                       </div>
                       <div
                         className={[
@@ -1245,16 +1247,16 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
               <>
                 <div className="flex items-center justify-between px-3 h-9 border-b border-line">
                   <span className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow">
-                    Slides · {slidesData.slides.length}
+                    幻灯片 · {slidesData.slides.length}
                   </span>
                   <div className="flex items-center gap-0.5">
-                    <Tooltip label="Duplicate slide (⌘D)">
-                      <IconButton size="sm" onClick={() => duplicateSlide(activeIdx)} aria-label="Duplicate slide">
+                    <Tooltip label="复制幻灯片 (⌘D)">
+                      <IconButton size="sm" onClick={() => duplicateSlide(activeIdx)} aria-label="复制幻灯片">
                         <Copy size={11} />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip label="Add slide (⌘M)">
-                      <IconButton size="sm" onClick={() => addSlide()} aria-label="Add slide">
+                    <Tooltip label="新建幻灯片 (⌘M)">
+                      <IconButton size="sm" onClick={() => addSlide()} aria-label="新建幻灯片">
                         <Plus size={13} />
                       </IconButton>
                     </Tooltip>
@@ -1272,7 +1274,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                         role="button"
                         tabIndex={0}
                         aria-current={isActive ? 'true' : undefined}
-                        aria-label={`Slide ${idx + 1}${slide.title ? `: ${slide.title}` : ''}${isActive ? ' (current)' : ''}`}
+                        aria-label={`幻灯片 ${idx + 1}${slide.title ? `：${slide.title}` : ''}${isActive ? '（当前）' : ''}`}
                         draggable
                         onDragStart={() => setDragSlideIdx(idx)}
                         onDragOver={(e) => { e.preventDefault(); setDragOverIdx(idx) }}
@@ -1307,7 +1309,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                               slide.background ? 'text-white' : 'text-ink',
                             ].join(' ')}
                           >
-                            {slide.title || `Slide ${idx + 1}`}
+                            {slide.title || `幻灯片 ${idx + 1}`}
                           </div>
                           <div
                             className={[
@@ -1357,21 +1359,21 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                             on touch so they're reachable without hover. */}
                         <div className="absolute top-1 right-1 hidden group-hover:flex [@media(pointer:coarse)]:flex gap-0.5 bg-bg-elev2/80 rounded-md">
                           <IconButton
-                            size="sm" title="Move up"
+                            size="sm" title="上移"
                             disabled={idx === 0}
                             onClick={(e) => { e.stopPropagation(); moveSlide(idx, -1) }}
                           ><ChevronUp size={12} /></IconButton>
                           <IconButton
-                            size="sm" title="Move down"
+                            size="sm" title="下移"
                             disabled={idx === slidesData.slides.length - 1}
                             onClick={(e) => { e.stopPropagation(); moveSlide(idx, 1) }}
                           ><ChevronDown size={12} /></IconButton>
                           <IconButton
-                            size="sm" title="Duplicate"
+                            size="sm" title="复制"
                             onClick={(e) => { e.stopPropagation(); duplicateSlide(idx) }}
                           ><Copy size={12} /></IconButton>
                           <IconButton
-                            size="sm" title="Delete slide" className="hover:text-danger"
+                            size="sm" title="删除幻灯片" className="hover:text-danger"
                             onClick={(e) => { e.stopPropagation(); deleteSlide(idx) }}
                           ><Trash2 size={12} /></IconButton>
                         </div>
@@ -1411,7 +1413,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
               </button>
               <div>
                 <label className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow block mb-1">
-                  Global transition
+                  全局切换效果
                 </label>
                 <select
                   value={slidesData.transition}
@@ -1422,13 +1424,13 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     'focus-visible:outline-none focus-visible:shadow-focus',
                   ].join(' ')}
                 >
-                  {LEGACY_TRANSITIONS.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {LEGACY_TRANSITIONS.map((t) => <option key={t} value={t}>{LEGACY_TRANSITION_LABELS[t] ?? t}</option>)}
                 </select>
               </div>
               {/* Master assignment for current slide */}
               <div>
                 <label className="text-2xs font-semibold text-ink-faint uppercase tracking-eyebrow block mb-1">
-                  Slide layout
+                  幻灯片版式
                 </label>
                 <select
                   value={activeSlide?.master || 'content'}
@@ -1439,9 +1441,9 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     'focus-visible:outline-none focus-visible:shadow-focus',
                   ].join(' ')}
                 >
-                  <option value="title">Title Master</option>
-                  <option value="content">Content Master</option>
-                  <option value="section">Section Master</option>
+                  <option value="title">标题母版</option>
+                  <option value="content">内容母版</option>
+                  <option value="section">章节母版</option>
                 </select>
               </div>
             </div>
@@ -1459,8 +1461,8 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     'bg-transparent border-none outline-none',
                     'text-ink placeholder:text-ink-faint',
                   ].join(' ')}
-                  placeholder="Slide title…"
-                  aria-label="Slide title"
+                  placeholder="幻灯片标题…"
+                  aria-label="幻灯片标题"
                 />
               </div>
 
@@ -1480,23 +1482,23 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
               <div
                 className="toolbar-surface flex items-center gap-0.5 px-2 sm:px-3 h-auto min-h-10 py-1 flex-wrap"
                 role="toolbar"
-                aria-label="Slide formatting"
+                aria-label="幻灯片格式"
                 aria-orientation="horizontal"
               >
                 {/* Undo / Redo */}
-                <Tooltip label="Undo (⌘Z)">
+                <Tooltip label="撤销 (⌘Z)">
                   <IconButton size="sm"
                     onClick={() => fmtEditor.chain().focus().undo().run()}
                     disabled={!fmtEditor.can().undo()}
-                    aria-label="Undo">
+                    aria-label="撤销">
                     <Undo size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Redo (⌘⇧Z)">
+                <Tooltip label="重做 (⌘⇧Z)">
                   <IconButton size="sm"
                     onClick={() => fmtEditor.chain().focus().redo().run()}
                     disabled={!fmtEditor.can().redo()}
-                    aria-label="Redo">
+                    aria-label="重做">
                     <Redo size={14} />
                   </IconButton>
                 </Tooltip>
@@ -1509,12 +1511,12 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     <button
                       type="button"
                       className="toolbar-btn flex items-center gap-1 px-2 min-w-0 sm:min-w-[56px] text-xs"
-                      aria-label="Heading style"
+                      aria-label="标题样式"
                     >
                       <TypeIcon size={12} aria-hidden="true" />
                       {SLIDE_HEADINGS.find((h) =>
                         h.value === 0 ? !fmtEditor.isActive('heading') : fmtEditor.isActive('heading', { level: h.value })
-                      )?.label || 'Normal'}
+                      )?.label || '正文'}
                       <ChevronDownIcon size={10} className="opacity-60" aria-hidden="true" />
                     </button>
                   }
@@ -1543,7 +1545,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     <button
                       type="button"
                       className="toolbar-btn flex items-center gap-1 px-1 w-12 text-xs"
-                      aria-label="Font size"
+                      aria-label="字号"
                     >
                       <span className="flex-1 text-center tabular-nums">
                         {(() => {
@@ -1566,27 +1568,27 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                 </Menu>
 
                 <span className="toolbar-divider" />
-                <Tooltip label="Bold (⌘B)">
+                <Tooltip label="粗体 (⌘B)">
                   <IconButton size="sm" active={fmtEditor.isActive('bold')}
-                    onClick={() => fmtEditor.chain().focus().toggleBold().run()} aria-label="Bold">
+                    onClick={() => fmtEditor.chain().focus().toggleBold().run()} aria-label="粗体">
                     <Bold size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Italic (⌘I)">
+                <Tooltip label="斜体 (⌘I)">
                   <IconButton size="sm" active={fmtEditor.isActive('italic')}
-                    onClick={() => fmtEditor.chain().focus().toggleItalic().run()} aria-label="Italic">
+                    onClick={() => fmtEditor.chain().focus().toggleItalic().run()} aria-label="斜体">
                     <Italic size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Underline (⌘U)">
+                <Tooltip label="下划线 (⌘U)">
                   <IconButton size="sm" active={fmtEditor.isActive('underline')}
-                    onClick={() => fmtEditor.chain().focus().toggleUnderline().run()} aria-label="Underline">
+                    onClick={() => fmtEditor.chain().focus().toggleUnderline().run()} aria-label="下划线">
                     <UnderlineIcon size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Strikethrough">
+                <Tooltip label="删除线">
                   <IconButton size="sm" active={fmtEditor.isActive('strike')}
-                    onClick={() => fmtEditor.chain().focus().toggleStrike().run()} aria-label="Strikethrough">
+                    onClick={() => fmtEditor.chain().focus().toggleStrike().run()} aria-label="删除线">
                     <Strikethrough size={14} />
                   </IconButton>
                 </Tooltip>
@@ -1594,8 +1596,8 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                 {/* Text color */}
                 <label
                   className="toolbar-btn relative cursor-pointer flex items-center gap-1"
-                  title="Text color"
-                  aria-label="Text color"
+                  title="文字颜色"
+                  aria-label="文字颜色"
                 >
                   <Palette size={14} aria-hidden="true" />
                   <input
@@ -1606,7 +1608,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                       return typeof c === 'string' ? c : '#000000'
                     })()}
                     onChange={(e) => fmtEditor.chain().focus().setColor(e.target.value).run()}
-                    aria-label="Choose text color"
+                    aria-label="选择文字颜色"
                   />
                 </label>
                 {/* Highlight */}
@@ -1615,8 +1617,8 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     'toolbar-btn relative cursor-pointer flex items-center',
                     fmtEditor.isActive('highlight') ? 'text-accent' : '',
                   ].join(' ')}
-                  title="Highlight"
-                  aria-label="Highlight color"
+                  title="高亮"
+                  aria-label="高亮颜色"
                 >
                   <Highlighter size={14} aria-hidden="true" />
                   <input
@@ -1627,52 +1629,52 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                       return typeof c === 'string' ? c : '#fef08a'
                     })()}
                     onChange={(e) => fmtEditor.chain().focus().toggleHighlight({ color: e.target.value }).run()}
-                    aria-label="Choose highlight color"
+                    aria-label="选择高亮颜色"
                   />
                 </label>
                 <span className="toolbar-divider" />
-                <Tooltip label="Align left">
+                <Tooltip label="左对齐">
                   <IconButton size="sm" active={fmtEditor.isActive({ textAlign: 'left' })}
-                    onClick={() => fmtEditor.chain().focus().setTextAlign('left').run()} aria-label="Align left">
+                    onClick={() => fmtEditor.chain().focus().setTextAlign('left').run()} aria-label="左对齐">
                     <AlignLeft size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Align center">
+                <Tooltip label="居中对齐">
                   <IconButton size="sm" active={fmtEditor.isActive({ textAlign: 'center' })}
-                    onClick={() => fmtEditor.chain().focus().setTextAlign('center').run()} aria-label="Align center">
+                    onClick={() => fmtEditor.chain().focus().setTextAlign('center').run()} aria-label="居中对齐">
                     <AlignCenter size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Align right">
+                <Tooltip label="右对齐">
                   <IconButton size="sm" active={fmtEditor.isActive({ textAlign: 'right' })}
-                    onClick={() => fmtEditor.chain().focus().setTextAlign('right').run()} aria-label="Align right">
+                    onClick={() => fmtEditor.chain().focus().setTextAlign('right').run()} aria-label="右对齐">
                     <AlignRight size={14} />
                   </IconButton>
                 </Tooltip>
                 <span className="toolbar-divider" />
-                <Tooltip label="Bullet list">
+                <Tooltip label="项目符号列表">
                   <IconButton size="sm" active={fmtEditor.isActive('bulletList')}
-                    onClick={() => fmtEditor.chain().focus().toggleBulletList().run()} aria-label="Bullet list">
+                    onClick={() => fmtEditor.chain().focus().toggleBulletList().run()} aria-label="项目符号列表">
                     <List size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Numbered list">
+                <Tooltip label="编号列表">
                   <IconButton size="sm" active={fmtEditor.isActive('orderedList')}
-                    onClick={() => fmtEditor.chain().focus().toggleOrderedList().run()} aria-label="Numbered list">
+                    onClick={() => fmtEditor.chain().focus().toggleOrderedList().run()} aria-label="编号列表">
                     <ListOrdered size={14} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip label="Clear formatting">
+                <Tooltip label="清除格式">
                   <IconButton size="sm"
                     onClick={() => fmtEditor.chain().focus().unsetAllMarks().clearNodes().run()}
-                    aria-label="Clear formatting">
+                    aria-label="清除格式">
                     <RemoveFormatting size={14} />
                   </IconButton>
                 </Tooltip>
                 <span className="toolbar-divider" />
                 {/* Insert objects onto the canvas */}
-                <Tooltip label="Insert text box">
-                  <IconButton size="sm" onClick={insertTextObject} aria-label="Insert text box">
+                <Tooltip label="插入文本框">
+                  <IconButton size="sm" onClick={insertTextObject} aria-label="插入文本框">
                     <TypeIcon size={14} />
                   </IconButton>
                 </Tooltip>
@@ -1711,13 +1713,13 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                 />
                 <span className="toolbar-divider" />
                 {/* P1: preview animations in the editor */}
-                <Tooltip label="Play animations">
+                <Tooltip label="播放动画">
                   <IconButton
                     size="sm"
                     active={animPlaying}
                     disabled={!(activeSlide.animations && activeSlide.animations.length)}
                     onClick={playAnimations}
-                    aria-label="Play animations"
+                    aria-label="播放动画"
                   >
                     <Play size={14} />
                   </IconButton>
@@ -1726,9 +1728,9 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                 {/* Slide background */}
                 <label
                   className="toolbar-btn flex items-center gap-1.5 cursor-pointer text-xs px-2"
-                  title="Slide background"
+                  title="幻灯片背景"
                 >
-                  <span className="text-2xs font-semibold tracking-eyebrow uppercase text-ink-faint">BG</span>
+                  <span className="text-2xs font-semibold tracking-eyebrow uppercase text-ink-faint">背景</span>
                   <span
                     aria-hidden="true"
                     className="inline-block w-4 h-4 rounded-xs border border-line"
@@ -1739,7 +1741,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     className="sr-only"
                     value={activeSlide.background || '#1a1a2e'}
                     onChange={(e) => updateSlideField(activeIdx, 'background', e.target.value)}
-                    aria-label="Slide background colour"
+                    aria-label="幻灯片背景颜色"
                   />
                 </label>
               </div>
@@ -1784,7 +1786,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                   ref={notesResizeRef}
                   onMouseDown={(e) => { e.preventDefault(); isResizingNotes.current = true }}
                   className="h-1 cursor-row-resize bg-transparent hover:bg-warning/30 transition-colors flex-shrink-0"
-                  title="Drag to resize notes panel"
+                  title="拖动调整备注面板大小"
                 />
                 <div className="flex items-center justify-between px-3 sm:px-6 py-1 flex-shrink-0">
                   <label
@@ -1792,15 +1794,15 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     className="flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-eyebrow text-warning"
                   >
                     <StickyNote size={11} />
-                    Speaker notes
+                    演讲者备注
                   </label>
                   <button
                     type="button"
                     onClick={handlePrintNotes}
                     className="text-2xs text-ink-faint hover:text-ink transition-colors"
-                    title="Print notes"
+                    title="打印备注"
                   >
-                    Print notes PDF
+                    打印备注 PDF
                   </button>
                 </div>
                 <textarea
@@ -1811,7 +1813,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
                     'flex-1 w-full text-sm bg-transparent border-none outline-none resize-none px-6',
                     'text-ink-muted placeholder:text-ink-faint',
                   ].join(' ')}
-                  placeholder="Notes for the presenter…"
+                  placeholder="为演讲者添加备注…"
                 />
               </div>
             </div>
@@ -1821,7 +1823,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
           {showComments && (
             <CommentsPanel
               fileId={id as string}
-              anchorCtx={activeSlide ? { type: 'slide', slide_id: activeSlide.id, snapshot: activeSlide.title || `Slide ${activeIdx + 1}` } : null}
+              anchorCtx={activeSlide ? { type: 'slide', slide_id: activeSlide.id, snapshot: activeSlide.title || `幻灯片 ${activeIdx + 1}` } : null}
               onClose={() => setShowComments(false)}
             />
           )}

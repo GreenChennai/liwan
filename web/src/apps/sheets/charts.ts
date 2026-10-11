@@ -108,24 +108,24 @@ export interface ChartSeries { name: string; values: number[]; numeric: number[]
 export interface ExtractedChartData { categories: string[]; series: ChartSeries[]; empty: boolean }
 
 export const CHART_TYPES: ChartTypeMeta[] = [
-  { value: 'column',  label: 'Column',  icon: '▮',  group: 'Bar & column' },
-  { value: 'bar',     label: 'Bar',     icon: '▬',  group: 'Bar & column' },
+  { value: 'column',  label: '柱形图',  icon: '▮',  group: '柱状图与条形图' },
+  { value: 'bar',     label: '条形图',  icon: '▬',  group: '柱状图与条形图' },
   // WAVE-64 stacking family. Stacking is a property of the PLOT, not of the data,
   // so it is encoded in the type (as Google Sheets does) rather than as a flag —
   // that keeps the descriptor a single allow-listed enum at the CRDT ingress.
-  { value: 'column-stacked', label: 'Stacked column', icon: '▥', group: 'Bar & column' },
-  { value: 'bar-stacked',    label: 'Stacked bar',    icon: '▤', group: 'Bar & column' },
-  { value: 'column-100',     label: '100% column',    icon: '◫', group: 'Bar & column' },
-  { value: 'bar-100',        label: '100% bar',       icon: '⊟', group: 'Bar & column' },
-  { value: 'line',    label: 'Line',    icon: '╱',  group: 'Line & area' },
-  { value: 'area',    label: 'Area',    icon: '△',  group: 'Line & area' },
+  { value: 'column-stacked', label: '堆叠柱形图', icon: '▥', group: '柱状图与条形图' },
+  { value: 'bar-stacked',    label: '堆叠条形图', icon: '▤', group: '柱状图与条形图' },
+  { value: 'column-100',     label: '百分比柱形图', icon: '◫', group: '柱状图与条形图' },
+  { value: 'bar-100',        label: '百分比条形图', icon: '⊟', group: '柱状图与条形图' },
+  { value: 'line',    label: '折线图',  icon: '╱',  group: '折线图与面积图' },
+  { value: 'area',    label: '面积图',  icon: '△',  group: '折线图与面积图' },
   // WAVE-63 additional types:
-  { value: 'combo',   label: 'Combo',   icon: '▮╱', group: 'Line & area' }, // 1st series bars, rest lines
-  { value: 'pie',     label: 'Pie',     icon: '◔',  group: 'Part-to-whole' },
-  { value: 'donut',   label: 'Donut',   icon: '◎',  group: 'Part-to-whole' }, // WAVE-64
-  { value: 'scatter', label: 'Scatter', icon: '⣿',  group: 'Distribution' },  // X/Y points (2 numeric series)
-  { value: 'bubble',  label: 'Bubble',  icon: '◍',  group: 'Distribution' },  // X/Y + size (3 numeric series)
-  { value: 'histogram', label: 'Histogram', icon: '▁▄█', group: 'Distribution' }, // WAVE-64 binned frequency
+  { value: 'combo',   label: '组合图',  icon: '▮╱', group: '折线图与面积图' }, // 1st series bars, rest lines
+  { value: 'pie',     label: '饼图',    icon: '◔',  group: '占比' },
+  { value: 'donut',   label: '环形图',  icon: '◎',  group: '占比' }, // WAVE-64
+  { value: 'scatter', label: '散点图',  icon: '⣿',  group: '分布' },  // X/Y points (2 numeric series)
+  { value: 'bubble',  label: '气泡图',  icon: '◍',  group: '分布' },  // X/Y + size (3 numeric series)
+  { value: 'histogram', label: '直方图', icon: '▁▄█', group: '分布' }, // WAVE-64 binned frequency
 ]
 
 const CHART_TYPE_SET = new Set(CHART_TYPES.map((t) => t.value))
@@ -485,8 +485,8 @@ export function extractChartData(chart: Chart | ChartInput, sheet: ChartSheet | 
   let si = 0
   for (let c = dataC0; c < c0 + cols; c++) {
     const name = hasHeaderRow
-      ? escapeChartText(cellDisplay(idx.get(r0 + ',' + c))) || `Series ${si + 1}`
-      : `Series ${si + 1}`
+      ? escapeChartText(cellDisplay(idx.get(r0 + ',' + c))) || `系列 ${si + 1}`
+      : `系列 ${si + 1}`
     const values: number[] = []
     // `numeric` = only the cells that REALLY held a number. `values` keeps the
     // 0-filled shape a cartesian plot needs (one point per category), but a
@@ -552,23 +552,23 @@ export function chartValuesSignature(chart: Chart | ChartInput, sheet: ChartShee
  */
 export function chartAccessibleSummary(chart: Chart, extracted: ExtractedChartData | null | undefined): string {
   const kind = CHART_TYPES.find((t) => t.value === chart.type)?.label || chart.type
-  const title = escapeChartText(chart.title) || 'Untitled chart'
+  const title = escapeChartText(chart.title) || '未命名图表'
   if (!extracted || extracted.empty) {
-    return `${kind} chart: ${title}. No data to plot.`
+    return `${kind}图表：${title}。没有可绘制的数据。`
   }
   // A histogram has no categories of its own — it summarises ONE numeric series
   // as a frequency distribution, so describe it that way for a screen reader.
   if (chart.type === 'histogram') {
     const h = histogramBins(histogramValues(extracted), chart.options?.bins)
-    return `${kind} chart: ${title}. ${h.total} values distributed across ${h.bins.length} bins, ` +
-      `tallest bin ${h.max}.`
+    return `${kind}图表：${title}。${h.total} 个值分布在 ${h.bins.length} 个区间中，` +
+      `最高区间为 ${h.max}。`
   }
-  const seriesNames = extracted.series.map((s) => s.name).join(', ')
+  const seriesNames = extracted.series.map((s) => s.name).join('、')
   const mode = stackModeOf(chart.type)
-  const stackNote = mode === 'stacked' ? ' Series are stacked.'
-    : mode === 'percent' ? ' Series are stacked to 100% of each category.'
-    : chart.type === 'combo' && chart.options?.secondaryAxis ? ' Line series use a secondary axis.'
+  const stackNote = mode === 'stacked' ? ' 数据系列已堆叠。'
+    : mode === 'percent' ? ' 数据系列已按每个类别堆叠为 100%。'
+    : chart.type === 'combo' && chart.options?.secondaryAxis ? ' 折线系列使用次坐标轴。'
     : ''
-  return `${kind} chart: ${title}. ${extracted.series.length} series ` +
-    `(${seriesNames}) across ${extracted.categories.length} categories.${stackNote}`
+  return `${kind}图表：${title}。共 ${extracted.series.length} 个数据系列` +
+    `（${seriesNames}），涵盖 ${extracted.categories.length} 个类别。${stackNote}`
 }

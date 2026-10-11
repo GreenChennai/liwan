@@ -14,11 +14,17 @@ import { Button } from '../../../components/ui'
 import { normalizeHeaderFooter, type HeaderFooterBand, type HeaderFooterConfig } from '../headerFooter.js'
 
 const FIELDS = [
-  { token: '{{page}}', label: 'Page #' },
-  { token: '{{pages}}', label: 'Total pages' },
-  { token: '{{title}}', label: 'Title' },
-  { token: '{{date}}', label: 'Date' },
+  { token: '{{page}}', label: '页码' },
+  { token: '{{pages}}', label: '总页数' },
+  { token: '{{title}}', label: '标题' },
+  { token: '{{date}}', label: '日期' },
 ]
+
+const CELL_LABELS: Record<'left' | 'center' | 'right', string> = {
+  left: '左侧',
+  center: '居中',
+  right: '右侧',
+}
 
 interface BandEditorProps {
   label: string
@@ -39,8 +45,8 @@ function BandEditor({ label, band, onChange }: BandEditorProps) {
               type="text"
               value={band[cell] || ''}
               onChange={(e) => set(cell, e.target.value)}
-              placeholder={cell}
-              aria-label={`${label} ${cell}`}
+              placeholder={CELL_LABELS[cell]}
+              aria-label={`${label} ${CELL_LABELS[cell]}`}
               className="w-full text-xs px-2 py-1 rounded border border-line bg-paper text-ink placeholder:text-ink-faint focus:outline-none focus:border-accent"
             />
             <div className="flex flex-wrap gap-0.5">
@@ -50,7 +56,7 @@ function BandEditor({ label, band, onChange }: BandEditorProps) {
                   type="button"
                   onClick={() => insertField(cell, f.token)}
                   className="px-1 py-0.5 rounded-xs border border-line text-[9px] text-ink-faint hover:border-accent hover:text-ink transition-colors"
-                  title={`Insert ${f.token}`}
+                  title={`插入 ${f.token}`}
                 >
                   {f.label}
                 </button>
@@ -84,7 +90,7 @@ export default function HeaderFooterDialog({ open, value, onApply, onClose }: He
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Headers & footers" size="xl">
+    <Modal open={open} onClose={onClose} title="页眉和页脚" size="xl">
       <Modal.Body className="space-y-4">
         <label className="flex items-center gap-2 text-sm text-ink-muted">
           <input
@@ -92,16 +98,16 @@ export default function HeaderFooterDialog({ open, value, onApply, onClose }: He
             checked={cfg.enabled}
             onChange={(e) => setCfg((c) => ({ ...c, enabled: e.target.checked }))}
           />
-          Show headers and footers
+          显示页眉和页脚
         </label>
 
         <BandEditor
-          label="Header"
+          label="页眉"
           band={cfg.header}
           onChange={(header) => setCfg((c) => ({ ...c, header }))}
         />
         <BandEditor
-          label="Footer"
+          label="页脚"
           band={cfg.footer}
           onChange={(footer) => setCfg((c) => ({ ...c, footer }))}
         />
@@ -113,7 +119,7 @@ export default function HeaderFooterDialog({ open, value, onApply, onClose }: He
               checked={cfg.differentFirstPage}
               onChange={(e) => setCfg((c) => ({ ...c, differentFirstPage: e.target.checked }))}
             />
-            Different first page (suppress on page 1)
+            首页不同（首页不显示）
           </label>
           <label className="flex items-center gap-2 text-sm text-ink-muted">
             <input
@@ -121,12 +127,12 @@ export default function HeaderFooterDialog({ open, value, onApply, onClose }: He
               checked={cfg.oddEven}
               onChange={(e) => setCfg((c) => ({ ...c, oddEven: e.target.checked }))}
             />
-            Mirror odd/even pages (swap left/right on even pages)
+            奇偶页不同（偶数页左右互换）
           </label>
         </div>
 
         <p className="text-2xs text-ink-faint">
-          Fields resolve when the document is viewed, printed, or exported:
+          字段会在查看、打印或导出文档时解析：
           <code className="mx-1">{'{{page}}'}</code>
           <code className="mx-1">{'{{pages}}'}</code>
           <code className="mx-1">{'{{title}}'}</code>
@@ -134,8 +140,8 @@ export default function HeaderFooterDialog({ open, value, onApply, onClose }: He
         </p>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" size="sm" onClick={onClose}>Cancel</Button>
-        <Button variant="primary" size="sm" onClick={apply}>Apply</Button>
+        <Button variant="secondary" size="sm" onClick={onClose}>取消</Button>
+        <Button variant="primary" size="sm" onClick={apply}>应用</Button>
       </Modal.Footer>
     </Modal>
   )

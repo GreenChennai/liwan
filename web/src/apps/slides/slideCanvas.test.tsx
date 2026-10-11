@@ -361,7 +361,7 @@ describe('SlideCanvas interaction (P2)', () => {
   it('resize handle grows the object', () => {
     const onChange = vi.fn<OnChangeMock>()
     render(<SlideCanvas objects={baseObjects} selectedIds={['a']} onSelect={() => {}} onChange={onChange} />)
-    const seHandle = screen.getByLabelText('Resize se')
+    const seHandle = screen.getByLabelText('调整大小（右下）')
     fireEvent.pointerDown(seHandle, { clientX: 480, clientY: 480 })
     act(() => {
       window.dispatchEvent(new MouseEvent('pointermove', { clientX: 580, clientY: 580 }))
@@ -377,7 +377,7 @@ describe('SlideCanvas interaction (P2)', () => {
   it('rotate handle changes rotation', () => {
     const onChange = vi.fn<OnChangeMock>()
     render(<SlideCanvas objects={baseObjects} selectedIds={['a']} onSelect={() => {}} onChange={onChange} />)
-    const rot = screen.getByLabelText('Rotate')
+    const rot = screen.getByLabelText('旋转')
     fireEvent.pointerDown(rot, { clientX: 336, clientY: 80 })
     act(() => {
       window.dispatchEvent(new MouseEvent('pointermove', { clientX: 500, clientY: 300 }))
@@ -398,7 +398,7 @@ describe('SlideCanvas interaction (P2)', () => {
   it('pointer-up commits the dragged geometry, not the original (revert-on-release guard)', () => {
     const onChange = vi.fn<OnChangeMock>()
     render(<SlideCanvas objects={baseObjects} selectedIds={['a']} onSelect={() => {}} onChange={onChange} />)
-    const seHandle = screen.getByLabelText('Resize se')
+    const seHandle = screen.getByLabelText('调整大小（右下）')
     fireEvent.pointerDown(seHandle, { clientX: 480, clientY: 480 })
     act(() => {
       window.dispatchEvent(new MouseEvent('pointermove', { clientX: 600, clientY: 600 }))
@@ -449,27 +449,27 @@ describe('SlideCanvas accessibility', () => {
     expect(live).toBeTruthy()
     expect(live!.textContent).toBe('')
     rerender(<SlideCanvas objects={baseObjects} selectedIds={['b']} onSelect={() => {}} onChange={() => {}} />)
-    expect(live!.textContent).toBe('text object selected')
+    expect(live!.textContent).toBe('已选中文本框')
   })
 
   it('announces a multi-selection as a count', () => {
     render(<SlideCanvas objects={baseObjects} selectedIds={['a', 'b']} onSelect={() => {}} onChange={() => {}} />)
     const live = document.querySelector('[role="status"][aria-live="polite"]')
-    expect(live!.textContent).toBe('2 objects selected')
+    expect(live!.textContent).toBe('已选中 2 个对象')
   })
 
-  it('marks the selected object aria-pressed and includes "selected" in its label', () => {
+  it('marks the selected object aria-pressed and includes "已选中" in its label', () => {
     render(<SlideCanvas objects={baseObjects} selectedIds={['a']} onSelect={() => {}} onChange={() => {}} />)
     const el = document.querySelector('[data-object-id="a"]')
     expect(el!.getAttribute('aria-pressed')).toBe('true')
-    expect(el!.getAttribute('aria-label')).toContain('selected')
+    expect(el!.getAttribute('aria-label')).toContain('已选中')
   })
 
   it('resize + rotate handles carry the affordance classes (hover/focus ladder)', () => {
     render(<SlideCanvas objects={baseObjects} selectedIds={['a']} onSelect={() => {}} onChange={() => {}} />)
-    const seHandle = screen.getByLabelText('Resize se')
+    const seHandle = screen.getByLabelText('调整大小（右下）')
     expect(seHandle.className).toContain('vslide-handle')
-    const rot = screen.getByLabelText('Rotate')
+    const rot = screen.getByLabelText('旋转')
     expect(rot.className).toContain('vslide-rotate')
   })
 })
