@@ -15,9 +15,9 @@ import (
 	"os"
 	"sync"
 
-	"diwan/backend/fileacl"
-	"diwan/backend/middleware"
-	"diwan/backend/storage"
+	"liwan/backend/fileacl"
+	"liwan/backend/middleware"
+	"liwan/backend/storage"
 
 	"github.com/gin-gonic/gin"
 )

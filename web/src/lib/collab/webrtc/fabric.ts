@@ -2,7 +2,7 @@
 // rendezvousBaseUrl/relayBaseUrl parameters, both defaulted to '' below — "the existing
 // /api/peering/* path is untouched when this option is absent". No default endpoint.
 /**
- * fabric.ts — Diwan fabric client adapter (OFFICE-20).
+ * fabric.ts — Liwan fabric client adapter (OFFICE-20).
  *
  * Joins a Vulos fabric session for a given document/session id:
  *  1. Fetches ICE/TURN credentials from the OS relay  (/api/peering/ice  or
@@ -58,7 +58,7 @@ function _byteSize(data: unknown): number {
   }
 }
 
-const DATA_CHANNEL_LABEL = 'diwan-fabric'
+const DATA_CHANNEL_LABEL = 'liwan-fabric'
 const RELAY_TIMEOUT_MS = 8_000        // give P2P this long before falling back
 const RELAY_POLL_MS = 2_000           // relay pickup polling interval
 const RELAY_TTL_HOURS = 1

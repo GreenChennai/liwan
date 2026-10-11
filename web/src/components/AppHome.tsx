@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useFilesStore } from '../store/filesStore'
-import type { DiwanFile, DiwanFolder } from '../store/filesStore'
+import type { LiwanFile, LiwanFolder } from '../store/filesStore'
 import { useLocalFilesStore } from '../store/localFilesStore'
 import type { LocalFileEntry } from '../store/localFilesStore'
 import { useAuthStore } from '../store/authStore'
@@ -124,7 +124,7 @@ export default function AppHome({ type }: AppHomeProps) {
   const myAccountId = useAuthStore((s) => s.accountId)
   const [showNew, setShowNew] = useState(false)
   // The file currently open in the account-share dialog (or null).
-  const [sharing, setSharing] = useState<DiwanFile | null>(null)
+  const [sharing, setSharing] = useState<LiwanFile | null>(null)
   const [search, setSearch] = useState('')
   // Global full-text search across the caller's ACL-scoped documents (owned +
   // shared). Fires against the backend, debounced, when the query is >= 2 chars.
@@ -145,7 +145,7 @@ export default function AppHome({ type }: AppHomeProps) {
   //   moving  — the file being placed via the "Move to…" picker (or null)
   const [view, setView] = useState<'browse' | 'starred' | 'trash'>('browse')
   const [folderId, setFolderId] = useState('')
-  const [moving, setMoving] = useState<DiwanFile | null>(null)
+  const [moving, setMoving] = useState<LiwanFile | null>(null)
 
   const openImportedFile = async (file: File | null | undefined) => {
     if (!file) return
@@ -247,7 +247,7 @@ export default function AppHome({ type }: AppHomeProps) {
   const crumbs = useMemo(() => {
     if (view !== 'browse' || !folderId) return []
     const byId = new Map((folders || []).map(f => [f.id, f]))
-    const out: DiwanFolder[] = []
+    const out: LiwanFolder[] = []
     let cur = byId.get(folderId)
     let guard = 0
     while (cur && guard++ < 64) {
@@ -262,7 +262,7 @@ export default function AppHome({ type }: AppHomeProps) {
   // makes openFile's own return type void instead of inheriting
   // NavigateFunction's wider (data-router) `void | Promise<void>`.
   const openFile = (f: { id: string }) => { void navigate(`/${cfg.route}/${f.id}`) }
-  const startRename = (f: DiwanFile) => { setRenaming(f.id); setRenameValue(f.name); setMenuOpen(null) }
+  const startRename = (f: LiwanFile) => { setRenaming(f.id); setRenameValue(f.name); setMenuOpen(null) }
   // BUG FIX: renameFile/renameFolder (filesStore.ts) do not catch their own
   // errors — a network failure or unresolved save-conflict throws through
   // here. That used to skip `setRenaming(null)`, leaving the rename input
@@ -278,7 +278,7 @@ export default function AppHome({ type }: AppHomeProps) {
       setRenaming(null)
     }
   }
-  const startRenameFolder = (f: DiwanFolder) => { setRenaming('folder:' + f.id); setRenameValue(f.name); setMenuOpen(null) }
+  const startRenameFolder = (f: LiwanFolder) => { setRenaming('folder:' + f.id); setRenameValue(f.name); setMenuOpen(null) }
   const commitRenameFolder = async (id: string) => {
     try {
       if (renameValue.trim()) await renameFolder(id, renameValue.trim())
@@ -791,7 +791,7 @@ export function SnippetText({ snippet }: { snippet?: string | undefined }) {
 
 // ─── FolderCard ───────────────────────────────────────────────────────────────
 interface FolderCardProps {
-  folder: DiwanFolder
+  folder: LiwanFolder
   view: 'browse' | 'starred' | 'trash'
   renaming: string | null
   renameValue: string
@@ -883,7 +883,7 @@ function MenuItem({ danger, onClick, children }: { danger?: boolean; onClick: ()
 
 // ─── FileCard ─────────────────────────────────────────────────────────────────
 interface FileCardProps {
-  file: DiwanFile
+  file: LiwanFile
   Icon: LucideIcon
   type: AppType
   view: 'browse' | 'starred' | 'trash'
@@ -999,7 +999,7 @@ function FileCard({
 
 // ─── FileListTable ────────────────────────────────────────────────────────────
 interface FileListTableProps {
-  files: DiwanFile[]
+  files: LiwanFile[]
   cfg: AppConfig
   Icon: LucideIcon
   view: 'browse' | 'starred' | 'trash'
@@ -1009,12 +1009,12 @@ interface FileListTableProps {
   setRenameValue: (v: string) => void
   menuOpen: string | null
   setMenuOpen: (v: string | null) => void
-  onOpen: (file: DiwanFile) => void
-  onRename: (file: DiwanFile) => void
+  onOpen: (file: LiwanFile) => void
+  onRename: (file: LiwanFile) => void
   onRenameCommit: (id: string) => void
   onStar: (id: string) => void
-  onMove: (file: DiwanFile) => void
-  onShare: (file: DiwanFile) => void
+  onMove: (file: LiwanFile) => void
+  onShare: (file: LiwanFile) => void
   onTrash: (id: string) => void
   onRestore: (id: string) => void
   onDelete: (id: string) => void
@@ -1108,15 +1108,15 @@ function FileListTable({
 
 // ─── MoveToFolderModal ────────────────────────────────────────────────────────
 interface MoveToFolderModalProps {
-  file: DiwanFile
-  folders: DiwanFolder[]
+  file: LiwanFile
+  folders: LiwanFolder[]
   onClose: () => void
   onMove: (targetId: string) => void
 }
 
 function MoveToFolderModal({ file, folders, onClose, onMove }: MoveToFolderModalProps) {
   const byParent = useMemo(() => {
-    const m = new Map<string, DiwanFolder[]>()
+    const m = new Map<string, LiwanFolder[]>()
     for (const f of folders) {
       const p = f.parent_id || ''
       if (!m.has(p)) m.set(p, [])

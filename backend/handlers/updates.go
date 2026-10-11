@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"diwan/backend/billing"
-	"diwan/backend/storage"
-	"diwan/backend/updatelog"
+	"liwan/backend/billing"
+	"liwan/backend/storage"
+	"liwan/backend/updatelog"
 
 	"github.com/gin-gonic/gin"
 )

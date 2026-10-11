@@ -1,5 +1,5 @@
 /**
- * WhiteboardEditor — Diwan's whiteboard document type.
+ * WhiteboardEditor — Liwan's whiteboard document type.
  *
  * A whiteboard is an Excalidraw canvas (MIT — https://github.com/excalidraw/excalidraw)
  * backed by a Y.Doc, mounted on Office's OWN distributed peer-to-peer collab
@@ -7,7 +7,7 @@
  *
  *   • The scene is a Yjs CRDT: elements live one-per-id in a Y.Map so concurrent
  *     edits to different shapes merge cleanly (see lib/crdt/boardYdoc.js).
- *   • It syncs over an E2E-encrypted P2P room via Diwan's own first-party
+ *   • It syncs over an E2E-encrypted P2P room via Liwan's own first-party
  *     src/lib/collab/webrtc/fabric.js FabricClient — DIRECT WebRTC data
  *     channels, relay/TURN only on hard-NAT
  *     failure and content-blind even then. The room key lives in the URL
@@ -32,7 +32,7 @@ import { Excalidraw } from '@excalidraw/excalidraw'
 import '@excalidraw/excalidraw/index.css'
 import type { ExcalidrawImperativeAPI, ExcalidrawProps } from '@excalidraw/excalidraw/types'
 import { ArrowLeft, Users, Eye, Share2, Info, WifiOff } from 'lucide-react'
-import { useFilesStore, getSaveState, onSaveStateChange, type DiwanFile } from '../../store/filesStore'
+import { useFilesStore, getSaveState, onSaveStateChange, type LiwanFile } from '../../store/filesStore'
 import { api } from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
 import { useResolvedTheme } from '../../components/ui/useTheme'
@@ -66,7 +66,7 @@ export default function WhiteboardEditor() {
   const collabEnabled = useMemo(() => docsCollabEnabled(), [])
 
   const { files, saveFileWithDraft, markDirty } = useFilesStore()
-  const [file, setFile] = useState<DiwanFile | undefined>(files.find((f) => f.id === id))
+  const [file, setFile] = useState<LiwanFile | undefined>(files.find((f) => f.id === id))
   const [title, setTitle] = useState(file?.name || 'Untitled whiteboard')
   const [saveStatus, setSaveStatus] = useState(getSaveState(id as string))
   const [seeded, setSeeded] = useState(false)
@@ -100,7 +100,7 @@ export default function WhiteboardEditor() {
   useEffect(() => {
     if (file || !id) return
     api.getFile(id)
-      .then((f) => { const loaded = f as DiwanFile; setFile(loaded); setTitle(loaded.name || 'Untitled whiteboard') })
+      .then((f) => { const loaded = f as LiwanFile; setFile(loaded); setTitle(loaded.name || 'Untitled whiteboard') })
       .catch(() => navigate('/whiteboards'))
   }, [id, file, navigate])
 

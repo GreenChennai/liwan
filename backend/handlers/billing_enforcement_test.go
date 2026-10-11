@@ -20,13 +20,13 @@ import (
 	"sync"
 	"testing"
 
-	"diwan/backend/audit"
-	"diwan/backend/billing"
-	"diwan/backend/fileacl"
-	"diwan/backend/invites"
-	"diwan/backend/middleware"
-	"diwan/backend/seam"
-	"diwan/backend/userauth"
+	"liwan/backend/audit"
+	"liwan/backend/billing"
+	"liwan/backend/fileacl"
+	"liwan/backend/invites"
+	"liwan/backend/middleware"
+	"liwan/backend/seam"
+	"liwan/backend/userauth"
 
 	"github.com/gin-gonic/gin"
 )

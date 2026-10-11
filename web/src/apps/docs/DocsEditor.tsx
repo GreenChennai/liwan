@@ -54,7 +54,7 @@ import { ArrowLeft, Save, Loader2, AlertCircle, History, Users, MessageSquare, A
 import FindReplace from './components/FindReplace'
 import WordCountModal from './components/WordCountModal'
 import DocumentOutline from './components/DocumentOutline'
-import { useFilesStore, getSaveState, onSaveStateChange, type DiwanFile, type SaveState } from '../../store/filesStore'
+import { useFilesStore, getSaveState, onSaveStateChange, type LiwanFile, type SaveState } from '../../store/filesStore'
 import { api } from '../../lib/api'
 import { sanitizeDocHtml } from '../../lib/sanitize'
 import { readDraft, clearDraft, type Draft } from '../../lib/draftStore'
@@ -333,7 +333,7 @@ export default function DocsEditor() {
   // labelled unavailable. Read once per mount — it is a build-time constant.
   const collabEnabled = useMemo(() => docsCollabEnabled(), [])
   const { files, saveFileWithDraft, markDirty } = useFilesStore()
-  const [file, setFile] = useState<DiwanFile | undefined>(files.find((f) => f.id === id))
+  const [file, setFile] = useState<LiwanFile | undefined>(files.find((f) => f.id === id))
   const [title, setTitle] = useState(file?.name || 'Untitled')
   const [pendingContent, setPendingContent] = useState<string | Record<string, unknown> | null>(null)
   const [saveStatus, setSaveStatus] = useState<SaveState>(getSaveState(id || ''))
@@ -713,7 +713,7 @@ export default function DocsEditor() {
   useEffect(() => {
     if (!file && id) {
       api.getFile(id).then((f) => {
-        const loaded = f as DiwanFile
+        const loaded = f as LiwanFile
         setFile(loaded)
         setTitle(loaded.name)
         loadDocMeta(loaded.content)

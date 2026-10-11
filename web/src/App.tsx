@@ -46,7 +46,7 @@ export default function App() {
 
   // ── Protocol handler + deep-link ?goto= param ─────────────────────────────
   useEffect(() => {
-    // Register diwan:// protocol handler (web+ prefix required by browsers).
+    // Register liwan:// protocol handler (web+ prefix required by browsers).
     // TS's lib.dom types only the current 2-arg spec signature; the trailing
     // title arg is a harmless legacy 3rd param some older engines still read
     // (extra JS call args are simply ignored where unsupported), so widen the
@@ -70,11 +70,11 @@ export default function App() {
       // Confirmed by direct removal.
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const registerProtocolHandlerLegacy = navigator.registerProtocolHandler.bind(navigator) as RegisterProtocolHandlerLegacy
-      registerProtocolHandlerLegacy('web+diwan', window.location.origin + '/?goto=%s', 'Diwan')
+      registerProtocolHandlerLegacy('web+liwan', window.location.origin + '/?goto=%s', 'Liwan')
     } catch { /* unsupported browser */ }
 
     // Handle incoming deep-link ?goto= param
-    // e.g. OS rewrites web+diwan://docs/abc123 → https://app.vulos.org/?goto=docs%2Fabc123
+    // e.g. OS rewrites web+liwan://docs/abc123 → https://app.vulos.org/?goto=docs%2Fabc123
     const params = new URLSearchParams(window.location.search)
     const goto = params.get('goto')
     if (goto) {
@@ -98,7 +98,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-bg">
-        <LoadingState label="Loading Diwan…" />
+        <LoadingState label="Loading Liwan…" />
       </div>
     )
   }

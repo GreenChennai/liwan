@@ -1,4 +1,4 @@
-module diwan
+module liwan
 
 go 1.25.0
 

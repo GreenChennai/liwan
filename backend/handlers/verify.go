@@ -26,8 +26,8 @@ import (
 	"strings"
 	"time"
 
-	"diwan/backend/signing"
-	"diwan/backend/storage"
+	"liwan/backend/signing"
+	"liwan/backend/storage"
 
 	"github.com/gin-gonic/gin"
 )

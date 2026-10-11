@@ -26,7 +26,7 @@ import (
 	"sync"
 	"time"
 
-	"diwan/backend/seam"
+	"liwan/backend/seam"
 )
 
 // Environment contract for the optional cloud adapter.

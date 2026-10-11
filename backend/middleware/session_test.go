@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"diwan/backend/config"
-	"diwan/backend/session"
+	"liwan/backend/config"
+	"liwan/backend/session"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

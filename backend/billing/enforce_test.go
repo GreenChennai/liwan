@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"diwan/backend/seam"
+	"liwan/backend/seam"
 )
 
 // stubEntitlements returns a fixed entitlement (and optional error) for every

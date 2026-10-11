@@ -3,26 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Diwan docs</title>
-<meta name="description" content="Diwan documentation — getting started, architecture, collaboration, configuration, API, self-hosting, deploy, threat model and more.">
-  <link rel="canonical" href="https://vulos.org/projects/diwan/docs.html">
+<title>Liwan docs</title>
+<meta name="description" content="Liwan documentation — getting started, architecture, collaboration, configuration, API, self-hosting, deploy, threat model and more.">
+  <link rel="canonical" href="https://vulos.org/projects/liwan/docs.html">
   <meta name="color-scheme" content="dark light">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Diwan">
-  <meta property="og:title" content="Diwan docs">
-  <meta property="og:description" content="Diwan documentation — getting started, architecture, collaboration, configuration, API, self-hosting, deploy, threat model and more.">
-  <meta property="og:url" content="https://vulos.org/projects/diwan/docs.html">
+  <meta property="og:site_name" content="Liwan">
+  <meta property="og:title" content="Liwan docs">
+  <meta property="og:description" content="Liwan documentation — getting started, architecture, collaboration, configuration, API, self-hosting, deploy, threat model and more.">
+  <meta property="og:url" content="https://vulos.org/projects/liwan/docs.html">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Diwan docs">
-  <meta name="twitter:description" content="Diwan documentation — getting started, architecture, collaboration, configuration, API, self-hosting, deploy, threat model and more.">
-  <meta property="og:image" content="https://vulos.org/projects/diwan/assets/og-card.png">
+  <meta name="twitter:title" content="Liwan docs">
+  <meta name="twitter:description" content="Liwan documentation — getting started, architecture, collaboration, configuration, API, self-hosting, deploy, threat model and more.">
+  <meta property="og:image" content="https://vulos.org/projects/liwan/assets/og-card.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Diwan docs — Diwan documentation — getting started, architecture, collaboration, configuration, API, self-hosting, deploy, threat model and more.">
-  <meta name="twitter:image" content="https://vulos.org/projects/diwan/assets/og-card.png">
+  <meta property="og:image:alt" content="Liwan docs — Liwan documentation — getting started, architecture, collaboration, configuration, API, self-hosting, deploy, threat model and more.">
+  <meta name="twitter:image" content="https://vulos.org/projects/liwan/assets/og-card.png">
 <meta name="theme-color" content="#FBF7F1">
-<link rel="icon" href="./assets/diwan-mark.svg">
+<link rel="icon" href="./assets/liwan-mark.svg">
 <link rel="preload" href="./assets/fonts/bricolage-grotesque-latin-opsz-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./assets/fonts/schibsted-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>
@@ -32,7 +32,7 @@
     // with zero flash — see .navtoggle / .navlinks in the stylesheet below.
     document.documentElement.classList.add('js');
     try {
-      var s = localStorage.getItem('diwan.site-theme');
+      var s = localStorage.getItem('liwan.site-theme');
       var t = s || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', t);
     } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
@@ -40,7 +40,7 @@
 </script>
 <style>
 /* ══════════════════════════════════════════════════════════════════════════
-   Diwan — docs viewer
+   Liwan — docs viewer
    Same "Warm Workshop" theme as site/index.html (src/design/tokens.css):
    warm ivory paper, ember terracotta, exactly one accent, soft geometry.
    Fonts are vendored locally — nothing is fetched at runtime.
@@ -558,7 +558,7 @@ img{max-width:100%;display:block}
 <header class="topbar">
   <div class="bar">
     <a class="brand" href="./index.html">
-      <span class="tile"><img src="./assets/diwan-mark.svg" alt=""></span>Diwan
+      <span class="tile"><img src="./assets/liwan-mark.svg" alt=""></span>Liwan
       <span class="ar" lang="ar" dir="rtl">ديوان</span>
     </a>
     <div class="spacer"></div>
@@ -567,7 +567,7 @@ img{max-width:100%;display:block}
       <a class="anchor" href="./index.html#collaboration">Collaboration</a>
       <a class="anchor" href="./index.html#install">Install</a>
       <a href="./docs.html" aria-current="page">Docs</a>
-      <a class="gh" href="https://github.com/vul-os/diwan" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg><span class="lbl">GitHub</span></a>
+      <a class="gh" href="https://github.com/GreenChennai/liwan" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg><span class="lbl">GitHub</span></a>
     </nav>
     <button class="iconbtn navtoggle" id="navtoggle" type="button" aria-expanded="false" aria-controls="navlinks" aria-label="Open menu">
       <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -584,7 +584,7 @@ img{max-width:100%;display:block}
 <main>
 <div class="wrap docs-shell">
   <aside class="docs-rail" aria-label="Documentation chapters">
-    <div class="rail-label">Diwan docs</div>
+    <div class="rail-label">Liwan docs</div>
     <button class="rail-toggle" id="railToggle" type="button" aria-expanded="false" aria-controls="railNav">
       <span class="rail-toggle-cur" id="railToggleCur">Chapters</span>
       <span class="rail-toggle-chev" aria-hidden="true"></span>
@@ -650,7 +650,7 @@ byFile['selfhost.md'] = bySlug['self-hosting'];
 // SECURITY.md). Send those links to the repo rather than to a page that is not
 // on this site — a dead in-page link reads as a broken site, an outbound one
 // reads as what it is.
-const REPO_BLOB = 'https://github.com/vul-os/diwan/blob/main/';
+const REPO_BLOB = 'https://github.com/GreenChennai/liwan/blob/main/';
 const UNPUBLISHED = {
   'coturn.md': 'docs/COTURN.md',
   'security-testing.md': 'docs/SECURITY-TESTING.md',
@@ -1017,7 +1017,7 @@ load(current());
   btn.addEventListener('click', function () {
     var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
-    try { localStorage.setItem('diwan.site-theme', next); } catch (e) {}
+    try { localStorage.setItem('liwan.site-theme', next); } catch (e) {}
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', next === 'dark' ? '#17130E' : '#FBF7F1');
     repaintMermaid();

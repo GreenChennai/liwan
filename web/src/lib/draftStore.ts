@@ -9,7 +9,7 @@
  *   { id, name, content, ts }
  */
 
-const DB_NAME = 'diwan-drafts'
+const DB_NAME = 'liwan-drafts'
 const STORE_NAME = 'drafts'
 const DB_VERSION = 1
 

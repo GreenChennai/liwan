@@ -1,11 +1,11 @@
 <div align="center">
 
-<img src="brand/logo.svg" alt="Diwan" width="120" />
+<img src="brand/logo.svg" alt="Liwan" width="120" />
 
-# Diwan
+# Liwan
 
-[![CI](https://github.com/vul-os/diwan/actions/workflows/ci.yml/badge.svg)](https://github.com/vul-os/diwan/actions/workflows/ci.yml)
-[![Latest release](https://img.shields.io/github/v/release/vul-os/diwan?sort=semver&label=release)](https://github.com/vul-os/diwan/releases)
+[![CI](https://github.com/GreenChennai/liwan/actions/workflows/ci.yml/badge.svg)](https://github.com/GreenChennai/liwan/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/GreenChennai/liwan?sort=semver&label=release)](https://github.com/GreenChennai/liwan/releases)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE-MIT)
 [![Go 1.25](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go&logoColor=white)](go.mod)
 [![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](web/package.json)
@@ -22,15 +22,15 @@ No cloud account, no telemetry, no lock-in.
 
 <br/>
 
-<img src="docs/screenshots/home-light.png" alt="Diwan — documents, sheets, slides, and whiteboards in one warm, self-hosted suite" width="900" />
+<img src="docs/screenshots/home-light.png" alt="Liwan — documents, sheets, slides, and whiteboards in one warm, self-hosted suite" width="900" />
 
 </div>
 
 ---
 
-## What is Diwan?
+## What is Liwan?
 
-Diwan is a **standalone, self-hostable office suite** — documents, spreadsheets,
+Liwan is a **standalone, self-hostable office suite** — documents, spreadsheets,
 slides, and whiteboards in one clean, modern web app, shipped as a **single Go
 binary** with the entire frontend embedded. There is no cloud account to create,
 nothing phones home, and your files live in **your own storage**.
@@ -50,16 +50,16 @@ flowchart LR
     classDef entry fill:#201B15,stroke:#8E8677,color:#C3BAAC
     classDef subject fill:#AE3917,stroke:#FF8759,color:#FFF1EA
     classDef downstream fill:#2A241C,stroke:#8E8677,color:#F1EBE0
-    you["you (browser)"] -->|edits| diwan["Diwan<br/>single binary"]
+    you["you (browser)"] -->|edits| liwan["Liwan<br/>single binary"]
     peer["a collaborator"] -.->|"E2E-encrypted P2P (WebRTC)"| you
-    diwan --> store["your storage<br/>files · SQLite · Postgres · S3"]
-    diwan --> surfaces["Docs · Sheets · Slides<br/>Whiteboards · PDF signing"]
+    liwan --> store["your storage<br/>files · SQLite · Postgres · S3"]
+    liwan --> surfaces["Docs · Sheets · Slides<br/>Whiteboards · PDF signing"]
     class you,peer entry
-    class diwan subject
+    class liwan subject
     class store,surfaces downstream
 ```
 
-> *A diwan was a register of records, and a collected volume of work. This one is yours.*
+> *A liwan was a register of records, and a collected volume of work. This one is yours.*
 
 <sub>The mark is an **iwan** — the vaulted portal at the heart of Persian and Ottoman
 architecture, the arch you pass through to reach the room where the registers were
@@ -79,33 +79,33 @@ are the bars, the teal threshold is the stem.</sub>
 | ⚡ **Real-time co-editing** | **Always peer-to-peer, no central document server.** Edits sync as CRDT updates inside an **end-to-end-encrypted** room; peers connect directly over WebRTC with a **content-blind relay** only as a hard-NAT fallback. Share by invite link — the key rides the URL fragment and never reaches any server. |
 | 📄 **PDF import / export & signing** | Import and export `.docx` · `.xlsx` · `.csv` · `.pptx` · Markdown · HTML · **PDF**. View, annotate, fill AcroForm fields, and **sign** PDFs, including multi-party signing envelopes with a cryptographic audit trail. |
 | 💾 **Your own storage** | Local files + SQLite by default; optional **PostgreSQL** (schema `office`) for multi-user; optional **S3-compatible** object store. Nothing is hosted for you unless you choose it. |
-| 🔓 **No lock-in** | Open formats in and out, MIT-licensed, single self-contained binary. Every editor is also published as an npm library (the `diwan` package — `diwan/docs`, `diwan/sheets`, `diwan/slides`, `diwan/whiteboard`, `diwan/pdf`) so you can embed any surface in your own app. |
+| 🔓 **No lock-in** | Open formats in and out, MIT-licensed, single self-contained binary. Every editor is also published as an npm library (the `liwan` package — `liwan/docs`, `liwan/sheets`, `liwan/slides`, `liwan/whiteboard`, `liwan/pdf`) so you can embed any surface in your own app. |
 
-Diwan is **documents-only** by design: Docs, Sheets, Slides, Whiteboards, and
+Liwan is **documents-only** by design: Docs, Sheets, Slides, Whiteboards, and
 PDF signing. Chat, video, and mail are deliberately *not* part of it.
 
 ---
 
 ## Screenshots
 
-Diwan wears a warm, **light-first** "Workshop" identity — an ember/terracotta
+Liwan wears a warm, **light-first** "Workshop" identity — an ember/terracotta
 accent, a paper-tinted canvas, Fraunces on the page and Hanken Grotesk in the
 chrome — with a full dark theme (and *System*) one click away.
 
 |  |  |
 | :---: | :---: |
 | **Documents** — the Fraunces "paper", comments & suggestions | **Spreadsheets** — formulas, formats, charts, pivots |
-| <img src="docs/screenshots/docs-editor-light.png" alt="Diwan Documents editor" /> | <img src="docs/screenshots/sheets-editor-light.png" alt="Diwan Spreadsheets editor" /> |
+| <img src="docs/screenshots/docs-editor-light.png" alt="Liwan Documents editor" /> | <img src="docs/screenshots/sheets-editor-light.png" alt="Liwan Spreadsheets editor" /> |
 | **Slides** — masters, themes, transitions, present | **Whiteboards** — Excalidraw canvas on the P2P CRDT engine |
-| <img src="docs/screenshots/slides-editor-light.png" alt="Diwan Slides editor" /> | <img src="docs/screenshots/whiteboard-editor-light.png" alt="Diwan Whiteboard editor" /> |
+| <img src="docs/screenshots/slides-editor-light.png" alt="Liwan Slides editor" /> | <img src="docs/screenshots/whiteboard-editor-light.png" alt="Liwan Whiteboard editor" /> |
 | **Files** — your docs, sheets, slides & local drive | **Signing** — annotate & sign PDFs |
-| <img src="docs/screenshots/apphome-docs-light.png" alt="Diwan Docs file list" /> | <img src="docs/screenshots/pdf-editor-light.png" alt="Diwan PDF signing" /> |
+| <img src="docs/screenshots/apphome-docs-light.png" alt="Liwan Docs file list" /> | <img src="docs/screenshots/pdf-editor-light.png" alt="Liwan PDF signing" /> |
 
 **Light &amp; dark** — every surface ships both, light-first:
 
 |  |  |
 | :---: | :---: |
-| <img src="docs/screenshots/home-dark.png" alt="Diwan workspace, dark theme" /> | <img src="docs/screenshots/docs-editor-dark.png" alt="Diwan Documents editor, dark theme" /> |
+| <img src="docs/screenshots/home-dark.png" alt="Liwan workspace, dark theme" /> | <img src="docs/screenshots/docs-editor-dark.png" alt="Liwan Documents editor, dark theme" /> |
 
 > Regenerate anytime with `npm run screenshots` — it boots the app with seeded
 > demo data (no real backend or credentials needed) and captures every surface
@@ -115,16 +115,16 @@ chrome — with a full dark theme (and *System*) one click away.
 
 ## Quick start
 
-Diwan runs **by itself** — no account, no cloud, no external service required.
+Liwan runs **by itself** — no account, no cloud, no external service required.
 
 ### Docker (one-liner)
 
 ```bash
 docker run -d \
-  --name diwan \
+  --name liwan \
   -p 8080:8080 \
-  -v diwan-data:/srv/data \
-  ghcr.io/vul-os/diwan:latest
+  -v liwan-data:/srv/data \
+  ghcr.io/greenchennai/liwan:latest
 ```
 
 Open <http://localhost:8080>.
@@ -134,27 +134,27 @@ Open <http://localhost:8080>.
 Prerequisites: [Go 1.25+](https://golang.org/dl/) and [Node.js 18+](https://nodejs.org/) with npm.
 
 ```bash
-git clone https://github.com/vul-os/diwan.git
-cd diwan
+git clone https://github.com/GreenChennai/liwan.git
+cd liwan
 
 # Install deps and build the frontend + single binary
 npm install
 npm run build
 
 # Run — single-user, local storage, no auth, no cloud
-./diwan
+./liwan
 ```
 
 Open <http://localhost:8080>. Data lives in `./data` and `./uploads` — that's the
 whole app, in one file. The Go module and the binary it builds are named
-`diwan`; the npm package and the product are **Diwan**.
+`liwan`; the npm package and the product are **Liwan**.
 
 To require login (still fully standalone):
 
 ```bash
 # config.yaml → auth.enabled: true
-export DIWAN_JWT_SECRET="$(openssl rand -hex 32)"
-./diwan
+export LIWAN_JWT_SECRET="$(openssl rand -hex 32)"
+./liwan
 ```
 
 ### Develop
@@ -167,7 +167,7 @@ Open <http://localhost:5173>.
 
 ### Install from the Vulos app store
 
-Diwan also installs as a one-click app on a **Vulos OS** box (`DEPLOY_MODE=os`),
+Liwan also installs as a one-click app on a **Vulos OS** box (`DEPLOY_MODE=os`),
 where it runs behind the box gateway with scoped storage and single sign-on. It
 is the **same binary** — the app store just wires identity and storage for you.
 Self-hosting it yourself is always the default path, and never second-class.
@@ -194,7 +194,7 @@ flowchart TD
     class Seam,Adapter downstream
 ```
 
-Diwan is a **single Go binary with the whole frontend embedded** — one file to
+Liwan is a **single Go binary with the whole frontend embedded** — one file to
 deploy. With zero configuration it runs as a single-user, local-storage app on
 your own machine. Everything that *could* tie it to an external service lives
 behind a small set of Go interfaces in `backend/seam`; the standalone build
@@ -205,11 +205,11 @@ whiteboards sync as Yjs updates, Sheets and Slides use LWW/tree CRDTs, all insid
 an end-to-end-encrypted room whose key never reaches any server. The only server
 role is **content-blind peer discovery** — it learns *that* peers share a random
 room id, never any content — and **this binary serves that itself**, at
-`/api/rendezvous/*`, on by default. So one `diwan` on one box is all two people
+`/api/rendezvous/*`, on by default. So one `liwan` on one box is all two people
 need: **no Vulos OS, no Pier, no relay, no account, nothing to configure**. You
 *may* delegate discovery to your own `vulos-relayd` instead
 (`collab.rendezvous_url` / `VULOS_RENDEZVOUS_URL`), and it then takes precedence —
-the browser talks to that relay directly and Diwan's server is not in the
+the browser talks to that relay directly and Liwan's server is not in the
 discovery path at all. See
 [docs/COLLABORATION.md](docs/COLLABORATION.md) §3 and
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -255,7 +255,7 @@ go build ./...  &&  go test ./...  &&  go vet ./...
 
 ## Security
 
-Diwan centralises HTML sanitisation in one audited DOMPurify policy, treats CRDT
+Liwan centralises HTML sanitisation in one audited DOMPurify policy, treats CRDT
 ingress as fail-closed, gates read-only collaborators cryptographically, and
 enforces per-file ACLs when multi-user auth is on. Found a vulnerability? Please
 report it **privately** — see [SECURITY.md](SECURITY.md), [THREAT-MODEL.md](docs/THREAT-MODEL.md),
@@ -285,8 +285,8 @@ something downstream.
 
 ## License
 
-[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE) — © VulOS. Diwan is a VulOS
-project; source and issues at [github.com/vul-os/diwan](https://github.com/vul-os/diwan).
+[MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE) — © VulOS. Liwan is a VulOS
+project; source and issues at [github.com/GreenChennai/liwan](https://github.com/GreenChennai/liwan).
 
 ---
 

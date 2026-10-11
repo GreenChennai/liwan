@@ -13,8 +13,8 @@ import (
 	"sort"
 	"time"
 
-	"diwan/backend/models"
-	"diwan/backend/storage"
+	"liwan/backend/models"
+	"liwan/backend/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

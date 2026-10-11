@@ -14,11 +14,11 @@ import (
 	"sync"
 	"time"
 
-	"diwan/backend/audit"
-	"diwan/backend/billing"
-	"diwan/backend/invites"
-	"diwan/backend/middleware"
-	"diwan/backend/userauth"
+	"liwan/backend/audit"
+	"liwan/backend/billing"
+	"liwan/backend/invites"
+	"liwan/backend/middleware"
+	"liwan/backend/userauth"
 
 	"github.com/gin-gonic/gin"
 )

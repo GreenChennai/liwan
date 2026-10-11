@@ -1,19 +1,19 @@
 package main
 
-// cmd_migrate.go — `diwan migrate` subcommand.
+// cmd_migrate.go — `liwan migrate` subcommand.
 //
 // Usage:
 //
-//	diwan migrate up     — connect to the configured storage backend
+//	liwan migrate up     — connect to the configured storage backend
 //	                              and apply all schema migrations (idempotent).
-//	diwan migrate status — print which application tables are present.
+//	liwan migrate status — print which application tables are present.
 //
 // Both forms read config.yaml (same as the server). When no config is found,
 // sensible defaults are used (local sqlite storage).
 //
 // Cloud / ops usage (out-of-band, before first server boot or after an upgrade):
 //
-//	diwan migrate up
+//	liwan migrate up
 //	# → "migrate up: all postgres migrations applied"
 
 import (
@@ -23,8 +23,8 @@ import (
 	"os"
 	"sort"
 
-	"diwan/backend/config"
-	"diwan/backend/storage"
+	"liwan/backend/config"
+	"liwan/backend/storage"
 )
 
 // runMigrate is the entry point for the `migrate` subcommand.

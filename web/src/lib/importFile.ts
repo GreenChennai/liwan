@@ -3,7 +3,7 @@ import mammoth from 'mammoth'
 import type { NavigateFunction } from 'react-router-dom'
 import { api } from './api'
 import { useFilesStore } from '../store/filesStore'
-import type { DiwanFile } from '../store/filesStore'
+import type { LiwanFile } from '../store/filesStore'
 import { assertFileSize, assertArchiveBounds, ImportError } from './importBounds'
 import { importWorkbook } from '../apps/sheets/sheetsImport'
 import { csvToSheet } from '../apps/sheets/csvImport'
@@ -12,7 +12,7 @@ import { pptxToSlides, odpToSlides } from '../apps/slides/slidesImport'
 import { sanitizeObjects } from '../apps/slides/slideObjects'
 
 export type DocType = 'doc' | 'sheet' | 'slide' | 'pdf'
-type CreatedFile = DiwanFile
+type CreatedFile = LiwanFile
 
 // ── Format detection / routing ────────────────────────────────────────────────
 // Every supported inbound format maps to exactly one app. The unified Open flow

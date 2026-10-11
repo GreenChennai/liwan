@@ -11,8 +11,8 @@ import (
 	"os"
 	"sync"
 
-	"diwan/backend/models"
-	"diwan/backend/notify"
+	"liwan/backend/models"
+	"liwan/backend/notify"
 
 	"github.com/gin-gonic/gin"
 )

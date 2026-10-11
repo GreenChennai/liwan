@@ -1,4 +1,4 @@
-# Diwan — Documentation Index
+# Liwan — Documentation Index
 
 | Document | Description |
 |----------|-------------|

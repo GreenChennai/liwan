@@ -9,7 +9,7 @@ import {
   ChevronDown, BarChart2, Filter, Table2, Tag, Sliders, Keyboard, Search,
   Lock, MessageSquarePlus, X, MoreHorizontal, ListChecks, Share2, Shield,
 } from 'lucide-react'
-import { useFilesStore, getSaveState, onSaveStateChange, type DiwanFile } from '../../store/filesStore'
+import { useFilesStore, getSaveState, onSaveStateChange, type LiwanFile } from '../../store/filesStore'
 import { api } from '../../lib/api'
 import { readDraft, clearDraft, type Draft } from '../../lib/draftStore'
 import { exportSheetsToXlsx, exportSheetsToCsv, exportSheetsToOds, exportNeedsConfirm, type ExportSheet } from './sheetsExport'
@@ -469,7 +469,7 @@ export default function SheetsEditor() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { files, saveFileWithDraft, markDirty } = useFilesStore()
-  const [file, setFile] = useState<DiwanFile | undefined>(files.find((f) => f.id === id))
+  const [file, setFile] = useState<LiwanFile | undefined>(files.find((f) => f.id === id))
   const [title, setTitle] = useState(file?.name || 'Untitled Sheet')
   // Account-based sharing (named users, role-scoped, ACL-enforced).
   const [showShare, setShowShare] = useState(false)
@@ -841,7 +841,7 @@ export default function SheetsEditor() {
   useEffect(() => {
     if (!file && id) {
       api.getFile(id).then((f) => {
-        const df = f as DiwanFile
+        const df = f as LiwanFile
         setFile(df)
         setTitle(df.name)
         loadDocument(loadContent(df.content))

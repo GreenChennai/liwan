@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"diwan/backend/docindex"
-	"diwan/backend/models"
-	"diwan/backend/storage"
+	"liwan/backend/docindex"
+	"liwan/backend/models"
+	"liwan/backend/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

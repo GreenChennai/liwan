@@ -11,8 +11,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"diwan/backend/fileacl"
-	"diwan/backend/middleware"
+	"liwan/backend/fileacl"
+	"liwan/backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )

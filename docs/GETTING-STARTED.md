@@ -1,6 +1,6 @@
-# Diwan — Getting Started
+# Liwan — Getting Started
 
-This guide walks you through running Diwan for the first time, whether you want a quick local development environment or a production deployment.
+This guide walks you through running Liwan for the first time, whether you want a quick local development environment or a production deployment.
 
 ---
 
@@ -20,8 +20,8 @@ This guide walks you through running Diwan for the first time, whether you want 
 The dev server runs Vite (frontend, hot-reload) and the Go API side by side:
 
 ```bash
-git clone https://github.com/vul-os/diwan.git
-cd diwan
+git clone https://github.com/GreenChennai/liwan.git
+cd liwan
 
 npm install
 go mod tidy
@@ -43,10 +43,10 @@ Auth is **disabled** by default (`auth.enabled: false` in `config.yaml`), so no 
 # Build the frontend, then compile everything into a single Go binary
 npm ci
 npm run build:frontend
-go build -o diwan .
+go build -o liwan .
 
 # Run
-./diwan
+./liwan
 ```
 
 Open [http://localhost:8080](http://localhost:8080).
@@ -57,14 +57,14 @@ Open [http://localhost:8080](http://localhost:8080).
 
 ```sh
 docker run -d \
-  --name diwan \
+  --name liwan \
   -p 8080:8080 \
   -v office-data:/srv/data \
   -v office-uploads:/srv/uploads \
-  ghcr.io/vul-os/diwan:latest
+  ghcr.io/greenchennai/liwan:latest
 ```
 
-The image runs the server from `/srv` (see the Dockerfile), so mount `/srv/data` (SQLite stores + the JSON file/document store) and `/srv/uploads` (uploaded file staging) for persistence — both are declared `VOLUME`s in the image. Pass `-e DIWAN_JWT_SECRET=<secret>` when enabling auth.
+The image runs the server from `/srv` (see the Dockerfile), so mount `/srv/data` (SQLite stores + the JSON file/document store) and `/srv/uploads` (uploaded file staging) for persistence — both are declared `VOLUME`s in the image. Pass `-e LIWAN_JWT_SECRET=<secret>` when enabling auth.
 
 ---
 
@@ -110,7 +110,7 @@ storage:
     port: 5432
     user: "postgres"
     password: ""
-    database: "diwan"
+    database: "liwan"
     sslmode: "disable"
 ```
 
@@ -124,8 +124,8 @@ For the full environment variable and observability reference see [CONFIGURATION
 2. Click **New** to create a document, sheet, or presentation.
 3. Open a PDF to view, annotate, or set up signing.
 
-> Calendar and Contacts are no longer part of Diwan — they come through the mail
-> connector (CalDAV/CardDAV via lilmail). The Diwan sidebar deep-links to that surface.
+> Calendar and Contacts are no longer part of Liwan — they come through the mail
+> connector (CalDAV/CardDAV via lilmail). The Liwan sidebar deep-links to that surface.
 
 ---
 

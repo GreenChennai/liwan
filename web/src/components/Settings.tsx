@@ -472,7 +472,7 @@ export default function Settings() {
                   <p className="text-2xs text-ink-faint leading-relaxed">
                     Login is turned off — anyone who can reach this server has full access. This is fine for a
                     trusted local machine. To require a password, set <code className="font-mono">auth.enabled: true</code> in <Code>config.yaml</Code>,
-                    set a strong <code className="font-mono">DIWAN_JWT_SECRET</code>, and restart.
+                    set a strong <code className="font-mono">LIWAN_JWT_SECRET</code>, and restart.
                   </p>
                 </div>
               )}
@@ -568,7 +568,7 @@ export default function Settings() {
         </Card>
 
         <p className="text-center text-2xs text-ink-faint tracking-eyebrow uppercase pb-4">
-          Diwan — open-source, self-hostable office suite
+          Liwan — open-source, self-hostable office suite
           {' · '}
           <a
             href="/licenses.txt"

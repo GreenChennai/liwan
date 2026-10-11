@@ -546,7 +546,7 @@ export default function SignView() {
           .
         </p>
         <p className="mt-6 text-2xs text-ink-faint tracking-eyebrow uppercase">
-          Diwan
+          Liwan
         </p>
       </StatusFrame>
     )
@@ -783,7 +783,7 @@ export default function SignView() {
 
         {/* Quiet footer — establishes provenance without screaming */}
         <p className="text-2xs text-ink-faint text-center tracking-eyebrow uppercase pb-8">
-          Powered by Diwan
+          Powered by Liwan
         </p>
       </div>
 

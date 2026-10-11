@@ -8,11 +8,11 @@ import (
 	"testing"
 	"time"
 
-	"diwan/backend/config"
-	"diwan/backend/fileacl"
-	"diwan/backend/middleware"
-	"diwan/backend/models"
-	"diwan/backend/storage"
+	"liwan/backend/config"
+	"liwan/backend/fileacl"
+	"liwan/backend/middleware"
+	"liwan/backend/models"
+	"liwan/backend/storage"
 
 	"github.com/gin-gonic/gin"
 )

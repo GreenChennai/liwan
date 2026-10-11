@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * gen-logo-assets.mjs — rasterize the canonical Diwan mark into every PNG the
+ * gen-logo-assets.mjs — rasterize the canonical Liwan mark into every PNG the
  * repo + PWA manifest need, using headless Chromium so the output is
  * pixel-identical to what browsers render (gradients, sheen, AA).
  *
@@ -119,17 +119,17 @@ const glyphMarkup = () =>
 
 // public/logo.svg + public/favicon.svg: the bare glyph on transparency, at the
 // 64-unit viewBox the rest of this script (and the in-app Sidebar mark) uses.
-const PUBLIC_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" role="img" aria-labelledby="diwan-title">
-  <title id="diwan-title">Diwan</title>
-  <!-- The Diwan mark is an iwan: the vaulted portal at the heart of Persian and
+const PUBLIC_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" role="img" aria-labelledby="liwan-title">
+  <title id="liwan-title">Liwan</title>
+  <!-- The Liwan mark is an iwan: the vaulted portal at the heart of Persian and
        Ottoman architecture — the opening onto the room where the registers were
        kept. Turned a quarter turn clockwise, the arch's two legs become the
        bars of a D and the teal threshold becomes its stem. -->
   ${glyphMarkup()}
 </svg>
 `
-const PUBLIC_FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" role="img" aria-labelledby="diwan-title">
-  <title id="diwan-title">Diwan</title>
+const PUBLIC_FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" role="img" aria-labelledby="liwan-title">
+  <title id="liwan-title">Liwan</title>
   <!-- An iwan — the vaulted portal. A quarter turn makes it a D. -->
   ${glyphMarkup()}
 </svg>
@@ -193,7 +193,7 @@ async function shotOG(page) {
       <div class="rule"></div>
       <svg class="mark" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
         ${glyphMarkup()}</svg>
-      <h1 class="wordmark">Diwan</h1>
+      <h1 class="wordmark">Liwan</h1>
       <p class="eyebrow">Office Suite</p>
       <p class="tag">The warm, real-time office suite you own — documents, spreadsheets, slides &amp; whiteboards, one binary, your storage.</p>
     </div>
@@ -227,7 +227,7 @@ await browser.close()
 // root's docs/assets/, not a nonexistent web/docs/assets/.
 await (async () => {
   const b = await chromium.launch(); const p = await b.newPage()
-  await shotSVG(p, roundedSVG, 512, '../../docs/assets/diwan-logo.png')
+  await shotSVG(p, roundedSVG, 512, '../../docs/assets/liwan-logo.png')
   await b.close()
 })()
 console.log('Done.')

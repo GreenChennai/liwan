@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"diwan/backend/fileacl"
-	"diwan/backend/middleware"
-	"diwan/backend/models"
+	"liwan/backend/fileacl"
+	"liwan/backend/middleware"
+	"liwan/backend/models"
 
 	"github.com/gin-gonic/gin"
 )

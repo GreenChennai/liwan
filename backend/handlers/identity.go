@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"diwan/backend/middleware"
+	"liwan/backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )

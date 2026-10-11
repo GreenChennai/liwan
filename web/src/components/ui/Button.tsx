@@ -1,5 +1,5 @@
 /**
- * Button — Diwan design system
+ * Button — Liwan design system
  * ----------------------------------------------------------------------------
  * Variants:
  *   - primary      Accent (deep teal) — the one "yes" affordance per surface

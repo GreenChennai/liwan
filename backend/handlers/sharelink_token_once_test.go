@@ -16,7 +16,7 @@ import (
 	"strings"
 	"testing"
 
-	"diwan/backend/models"
+	"liwan/backend/models"
 )
 
 // TestShareLink_TokenIsReturnedOnceAndNeverListed pins the "shown once"

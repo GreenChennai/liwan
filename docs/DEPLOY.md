@@ -1,4 +1,4 @@
-# Diwan – Deployment Guide
+# Liwan – Deployment Guide
 
 ## Requirements
 
@@ -11,24 +11,24 @@
 
 ```sh
 docker run -d \
-  --name diwan \
+  --name liwan \
   -p 8080:8080 \
   -v office-data:/data \
-  ghcr.io/vul-os/diwan:latest
+  ghcr.io/greenchennai/liwan:latest
 ```
 
 ## Building from Source
 
 ```sh
-git clone https://github.com/vul-os/diwan.git
-cd diwan
+git clone https://github.com/GreenChennai/liwan.git
+cd liwan
 
 # Build frontend
 npm ci && npm run build
 
 # Build backend (no CGO required)
-CGO_ENABLED=0 go build -trimpath -o diwan .
-./diwan
+CGO_ENABLED=0 go build -trimpath -o liwan .
+./liwan
 ```
 
 ## Configuration
@@ -52,8 +52,8 @@ database:
 | Variable | Description |
 |----------|-------------|
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | OTel OTLP endpoint (optional) |
-| `DIWAN_JWT_SECRET` | HS256 signing secret (required when auth enabled) |
-| `DIWAN_REGISTRATION_TOKEN` | Static fallback registration token (optional; prefer invite tokens) |
+| `LIWAN_JWT_SECRET` | HS256 signing secret (required when auth enabled) |
+| `LIWAN_REGISTRATION_TOKEN` | Static fallback registration token (optional; prefer invite tokens) |
 | `VULOS_USERAUTH_DB` | Per-user credential SQLite DSN (default `./data/userauth.db`) |
 | `VULOS_INVITES_DB` | Invite-token SQLite DSN (default `./data/invites.db`) |
 | `VULOS_AUDIT_DB` | Append-only audit-log SQLite DSN (default `./data/audit.db`) |
@@ -65,7 +65,7 @@ database:
   users are registered, the instance is in OSS single-user mode and the legacy
   shared `auth.password` still authenticates.
 - **Registration** on a bootstrapped instance (≥1 user) requires authorization:
-  an admin JWT, the static `DIWAN_REGISTRATION_TOKEN`, **or** a
+  an admin JWT, the static `LIWAN_REGISTRATION_TOKEN`, **or** a
   single-use/expiring **invite token** minted by an admin
   (`POST /api/admin/invites`, or the Admin Console UI). Invite tokens are stored
   hashed; the raw token is shown once at mint time.
@@ -74,7 +74,7 @@ database:
 
 ## Observability
 
-- `GET /metrics` — Prometheus `diwan_*` metrics.
+- `GET /metrics` — Prometheus `liwan_*` metrics.
 - OTel traces when `OTEL_EXPORTER_OTLP_ENDPOINT` is set.
 
 ## Upgrading
@@ -93,10 +93,10 @@ to seed the first per-user credential from your existing shared password:
 
 ```bash
 # Uses auth.password from config.yaml unless -password is given.
-./diwan migrate-credential -admin you@vulos.org
+./liwan migrate-credential -admin you@vulos.org
 
 # Or pass an explicit password / DB path:
-./diwan migrate-credential -admin you@vulos.org -password 's3cret' -db /data/userauth.db
+./liwan migrate-credential -admin you@vulos.org -password 's3cret' -db /data/userauth.db
 ```
 
 The command is **idempotent** — it is a no-op once any user exists, so it is

@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"diwan/backend/fileacl"
+	"liwan/backend/fileacl"
 )
 
 func runStoreContract(t *testing.T, s fileacl.Store) {

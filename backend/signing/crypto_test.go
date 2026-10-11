@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"diwan/backend/signing"
+	"liwan/backend/signing"
 )
 
 // setupKey initialises (or reuses) the in-memory dev key for each test.

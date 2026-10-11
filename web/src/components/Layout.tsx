@@ -33,11 +33,11 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
 import { useFilesStore } from '../store/filesStore'
-import type { DiwanFile } from '../store/filesStore'
+import type { LiwanFile } from '../store/filesStore'
 import { useNotificationsStore } from '../store/notificationsStore'
 import NewFileModal from './NewFileModal'
 import NotificationsPanel from './NotificationsPanel'
-import { Sidebar, IconButton, Tooltip, ThemeSwitch, DiwanMark } from './ui'
+import { Sidebar, IconButton, Tooltip, ThemeSwitch, LiwanMark } from './ui'
 import type { SidebarMode } from './ui/Sidebar'
 
 interface NavApp {
@@ -97,11 +97,11 @@ function SidebarContent({ collapsed, onNavigate, onNewFile, onSetMode }: Sidebar
 
   const recentFiles = files.slice(0, 5)
   const TYPE_ROUTE: Record<string, string> = { doc: 'docs', sheet: 'sheets', slide: 'slides', whiteboard: 'whiteboards' }
-  const typeRoute = (f: DiwanFile) => `/${TYPE_ROUTE[f.type] || 'docs'}/${f.id}`
+  const typeRoute = (f: LiwanFile) => `/${TYPE_ROUTE[f.type] || 'docs'}/${f.id}`
 
   return (
     <>
-      <Sidebar.Brand name="Diwan" onSetMode={onSetMode} />
+      <Sidebar.Brand name="Liwan" onSetMode={onSetMode} />
 
       <Sidebar.Section>
         {/* "New" is the only emphatic button in the rail — primary accent. */}
@@ -211,7 +211,7 @@ function SidebarContent({ collapsed, onNavigate, onNewFile, onSetMode }: Sidebar
   )
 }
 
-const SIDEBAR_KEY = 'diwan.sidebar'
+const SIDEBAR_KEY = 'liwan.sidebar'
 const SIDEBAR_MODES: SidebarMode[] = ['expanded', 'mini', 'hidden']
 
 function Shell({ children }: { children?: ReactNode }) {
@@ -294,8 +294,8 @@ function Shell({ children }: { children?: ReactNode }) {
           <IconButton size="md" onClick={() => setMobileOpen(true)} title="Open navigation">
             <Menu size={18} />
           </IconButton>
-          <DiwanMark size={26} />
-          <span className="font-display text-[18px] font-bold tracking-display text-ink leading-none">Diwan</span>
+          <LiwanMark size={26} />
+          <span className="font-display text-[18px] font-bold tracking-display text-ink leading-none">Liwan</span>
         </header>
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">{children}</div>
       </main>

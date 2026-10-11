@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"diwan/backend/obs"
+	"liwan/backend/obs"
 	dto "github.com/prometheus/client_model/go"
 )
 

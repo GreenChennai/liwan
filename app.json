@@ -1,6 +1,6 @@
 {
-  "id": "diwan",
-  "name": "Diwan",
+  "id": "liwan",
+  "name": "Liwan",
   "icon": "📄",
   "description": "Documents, spreadsheets, slides, and PDF with server-side persistence",
   "version": "1.0.0",

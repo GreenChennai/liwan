@@ -21,7 +21,7 @@ import {
   ChevronDown as ChevronDownIcon, Type as TypeIcon, LayoutGrid, X, Square, Share2,
 } from 'lucide-react'
 import { sanitizeSlideHtml as sanitize } from '../../lib/sanitize'
-import { useFilesStore, type DiwanFile } from '../../store/filesStore'
+import { useFilesStore, type LiwanFile } from '../../store/filesStore'
 import { api } from '../../lib/api'
 import SlidePreview from './SlidePreview'
 import { exportSlidesToPdf, exportSlidesToPptx } from './slidesExport'
@@ -288,7 +288,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
   const navigate = useNavigate()
   const { files, updateFile } = useFilesStore()
   const stored = files.find((f) => f.id === id)
-  const [file, setFile] = useState<DiwanFile | undefined>(stored)
+  const [file, setFile] = useState<LiwanFile | undefined>(stored)
 
   const fileContent = file?.content as DeckData | undefined
   const defaultData: DeckData = fileContent && fileContent.slides
@@ -411,7 +411,7 @@ export default function SlidesEditor(_props: SlidesEditorProps) {
   // ── Load file ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!file && id) {
-      (api.getFile(id) as Promise<DiwanFile>).then((f) => {
+      (api.getFile(id) as Promise<LiwanFile>).then((f) => {
         setFile(f)
         setTitle(f.name)
         const content = f.content as DeckData | undefined

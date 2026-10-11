@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"diwan/backend/config"
-	"diwan/backend/models"
+	"liwan/backend/config"
+	"liwan/backend/models"
 )
 
 // ErrRevConflict is returned by UpdateFile when the caller supplied a stale rev

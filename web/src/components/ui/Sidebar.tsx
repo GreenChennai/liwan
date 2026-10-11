@@ -1,9 +1,9 @@
 /**
- * Sidebar primitives — Diwan's warm vertical app rail (sand chrome on ivory).
+ * Sidebar primitives — Liwan's warm vertical app rail (sand chrome on ivory).
  *
  * Pieces:
  *   - <Sidebar>             root container; manages width (collapsed/expanded)
- *   - <Sidebar.Brand>       Diwan mark + serif wordmark (fades collapsed)
+ *   - <Sidebar.Brand>       Liwan mark + serif wordmark (fades collapsed)
  *   - <Sidebar.Section>     labelled group; mono uppercase label, hides collapsed
  *   - <Sidebar.Item>        nav row; ember left-rail + calm tint when active,
  *                           optional per-app icon tint at rest
@@ -29,7 +29,7 @@ export type SidebarMode = 'expanded' | 'mini' | 'hidden'
 const SidebarCtx = createContext<{ collapsed: boolean }>({ collapsed: false })
 
 /**
- * DiwanMark — the brand glyph: an **iwan**, the vaulted portal at the heart of
+ * LiwanMark — the brand glyph: an **iwan**, the vaulted portal at the heart of
  * Persian and Ottoman architecture — the opening onto the room where the
  * registers were kept.  Turned a quarter turn clockwise the arch's two legs
  * become the bars of a D and the teal threshold becomes its stem.
@@ -40,12 +40,12 @@ const SidebarCtx = createContext<{ collapsed: boolean }>({ collapsed: false })
  * Self-contained inline SVG (no asset request), so it's crisp at any size.
  * Reused by the rail brand + the mobile header + the login screen.
  */
-interface DiwanMarkProps {
+interface LiwanMarkProps {
   size?: number
   className?: string
 }
 
-export function DiwanMark({ size = 32, className = '' }: DiwanMarkProps) {
+export function LiwanMark({ size = 32, className = '' }: LiwanMarkProps) {
   return (
     <svg
       width={size}
@@ -113,7 +113,7 @@ interface SidebarBrandProps {
   onSetMode?: ((mode: SidebarMode) => void) | undefined
 }
 
-function SidebarBrand({ name = 'Diwan', onSetMode }: SidebarBrandProps) {
+function SidebarBrand({ name = 'Liwan', onSetMode }: SidebarBrandProps) {
   const { collapsed } = useContext(SidebarCtx)
 
   const ctrlBtn =
@@ -125,7 +125,7 @@ function SidebarBrand({ name = 'Diwan', onSetMode }: SidebarBrandProps) {
     // Mini rail: mark on top, then two stacked controls (expand / hide).
     return (
       <div className="flex flex-col items-center gap-1.5 pt-2.5 pb-2 border-b border-line flex-shrink-0">
-        <DiwanMark size={28} className="flex-shrink-0" />
+        <LiwanMark size={28} className="flex-shrink-0" />
         {onSetMode && (
           <div className="flex flex-col items-center gap-0.5">
             <button type="button" title="Expand sidebar" aria-label="Expand sidebar"
@@ -144,7 +144,7 @@ function SidebarBrand({ name = 'Diwan', onSetMode }: SidebarBrandProps) {
 
   return (
     <div className="flex items-center gap-2.5 h-14 px-4 border-b border-line flex-shrink-0">
-      <DiwanMark size={30} className="flex-shrink-0" />
+      <LiwanMark size={30} className="flex-shrink-0" />
       <div className="flex flex-col min-w-0">
         <span className="font-display text-[20px] font-bold tracking-display text-ink truncate leading-none">
           {name}

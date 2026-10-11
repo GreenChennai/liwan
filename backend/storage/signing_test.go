@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"diwan/backend/config"
-	"diwan/backend/models"
-	"diwan/backend/storage"
+	"liwan/backend/config"
+	"liwan/backend/models"
+	"liwan/backend/storage"
 )
 
 func newTestLocalStorage(t *testing.T) storage.Storage {

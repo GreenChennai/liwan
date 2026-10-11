@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"diwan/backend/audit"
-	"diwan/backend/billing"
-	"diwan/backend/fileacl"
-	"diwan/backend/models"
-	"diwan/backend/storage"
+	"liwan/backend/audit"
+	"liwan/backend/billing"
+	"liwan/backend/fileacl"
+	"liwan/backend/models"
+	"liwan/backend/storage"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

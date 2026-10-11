@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"diwan/backend/seam"
+	"liwan/backend/seam"
 )
 
 // With no cloud env set, the adapter must report disabled so the caller stays

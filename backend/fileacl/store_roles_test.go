@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"diwan/backend/fileacl"
+	"liwan/backend/fileacl"
 )
 
 // TestNormalizeRole pins the share-API role vocabulary onto the canonical

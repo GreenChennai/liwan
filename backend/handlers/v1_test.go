@@ -9,10 +9,10 @@ import (
 	"strings"
 	"testing"
 
-	"diwan/backend/audit"
-	"diwan/backend/directory"
-	"diwan/backend/fileacl"
-	"diwan/backend/middleware"
+	"liwan/backend/audit"
+	"liwan/backend/directory"
+	"liwan/backend/fileacl"
+	"liwan/backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )

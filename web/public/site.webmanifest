@@ -1,7 +1,7 @@
 {
-  "name": "Diwan",
-  "short_name": "Diwan",
-  "description": "Diwan — a warm, real-time collaborative office suite: documents, spreadsheets, slides and whiteboards.",
+  "name": "Liwan",
+  "short_name": "Liwan",
+  "description": "Liwan — a warm, real-time collaborative office suite: documents, spreadsheets, slides and whiteboards.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FBF7F1",
